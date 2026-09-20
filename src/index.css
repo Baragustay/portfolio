@@ -1,0 +1,145 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/800.css";
+@import "@fontsource/press-start-2p/400.css";
+
+/* Brand palette (updated 2026-09-18): white, a light lavender-grey accent,
+   dark ink. Pink and green are retired. The accent started as a dusty rose
+   (#e1b8ba) and was swapped to this cooler tone same-day ("doesn't look
+   good"). Registered under `@theme` (not plain `:root`) so `bg-accent`,
+   `text-ink/40`, `ring-accent-soft`, etc. become real Tailwind utilities
+   with opacity-modifier support — the previous palette lived in plain
+   `:root` and was never actually wired into class generation, so every
+   `pink-*`/`emerald-*` class across the site was silently falling back to
+   Tailwind's stock swatches instead of the intended brand colors. */
+@theme {
+  --color-ink: #1d2b2b;
+  --color-accent: #dedade;
+  --color-accent-soft: #efedef;
+  /* Hover-only highlight for the grid-hover background effect (light
+     sections) — reuses the original dusty-rose accent value from before
+     it was swapped to the cooler `--color-accent` above, rather than
+     inventing a third pink. */
+  --color-hover-pink: #e1b8ba;
+  /* Pantone Color of the Year 2026, "Cloud Dancer" (PANTONE 11-4201,
+     RGB 240/238/233) — overrides Tailwind's built-in `white` theme value,
+     so every `bg-white`/`text-white`/`ring-white/X` etc. across the whole
+     site picks it up automatically instead of pure #fff. It's a warm/cool
+     balanced off-white (Pantone's first true white ever chosen for this),
+     not a bold color — the visual change is subtle by design, not a
+     dramatic repaint. No official companion palette was released
+     alongside it, just this single color. */
+  --color-white: #f0eee9;
+
+  /* Section palette (2026-09-18): one pastel per major site section,
+     originally given as an exact 6-color set (Hero, Work, Game, Code,
+     About, Contact) — applied "however you see fit." The Hero section
+     (and its `--color-cream`) was later retired along with the old
+     single-page homepage, leaving 5. All are light, so every section
+     uses dark ink text — the earlier dark/`bg-ink`+white-text treatment
+     on Work, Code, and Contact was dropped in favor of this, rather
+     than mixing light and dark sections again. `--color-accent`/
+     `--color-accent-soft` above are still used for smaller accents
+     (buttons, chips, the grid-hover effect), not retired. */
+  --color-mist: #d5d5d7; /* Work */
+  --color-blush: #e8d9dc; /* was Game (Catch a Fact) bg, now unused there — see color-game-dark */
+  --color-sky: #d7e4f0; /* Code (Dev Projects) */
+  --color-peach: #ecdace; /* About */
+  --color-sage: #cbd3c2; /* Contact */
+
+  /* Per-tile override on the homepage bento grid for the game tile
+     specifically, rather than the rotating pastel set above — it's
+     dark, so anything placed on it needs light text, not the site's
+     usual dark `ink` text. (A `--color-piggy` override for the Piggy
+     Bank tile existed alongside this too, but that tile moved to the
+     same flat `--color-textbox` every other text tile uses, so it was
+     removed as dead.) */
+  --color-game-dark: #231c3b; /* Catch a Fact game bento tile */
+
+  /* Website background, a specific near-black hex — kept as its own
+     token rather than repurposing `--color-white` above, since that
+     token is reused all over the site for light UI surfaces (buttons,
+     the open-arrow circle, the game embed's own white background) that
+     would otherwise turn near-black too. */
+  --color-page-bg: #171716;
+
+  /* Global top StatusBar background — its own token rather than
+     reusing `--color-page-bg` or `--color-ink`, since it's a distinct
+     dark brown/charcoal, not quite either. */
+  --color-statusbar: #292622;
+
+  /* Bento grid text-only tiles' flat background. Replaces the rotating
+     pastel set (`--color-mist`/`sky`/`blush`/`peach`/`sage`) and the
+     Piggy Bank tile's custom lavender for every `TextCell` — one flat
+     dark color across all of them now, not a per-tile rotation. Kept as
+     its own token distinct from `--color-statusbar` even though the
+     hex values are one digit apart. */
+  --color-textbox: #282622;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  /* Stops the whole page from rubber-band bouncing past its scroll
+     limits (trackpad/touch overscroll) — without this, bouncing past the
+     homepage bento grid's independently-scrolling column revealed the
+     body's own light background behind the dark homepage, a jarring
+     white flash. Belt-and-suspenders with `overscroll-y-contain` on
+     Home.tsx's own scroll container (see project memory
+     `portfolio-v2-work-section`). */
+  overscroll-behavior-y: none;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+
+/* General headlines. Went through a few rounds: Archivo Black, then
+   Merriweather Sans, before settling on "remove the Merriweather font,
+   use the same font for headlines as for body, just larger and bolder"
+   — so this is deliberately the *same* `Inter` family as `body` above,
+   not a distinct headline typeface; the visual weight comes entirely
+   from `font-weight: 800` here plus each headline's own larger text-size
+   utility class in JSX (`text-4xl`, `text-5xl`, etc.), not from swapping
+   fonts. `.font-pixel` (Press Start 2P) is reserved for pixel-art
+   moments (the "GAME TIME" headline, the 404/privacy page labels) —
+   every other headline on the site uses this. */
+.font-display {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+}
+
+.font-pixel {
+  font-family: 'Press Start 2P', 'Inter', system-ui, sans-serif;
+}
+
+/* Hard on/off blink (no fade — `steps(1)` snaps between states) for the
+   pixel arrow pointing at the "Catch a Fact" game — a smooth CSS
+   transition/fade would read as a normal UI hover effect; a hard blink
+   reads as retro/8-bit, matching the game's own pixel-font look. */
+@keyframes pixel-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0; }
+}
+
+.animate-pixel-blink {
+  animation: pixel-blink 1.1s steps(1) infinite;
+}
+
+/* Hides the native scrollbar on the case study horizontal scroll strip
+   while keeping it scrollable (wheel/trackpad/touch/drag all still work). */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
