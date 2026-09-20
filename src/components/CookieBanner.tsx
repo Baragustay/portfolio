@@ -43,7 +43,7 @@ export default function CookieBanner() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-[80] flex justify-center px-4 pb-4 sm:px-6 sm:pb-6">
       <div className="flex w-full max-w-4xl flex-col items-center gap-6 rounded-3xl bg-hover-pink p-7 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.55)] ring-1 ring-ink/10 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
-        <PixelCookie className="h-16 w-16 shrink-0 text-ink sm:h-20 sm:w-20" />
+        <PixelCookie className="h-16 w-16 shrink-0 sm:h-20 sm:w-20" />
         <p className="text-lg leading-relaxed text-ink sm:text-xl">
           This site uses cookies for basic visit analytics. You can accept or reject them, and change
           your mind any time via{' '}
