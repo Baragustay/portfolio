@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import StatusBar from './components/StatusBar'
 import CookieBanner from './components/CookieBanner'
 import Home from './pages/Home'
@@ -8,9 +9,24 @@ import CodePage from './pages/CodePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import NotFoundPage from './pages/NotFoundPage'
 
+// React Router doesn't reset scroll position on navigation — without
+// this, clicking a link while scrolled down (e.g. the footer's
+// "Privacy Policy" link from the bottom of a long page) lands on the
+// new page at that same scroll depth instead of its top.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
+  return null
+}
+
 function App() {
   return (
     <>
+      <ScrollToTop />
       {/* Rendered once, above every route — see StatusBar.tsx. Every
           other fixed-position element (Navbar's pill/back-arrow, the
           homepage Sidebar) and every page's top padding is offset by its
