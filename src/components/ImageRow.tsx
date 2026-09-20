@@ -84,6 +84,8 @@ export default function ImageRow({
           key={src}
           src={src}
           alt={alt}
+          loading="lazy"
+          decoding="async"
           style={{ height, width: ratios ? height * ratios[i] : undefined }}
           className="block max-w-full"
         />

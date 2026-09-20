@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { workItems, type CaseStudyTile, type VideoTile } from '../data/workItems'
@@ -95,6 +95,8 @@ function ImageCell({ src, alt, to }: { src: string; alt: string; to: string }) {
       <img
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         className="h-full w-full scale-125 object-cover transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-100"
       />
       {/* Warm-brown tint over every thumbnail (not just the brightest
@@ -206,7 +208,12 @@ function VideoSquare({
     videoRef.current = el
     setMutedAttribute(el)
   }
-  useEffect(tryPlay, [])
+  // No mount-time `tryPlay` (and no `autoPlay`/`preload="auto"` below) —
+  // these tiles sit further down the homepage, so downloading and
+  // decoding ~450KB of video immediately on every load, whether or not
+  // it's ever scrolled to, was hurting mobile load time. `onViewportEnter`
+  // (below) already fires once the tile is actually visible, including
+  // on mount if it happens to start in view.
 
   return (
     <motion.button
@@ -236,11 +243,10 @@ function VideoSquare({
         ref={setVideoRef}
         className="absolute inset-0 z-10 h-full w-full rounded-2xl object-cover shadow-[0_12px_20px_-6px_rgba(74,46,20,0.5)] transition-transform duration-500 ease-in-out group-hover:translate-y-[35%]"
         src={item.videoSrc}
-        autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         onLoadedData={tryPlay}
         onCanPlay={tryPlay}
       />
