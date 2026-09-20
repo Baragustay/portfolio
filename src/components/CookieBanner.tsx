@@ -42,28 +42,28 @@ export default function CookieBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[80] flex justify-center px-4 pb-4 sm:px-6 sm:pb-6">
-      <div className="flex w-full max-w-3xl flex-col items-center gap-5 rounded-3xl bg-statusbar p-6 text-white shadow-[0_16px_48px_rgba(0,0,0,0.45)] ring-1 ring-hover-pink/30 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
-        <PixelCookie className="h-14 w-14 shrink-0 text-hover-pink sm:h-16 sm:w-16" />
-        <p className="text-base leading-relaxed text-white/85 sm:text-lg">
+      <div className="flex w-full max-w-4xl flex-col items-center gap-6 rounded-3xl bg-hover-pink p-7 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.55)] ring-1 ring-ink/10 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
+        <PixelCookie className="h-16 w-16 shrink-0 text-ink sm:h-20 sm:w-20" />
+        <p className="text-lg leading-relaxed text-ink sm:text-xl">
           This site uses cookies for basic visit analytics. You can accept or reject them, and change
           your mind any time via{' '}
-          <Link to="/privacy" className="font-semibold text-hover-pink underline underline-offset-2 hover:text-white">
+          <Link to="/privacy" className="font-bold text-ink underline underline-offset-2 hover:text-ink/70">
             Privacy Policy
           </Link>
           .
         </p>
-        <div className="flex w-full shrink-0 items-center gap-3 sm:w-auto">
+        <div className="flex w-full shrink-0 items-center gap-4 sm:w-auto">
           <button
             type="button"
             onClick={() => choose('rejected')}
-            className="flex-1 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10 sm:flex-none"
+            className="flex-1 rounded-full border-2 border-ink/40 px-6 py-4 text-base font-semibold text-ink transition-colors hover:bg-ink/10 sm:flex-none"
           >
             Reject
           </button>
           <button
             type="button"
             onClick={() => choose('accepted')}
-            className="flex-1 rounded-full bg-hover-pink px-6 py-3 text-sm font-bold text-ink transition-transform hover:scale-105 sm:flex-none"
+            className="flex-1 rounded-full bg-ink px-7 py-4 text-base font-bold text-hover-pink transition-transform hover:scale-105 sm:flex-none"
           >
             Accept
           </button>
