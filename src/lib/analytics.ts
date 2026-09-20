@@ -2,7 +2,7 @@
 // Analytics → Admin → Data Streams → your stream → Measurement ID,
 // looks like "G-XXXXXXXXXX"). Everything in this file is a no-op until
 // this is set — no script gets injected, nothing gets tracked.
-export const GA_MEASUREMENT_ID = ''
+export const GA_MEASUREMENT_ID = 'G-7PB4GNGFTG'
 
 declare global {
   interface Window {
