@@ -18,7 +18,13 @@
       property="og:description"
       content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
     />
-    <meta property="og:image" content="https://barboragustafsson.com/about/headshot.webp" />
+    <!-- Not the same file the About page uses (`headshot.webp`) — that's
+         a full-body 576x1024 portrait, and social platforms crop
+         og:image into a landscape thumbnail with no smart/face-aware
+         cropping, so it centered on the torso instead of the face.
+         `headshot-social.webp` is a pre-cropped head/shoulders version
+         of the same photo, made specifically for this. -->
+    <meta property="og:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Barbora Gustafsson - UX & Product Designer" />
@@ -26,7 +32,7 @@
       name="twitter:description"
       content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
     />
-    <meta name="twitter:image" content="https://barboragustafsson.com/about/headshot.webp" />
+    <meta name="twitter:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
 
     <!-- The homepage's first case study tile (Piggy Bank) is the LCP
          candidate on wide viewports. This is a client-rendered app, so
