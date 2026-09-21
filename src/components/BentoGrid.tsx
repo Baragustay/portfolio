@@ -89,14 +89,30 @@ function PairCard({ children }: { children: React.ReactNode }) {
 // uncovering the frame). Driven by `PairCard`'s `group/card` rather than
 // its own local hover state, so moving onto the text half of the pair
 // starts the animation too.
-function ImageCell({ src, alt, to }: { src: string; alt: string; to: string }) {
+function ImageCell({
+  src,
+  alt,
+  to,
+  priority = false,
+}: {
+  src: string
+  alt: string
+  to: string
+  priority?: boolean
+}) {
   return (
     <Link to={to} className="relative block h-[545px] overflow-hidden">
       <img
         src={src}
         alt={alt}
-        loading="lazy"
+        // The first case study tile is the largest above-the-fold image
+        // on the homepage (i.e. the LCP candidate on wide viewports) —
+        // lazy-loading it, like every other tile, delayed its own
+        // discovery and hurt LCP. It loads eagerly and at high priority;
+        // everything else stays lazy.
+        loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        fetchPriority={priority ? 'high' : undefined}
         className="h-full w-full scale-125 object-cover transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-100"
       />
       {/* Warm-brown tint over every thumbnail (not just the brightest
@@ -156,10 +172,10 @@ function TextCell({
   )
 }
 
-function CaseStudyPair({ item }: { item: CaseStudyTile }) {
+function CaseStudyPair({ item, priority = false }: { item: CaseStudyTile; priority?: boolean }) {
   return (
     <PairCard>
-      <ImageCell src={item.image} alt={item.title} to={`/work/${item.slug}`} />
+      <ImageCell src={item.image} alt={item.title} to={`/work/${item.slug}`} priority={priority} />
       <TextCell
         title={item.title}
         goal={item.goal}
@@ -327,7 +343,7 @@ export default function BentoGrid() {
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 p-6 min-[690px]:grid-cols-2 md:gap-6 md:p-10">
-      <CaseStudyPair item={caseStudies[0]} />
+      <CaseStudyPair item={caseStudies[0]} priority />
       <CaseStudyPair item={caseStudies[1]} />
 
       <GameCell />

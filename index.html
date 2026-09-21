@@ -27,6 +27,14 @@
       content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
     />
     <meta name="twitter:image" content="https://barboragustafsson.com/about/headshot.webp" />
+
+    <!-- The homepage's first case study tile (Piggy Bank) is the LCP
+         candidate on wide viewports. This is a client-rendered app, so
+         without this hint the browser can't discover/start fetching it
+         until React actually renders — this lets it start immediately
+         from the raw HTML instead. Keep this in sync with
+         `workItems.ts`'s first case study's `image` field. -->
+    <link rel="preload" as="image" href="/work/images/piggy-bank-thumb.webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
