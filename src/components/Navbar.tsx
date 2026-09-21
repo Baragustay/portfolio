@@ -100,6 +100,17 @@ export default function Navbar() {
               padding are also tightened below `sm`. */}
           <Link
             to="/"
+            // A `Link` to the current URL doesn't trigger navigation (no
+            // route change), so on the homepage itself this otherwise
+            // did nothing — including skipping `ScrollToTop` (App.tsx),
+            // which only runs on an actual pathname change. Scroll to
+            // top directly in that case instead.
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
             className="font-pixel relative z-10 pl-2 text-sm uppercase tracking-wide text-ink sm:pl-3"
           >
             Barbora

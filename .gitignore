@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local debug screenshots shared during development, not project assets
+/screenshots
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

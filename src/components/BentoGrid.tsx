@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { workItems, type CaseStudyTile, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
 import GameControls from './GameControls'
-import GameEmbed from './GameEmbed'
+import GameEmbed, { GAME_URL } from './GameEmbed'
 import VideoLightbox from './VideoLightbox'
 import { setMutedAttribute } from '../lib/video'
 
@@ -279,8 +279,8 @@ function VideoSquare({
 // side by side without cramping.
 function GameCell() {
   return (
-    <div className="min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark ring-1 ring-white/10 lg:flex-row lg:items-center">
-      <div className="order-2 flex-1 p-8 text-center lg:order-1 lg:text-left">
+    <div className="min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark ring-1 ring-white/10 xl:flex-row xl:items-center">
+      <div className="order-1 flex-1 p-8 text-center xl:text-left">
         <h2 className="font-pixel text-5xl uppercase tracking-widest text-hover-pink">Game Time!</h2>
         {/* Same headline size as every other tile (`TextCell`,
             `VideoSquare`: `font-display text-2xl leading-tight`). */}
@@ -290,13 +290,13 @@ function GameCell() {
         {/* Blocky pixel arrow (not a hand-drawn doodle) with a hard
             on/off blink, matching the game's own 8-bit look. Points
             right, toward the game embed at this breakpoint. */}
-        <div className="mt-8 hidden items-center justify-center gap-3 lg:flex lg:justify-start">
+        <div className="mt-8 hidden items-center justify-center gap-3 xl:flex xl:justify-start">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-hover-pink">Play now</p>
           <PixelArrow className="animate-pixel-blink h-12 w-24 text-hover-pink" />
         </div>
         {/* `GameControls` (the ← → / Space keycap visual) sits right
             after as a visual reinforcement of the same instruction. */}
-        <div className="mt-5 hidden flex-col items-start gap-2 lg:flex">
+        <div className="mt-5 hidden flex-col items-start gap-2 xl:flex">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-hover-pink">
             Click the game to start playing
           </p>
@@ -304,18 +304,33 @@ function GameCell() {
             Arrows to move, Space to jump and catch
           </p>
         </div>
-        <div className="mt-4 hidden lg:flex">
+        <div className="mt-4 hidden xl:flex">
           <GameControls />
         </div>
+        {/* The embed is squeezed pretty tight inside a grid tile,
+            especially on narrow phones — an escape hatch to open it at
+            full size in its own tab/window instead. Lives in the text
+            panel (not below the iframe) since the iframe's own internal
+            layout leaves a variable amount of blank space at its bottom
+            depending on content height, which made anything placed
+            right after it look randomly disconnected. */}
+        <a
+          href={GAME_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-pixel mt-6 inline-block text-xs uppercase tracking-widest text-hover-pink underline underline-offset-2 hover:text-white"
+        >
+          Play game in a new window
+        </a>
       </div>
       {/* No padding here — the iframe sits flush against the card's edge
           so the parent's `overflow-hidden` clips its square corners into
           the card's own rounded top-right/bottom-right corners instead of
-          floating inside a padded box. At `lg`+ this renders at its full
+          floating inside a padded box. At `xl`+ this renders at its full
           480×700; below that (see GameEmbed.tsx) it shrinks to fit the
           available width, proportionally, so it's still actually
           playable on a phone.
-          `lg:w-[480px]` (a fixed width, not `lg:w-auto`) is required
+          `xl:w-[480px]` (a fixed width, not `xl:w-auto`) is required
           here, not cosmetic — GameEmbed's `<iframe>` has no `width`/
           `height` HTML attributes (removed for the mobile-shrink fix),
           so its CSS `w-full` needs a parent with a *real* resolved
@@ -323,8 +338,14 @@ function GameCell() {
           resolve against, so the browser fell back to the default
           replaced-element iframe size (~300×150) — measured this
           directly (client rect was 300×437.5, not 480×700) rather than
-          guessing. */}
-      <div className="order-1 w-full max-w-[480px] shrink-0 lg:order-2 lg:w-[480px] lg:max-w-none">
+          guessing.
+          The row layout itself only kicks in at `xl` (1280px), not the
+          more common `lg` (1024px) — at 1024–1280px there wasn't enough
+          room for the 480px-wide game plus a readable text column
+          side by side without both feeling cramped, so it stays stacked
+          (full-width text above, full-width game below) until there's
+          genuinely enough width for both. */}
+      <div className="order-2 w-full max-w-[480px] shrink-0 xl:w-[480px] xl:max-w-none">
         <GameEmbed className="mx-auto block aspect-[480/700] w-full max-w-[480px] bg-white" />
       </div>
     </div>
