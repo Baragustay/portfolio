@@ -187,9 +187,17 @@ export default function PixelReveal({
       {children}
       {!done && <canvas ref={canvasRef} aria-hidden className="pointer-events-none absolute inset-0" />}
       {!done && label && (
+        // Anchored to the top of this container (the bento grid), not
+        // stretched across its full height — the grid runs to several
+        // times a screen's height, so centering across all of `inset-0`
+        // would drift the label down into the middle of that tall
+        // content instead of showing where the grid actually starts.
+        // Previously `fixed inset-0` (viewport-relative) instead, which
+        // overlapped the hero section above the grid on mobile, where
+        // the grid starts well below the top of the viewport.
         <div
           aria-hidden
-          className={`pointer-events-none fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-300 ${
+          className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-screen items-center justify-center transition-opacity duration-300 ${
             revealStarted ? 'opacity-0' : 'opacity-100'
           }`}
         >
