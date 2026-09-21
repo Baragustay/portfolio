@@ -60,6 +60,7 @@ export default function Home() {
         onWheel={(e) => {
           if (scrollRef.current) scrollRef.current.scrollTop += e.deltaY
         }}
+        scrollContainerRef={scrollRef}
       />
       <main className="lg:ml-[280px] xl:ml-[320px]">
         {/* Entrance sequencing: sidebar fades/slides in first (see

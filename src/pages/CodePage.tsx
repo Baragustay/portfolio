@@ -66,7 +66,21 @@ function ColorWave({ color }: { color: string }) {
 // absolute-positioned full-bleed backdrop with text overlaid) — masonry
 // needs each tile's own natural height to vary, which an absolutely
 // positioned backdrop (sized only by its parent) can't drive on its own.
-function TileBanner({ project, aspect }: { project: (typeof devProjects)[number]; aspect: number }) {
+function TileBanner({
+  project,
+  aspect,
+  priority,
+}: {
+  project: (typeof devProjects)[number]
+  aspect: number
+  // First row's worth of tiles (4, matching the `xl:columns-4` masonry
+  // width) load eagerly — everything else is `loading="lazy"`, since
+  // this whole grid sits inside a `PixelReveal` (see CodePage's default
+  // export) that gates its reveal on every non-lazy `<img>` finishing
+  // load. Without this, tiles well below the fold would delay the
+  // entrance for content nobody's scrolled to yet.
+  priority: boolean
+}) {
   const photoUrl = PROJECT_IMAGES[project.id]
 
   return (
@@ -76,6 +90,8 @@ function TileBanner({ project, aspect }: { project: (typeof devProjects)[number]
           <img
             src={photoUrl}
             alt=""
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {/* Same warm-brown tint (and hover-fade behavior) as the
@@ -123,7 +139,7 @@ export default function CodePage() {
             }}
             className="group relative mb-6 block w-full cursor-pointer overflow-hidden rounded-3xl break-inside-avoid bg-textbox"
           >
-            <TileBanner project={project} aspect={aspect} />
+            <TileBanner project={project} aspect={aspect} priority={i < 4} />
             <div className="p-5">
               <div className="flex items-center gap-2">
                 <span

@@ -1,6 +1,6 @@
-import type { WheelEventHandler } from 'react'
+import type { RefObject, WheelEventHandler } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import GridHoverBackground from './GridHoverBackground'
 
 // Homepage-only pinned left column, emulating danielamuntyan.com's layout
@@ -40,7 +40,22 @@ const EDUCATION = [
   { programme: 'Content for social media', school: 'Högskolan Dalarna' },
 ]
 
-export default function Sidebar({ onWheel }: { onWheel?: WheelEventHandler<HTMLElement> }) {
+export default function Sidebar({
+  onWheel,
+  scrollContainerRef,
+}: {
+  onWheel?: WheelEventHandler<HTMLElement>
+  // The page this sidebar sits in (Home, GamePage) owns its own real
+  // scroll container — on `lg`+, that's an internal `overflow-y-auto`
+  // div, not `window`/`document` (this sidebar is `fixed`, and the
+  // page's outer element itself never scrolls). `window.scrollTo()`
+  // from the "Barbora Gustafsson" link below was a silent no-op there
+  // for exactly that reason; scrolling this ref directly is what
+  // actually works.
+  scrollContainerRef?: RefObject<HTMLDivElement | null>
+}) {
+  const { pathname } = useLocation()
+
   return (
     <motion.aside
       onWheel={onWheel}
@@ -58,7 +73,23 @@ export default function Sidebar({ onWheel }: { onWheel?: WheelEventHandler<HTMLE
         {/* Just a little larger than the surrounding copy below, not a
             big headline. */}
         <h1 className="font-display text-2xl leading-tight text-white">
-          <Link to="/">Barbora Gustafsson</Link>
+          {/* Doubles as "scroll to top" on the homepage itself — a
+              `Link` to the current URL doesn't trigger navigation (no
+              route change), so on `/` this otherwise did nothing.
+              Everywhere else (e.g. GamePage), it's a normal "back home"
+              link, no special handling needed. Same fix already applied
+              to Navbar's own "Barbora" link. */}
+          <Link
+            to="/"
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault()
+                scrollContainerRef?.current?.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
+          >
+            Barbora Gustafsson
+          </Link>
         </h1>
         {/* Tagline leads, then role, then location smallest/most muted. */}
         <p className="mt-3 text-xl text-white/80">I study people</p>

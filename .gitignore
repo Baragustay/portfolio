@@ -15,6 +15,10 @@ dist-ssr
 # Local debug screenshots shared during development, not project assets
 /screenshots
 
+# Raw source video before web re-encoding (large, unused by the site
+# directly — see public/game/gameplay-demo.mp4, the actual served file)
+public/game/gameplay-demo.MOV
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

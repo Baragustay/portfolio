@@ -38,7 +38,7 @@ export default function Carousel({ items }: { items: { src: string; caption?: st
       >
         {items.map((item) => (
           <div key={item.src} className="w-full shrink-0 snap-start bg-neutral-50">
-            <img src={item.src} alt={item.caption ?? ''} className="w-full object-contain" />
+            <img src={item.src} alt={item.caption ?? ''} loading="lazy" decoding="async" className="w-full object-contain" />
           </div>
         ))}
       </div>

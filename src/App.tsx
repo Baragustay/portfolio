@@ -10,6 +10,7 @@ import Home from './pages/Home'
 const CaseStudyPage = lazy(() => import('./pages/CaseStudyPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CodePage = lazy(() => import('./pages/CodePage'))
+const GamePage = lazy(() => import('./pages/GamePage'))
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -46,6 +47,7 @@ function App() {
           <Route path="/work/:slug" element={<CaseStudyPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/code" element={<CodePage />} />
+          <Route path="/game" element={<GamePage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

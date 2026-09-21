@@ -15,3 +15,17 @@
     # No `includeSubDomains`: frontend.barboragustafsson.com is hosted
     # separately on Hostinger and isn't confirmed to serve HTTPS yet.
     Strict-Transport-Security = "max-age=31536000"
+
+# The "Catch a Fact" game (public/game/) is a standalone static HTML
+# file with its entire game logic written as inline <script> tags, not
+# built by Vite — the site-wide CSP above (no 'unsafe-inline' on
+# script-src) silently blocked that inline script from executing at
+# all in production, breaking the game completely (no error shown;
+# CSP violations fail silently unless devtools console is open) while
+# working fine locally, since `npm run dev` doesn't send these headers.
+# Netlify merges header blocks by specificity, so this overrides just
+# the CSP for this one path rather than loosening it site-wide.
+[[headers]]
+  for = "/game/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; media-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"

@@ -29,9 +29,10 @@ export default function Navbar() {
   const { pathname } = useLocation()
   // A light circle on a light page has almost no contrast, so the
   // back-arrow button flips to dark-on-light on the dark pages
-  // (`/about`, `/code`, `/privacy`) instead of assuming one fixed style
-  // works everywhere. Case studies stayed light on purpose.
-  const isDarkPage = pathname === '/about' || pathname === '/code' || pathname === '/privacy'
+  // (`/about`, `/code`, `/privacy`, `/game`) instead of assuming one
+  // fixed style works everywhere. Case studies stayed light on purpose.
+  const isDarkPage =
+    pathname === '/about' || pathname === '/code' || pathname === '/privacy' || pathname === '/game'
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 24)
@@ -111,11 +112,13 @@ export default function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }
             }}
-            className="font-pixel relative z-10 pl-2 text-sm uppercase tracking-wide text-ink sm:pl-3"
+            className={`font-pixel relative z-10 rounded-full py-1.5 pl-2 pr-1.5 text-xs uppercase tracking-wide transition-colors hover:bg-accent-soft/50 sm:pl-3 sm:pr-3 sm:text-sm ${
+              pathname === '/' ? 'bg-accent-soft/50 font-bold' : 'font-normal'
+            }`}
           >
             Barbora
           </Link>
-          <ul className="font-pixel relative z-10 flex items-center gap-1 pr-2 text-sm text-ink sm:gap-5 sm:pr-3">
+          <ul className="font-pixel relative z-10 flex items-center gap-1 pr-2 text-xs text-ink sm:gap-5 sm:pr-3 sm:text-sm">
             {NAV_LINKS.map((link) => (
               <li key={link.to}>
                 <Link

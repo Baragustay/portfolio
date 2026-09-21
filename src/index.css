@@ -55,7 +55,11 @@
      Bank tile existed alongside this too, but that tile moved to the
      same flat `--color-textbox` every other text tile uses, so it was
      removed as dead.) */
-  --color-game-dark: #231c3b; /* Catch a Fact game bento tile */
+  /* Exactly matches the game's own `--bg-deep` (catch-a-fact.html) and
+     GamePage.tsx's page background — was a close-but-not-identical
+     #231c3b, a visible mismatch right where the tile's video/game
+     preview meets its own surrounding card color. */
+  --color-game-dark: #241c3d; /* Catch a Fact game bento tile */
 
   /* Website background, a specific near-black hex — kept as its own
      token rather than repurposing `--color-white` above, since that

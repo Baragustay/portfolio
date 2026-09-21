@@ -57,6 +57,8 @@ function PersonaCard({ persona }: { persona: Persona }) {
       <img
         src={persona.photo}
         alt={persona.name}
+        loading="lazy"
+        decoding="async"
         className="h-24 w-24 shrink-0 rounded-full object-cover ring-1 ring-ink/10"
       />
       <div>
@@ -97,7 +99,13 @@ function OptionsGrid({ options }: { options: Option[] }) {
           </div>
           {option.image && (
             <div className="mt-3 flex h-28 items-center justify-center rounded-xl bg-white p-3 ring-1 ring-ink/5">
-              <img src={option.image} alt={`Option ${option.label}`} className="max-h-full max-w-full object-contain" />
+              <img
+                src={option.image}
+                alt={`Option ${option.label}`}
+                loading="lazy"
+                decoding="async"
+                className="max-h-full max-w-full object-contain"
+              />
             </div>
           )}
           <p className="mt-3 text-base sm:text-lg text-neutral-600">{option.description}</p>

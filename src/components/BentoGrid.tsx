@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { workItems, type CaseStudyTile, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
 import GameControls from './GameControls'
-import GameEmbed, { GAME_URL } from './GameEmbed'
 import VideoLightbox from './VideoLightbox'
 import { setMutedAttribute } from '../lib/video'
 
@@ -26,15 +25,25 @@ import { setMutedAttribute } from '../lib/video'
 // mid-position in the source data list leaves half a row empty.
 const TEXT_BG = ['bg-mist', 'bg-sky', 'bg-blush', 'bg-peach', 'bg-sage'] as const
 
+// The dedicated full-page destination for the game (GamePage.tsx) —
+// wraps the same embed with the site's own Navbar/Footer, unlike the
+// bare static file GAME_URL points at directly.
+const GAME_PAGE_URL = '/game'
+
 // Pixel-art "open" arrow, rotated -45° to point up-right (external-link
 // direction), in a slightly larger circle than a plain text glyph would
 // need.
 function OpenArrow() {
   return (
-    // Own local `hover:` (not `group-hover`) — the lighter background
-    // should only kick in when the cursor is actually over this small
-    // circle, not anywhere on the card.
-    <span className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-white/60 text-ink transition-all duration-300 hover:bg-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+    // `group-hover` (not a local `hover:`) — lightens as soon as the
+    // cursor is anywhere over the card, matching the translate effect
+    // right beside it, instead of only once the cursor happens to land
+    // on this small circle specifically. Both the plain `group` (this
+    // sits inside `TextCell`, which has its own) and `group/card` (the
+    // shared `PairCard` wrapper around both the image and text halves)
+    // variants are covered, so hovering *either* half of the card lights
+    // it up, not just the text half.
+    <span className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-white/60 text-ink transition-all duration-300 group-hover:bg-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover/card:bg-white/80 group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5">
       <PixelArrow className="h-4 w-4 -rotate-45" />
     </span>
   )
@@ -224,12 +233,20 @@ function VideoSquare({
     videoRef.current = el
     setMutedAttribute(el)
   }
-  // No mount-time `tryPlay` (and no `autoPlay`/`preload="auto"` below) —
-  // these tiles sit further down the homepage, so downloading and
-  // decoding ~450KB of video immediately on every load, whether or not
-  // it's ever scrolled to, was hurting mobile load time. `onViewportEnter`
-  // (below) already fires once the tile is actually visible, including
-  // on mount if it happens to start in view.
+  // No mount-time `tryPlay` — these tiles sit further down the homepage,
+  // so unconditionally starting playback immediately on every load,
+  // whether or not the tile is ever scrolled to, was hurting mobile load
+  // time. `onViewportEnter` (below) already fires once the tile is
+  // actually visible, including on mount if it happens to start in view.
+  // The `autoPlay` attribute IS still kept on the `<video>` below despite
+  // that (a previous version removed it, relying only on this JS-driven
+  // play() to control *when* it starts) — confirmed on a real desktop
+  // browser that relying on JS/viewport-detection alone left the video
+  // never actually playing at all in practice (no console error; it just
+  // silently never started). `autoPlay` is the browser's own native,
+  // reliable mechanism for a muted video and costs little extra given
+  // `preload="metadata"` still limits how much it fetches up front;
+  // `tryPlay()` stays as a harmless, redundant backup.
 
   return (
     <motion.button
@@ -259,6 +276,7 @@ function VideoSquare({
         ref={setVideoRef}
         className="absolute inset-0 z-10 h-full w-full rounded-2xl object-cover shadow-[0_12px_20px_-6px_rgba(74,46,20,0.5)] transition-transform duration-500 ease-in-out group-hover:translate-y-[35%]"
         src={item.videoSrc}
+        autoPlay
         muted
         loop
         playsInline
@@ -274,81 +292,145 @@ function VideoSquare({
   )
 }
 
-// The game's own full-width bento cell: iframe on one side, an intro card
-// on the other — there's enough width in a `col-span-2` cell for both
-// side by side without cramping.
+// The game's own full-width bento cell: an autoplay preview clip on one
+// side, an intro card on the other. The game itself is never played
+// inline here at any screen size (an embedded iframe was unplayable on
+// mobile — tiny touch targets, cramped canvas — and inconsistent even
+// on desktop); this is a showcase for browsers who won't bother
+// playing, with a single click-through path to the real, full-size game
+// on its own page for anyone who wants to actually play.
 function GameCell() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const tryPlay = () => {
+    const el = videoRef.current
+    if (!el) return
+    setMutedAttribute(el)
+    el.muted = true
+    el.play().catch(() => {})
+  }
+  const setVideoRef = (el: HTMLVideoElement | null) => {
+    videoRef.current = el
+    setMutedAttribute(el)
+  }
+
   return (
-    <div className="min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark ring-1 ring-white/10 xl:flex-row xl:items-center">
-      <div className="order-1 flex-1 p-8 text-center xl:text-left">
-        <h2 className="font-pixel text-5xl uppercase tracking-widest text-hover-pink">Game Time!</h2>
+    // The *whole* cell is now one click target (text half or video half,
+    // doesn't matter) — a single outer `<a>`/`motion.a` rather than two
+    // separate links (one on the text's "Click here to play", one
+    // wrapping just the video), which meant clicking the headline or
+    // controls area did nothing. `onMouseEnter`/`onViewportEnter` moved
+    // here too so hovering either half starts the video preview, not
+    // just hovering the video's own rectangle.
+    <motion.a
+      href={GAME_PAGE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Play the Catch a Fact game in a new window"
+      onMouseEnter={tryPlay}
+      onViewportEnter={tryPlay}
+      viewport={{ once: false, amount: 0.3 }}
+      className="group min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark xl:flex-row xl:items-center"
+    >
+      {/* Centered at every breakpoint now, not just below `xl` — this
+          used to switch to left-aligned once the row layout kicked in,
+          but there's no longer a "primary action beside the media"
+          reason to differentiate; it reads better centered regardless
+          of how the tile is laid out. No tint here (unlike the video
+          side) — a flat brown wash over plain text didn't read as
+          anything, it just dimmed the copy for no benefit; the tint
+          stays scoped to the video, where it's actually functioning as
+          a "dim the footage" effect. */}
+      <div className="order-1 flex-1 p-8 text-center">
+        <h2 className="font-pixel text-5xl uppercase leading-relaxed tracking-widest text-hover-pink">
+          Game Time!
+        </h2>
         {/* Same headline size as every other tile (`TextCell`,
             `VideoSquare`: `font-display text-2xl leading-tight`). */}
         <h3 className="font-display mt-4 text-2xl leading-tight text-white">
-          Get to know me and have some fun
+          Get to know me with a little game I built
         </h3>
-        {/* Blocky pixel arrow (not a hand-drawn doodle) with a hard
-            on/off blink, matching the game's own 8-bit look. Points
-            right, toward the game embed at this breakpoint. */}
-        <div className="mt-8 hidden items-center justify-center gap-3 xl:flex xl:justify-start">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-hover-pink">Play now</p>
-          <PixelArrow className="animate-pixel-blink h-12 w-24 text-hover-pink" />
-        </div>
-        {/* `GameControls` (the ← → / Space keycap visual) sits right
-            after as a visual reinforcement of the same instruction. */}
-        <div className="mt-5 hidden flex-col items-start gap-2 xl:flex">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-hover-pink">
-            Click the game to start playing
-          </p>
-          <p className="text-xs font-medium uppercase tracking-wide text-white/50">
-            Arrows to move, Space to jump and catch
-          </p>
-        </div>
-        <div className="mt-4 hidden xl:flex">
+        {/* Keyboard-only info (arrows/space) — useless below `xl` where
+            the tile is stacked for touch screens with no physical
+            keyboard, same "no keyboard here" assumption already made
+            for the circle badge above. */}
+        <div className="mt-5 hidden justify-center xl:flex">
           <GameControls />
         </div>
-        {/* The embed is squeezed pretty tight inside a grid tile,
-            especially on narrow phones — an escape hatch to open it at
-            full size in its own tab/window instead. Lives in the text
-            panel (not below the iframe) since the iframe's own internal
-            layout leaves a variable amount of blank space at its bottom
-            depending on content height, which made anything placed
-            right after it look randomly disconnected. */}
-        <a
-          href={GAME_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-pixel mt-6 inline-block text-xs uppercase tracking-widest text-hover-pink underline underline-offset-2 hover:text-white"
-        >
-          Play game in a new window
-        </a>
+        {/* Plain text now, not its own nested `<a>` — the whole cell is
+            the link now, and a real `<a>` can't validly nest inside
+            another one anyway. Still labeled (not a bare icon/arrow)
+            since this is the one place that actually says what clicking
+            does. */}
+        <div className="mt-6 inline-flex items-center justify-center gap-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-hover-pink">Click here to play</p>
+          <PixelArrow className="animate-pixel-blink h-6 w-6 shrink-0 rotate-90 text-hover-pink xl:rotate-0" />
+        </div>
+        {/* Quiet, not a competing second call to action — the arrow
+            circle on the video below is already the click target; this
+            just clarifies what clicking it does. */}
+        <p className="mt-2 text-xs text-white/40">Opens in a new window</p>
       </div>
-      {/* No padding here — the iframe sits flush against the card's edge
-          so the parent's `overflow-hidden` clips its square corners into
-          the card's own rounded top-right/bottom-right corners instead of
-          floating inside a padded box. At `xl`+ this renders at its full
-          480×700; below that (see GameEmbed.tsx) it shrinks to fit the
-          available width, proportionally, so it's still actually
-          playable on a phone.
-          `xl:w-[480px]` (a fixed width, not `xl:w-auto`) is required
-          here, not cosmetic — GameEmbed's `<iframe>` has no `width`/
-          `height` HTML attributes (removed for the mobile-shrink fix),
-          so its CSS `w-full` needs a parent with a *real* resolved
-          width to size against. `w-auto` gave it nothing concrete to
-          resolve against, so the browser fell back to the default
-          replaced-element iframe size (~300×150) — measured this
-          directly (client rect was 300×437.5, not 480×700) rather than
-          guessing.
-          The row layout itself only kicks in at `xl` (1280px), not the
-          more common `lg` (1024px) — at 1024–1280px there wasn't enough
-          room for the 480px-wide game plus a readable text column
-          side by side without both feeling cramped, so it stays stacked
-          (full-width text above, full-width game below) until there's
-          genuinely enough width for both. */}
-      <div className="order-2 w-full max-w-[480px] shrink-0 xl:w-[480px] xl:max-w-none">
-        <GameEmbed className="mx-auto block aspect-[480/700] w-full max-w-[480px] bg-white" />
+      {/* Vertical padding around the video (was flush top/bottom) —
+          horizontal stays flush so the card's own rounded corners still
+          clip its left/right edges cleanly. Plain `div` now, not its own
+          `motion.a` — the outer element is the link for the whole cell. */}
+      <div className="relative order-2 w-full max-w-[480px] shrink-0 py-6 xl:w-[480px] xl:max-w-none">
+        {/* Same warm-brown tint (and hover-fade) as every other bento
+            tile's image — covers the *whole* video column (its own
+            top/bottom padding included), not just the video's own
+            rectangle, so it reads as one tinted surface. `z-10`: above
+            the video (`z-0`) so it actually dims it, below the play
+            button (`z-20`) so that stays crisp/untinted. */}
+        <div className="pointer-events-none absolute inset-0 z-10 bg-[#4a2e14]/20 transition-opacity duration-[1100ms] ease-in-out group-hover:opacity-0" />
+        <div className="relative mx-auto w-full max-w-[480px]">
+          <video
+            ref={setVideoRef}
+            className="relative z-0 block aspect-[480/524] w-full rounded-2xl object-cover"
+            src="/game/gameplay-demo.mp4"
+            // Confirmed on real Safari: autoplay doesn't start there
+            // (works fine in Chrome/Firefox/Opera), and — unlike a
+            // simple loading-speed issue — a hover-triggered `.play()`
+            // call doesn't work there either. That's Safari's own (or
+            // the visitor's own Safari settings, e.g. "Never Auto-
+            // Play"/Low Power Mode) autoplay policy actively refusing
+            // it, which no amount of client-side JS can force open —
+            // there's no code fix for that side of it. `poster` is the
+            // honest fallback: a real gameplay frame shows instead of a
+            // blank rectangle wherever autoplay doesn't happen, while it
+            // still doesn't get in the way of actual video playback
+            // wherever it does.
+            poster="/game/gameplay-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            onLoadedData={tryPlay}
+            onCanPlay={tryPlay}
+          />
+          {/* Centered "play button" over the video, like a classic video
+              thumbnail's play overlay — not a corner badge anymore.
+              Labeled "Play game" (not a bare icon) because on browsers
+              where the preview doesn't autoplay (confirmed on Safari,
+              whose autoplay policy this site can't override — see the
+              `poster` note above), all a visitor sees is a static poster
+              frame plus this button; an unlabeled play icon there reads
+              as "expand the preview", not "leave this page", and landing
+              on a full game page instead would be a jarring surprise.
+              `z-20` — above the tint, so it stays crisp/untinted. */}
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+            <span className="font-pixel flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-full bg-white/85 text-ink shadow-lg transition-transform duration-300 group-hover:scale-105">
+              <PixelArrow className="h-4 w-4 -rotate-45" />
+              <span className="text-[10px] uppercase leading-tight tracking-wide">
+                Play
+                <br />
+                game
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
+    </motion.a>
   )
 }
 

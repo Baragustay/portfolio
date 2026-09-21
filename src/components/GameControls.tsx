@@ -16,14 +16,24 @@ function KeyCap({ children, wide }: { children: string; wide?: boolean }) {
   )
 }
 
-export default function GameControls({ className }: { className?: string }) {
+// Each control's caption sits centered directly under its own key(s),
+// not inline beside them — replaces a separate "Arrows to move, Space
+// to jump and catch" sentence elsewhere in the tile with the same
+// information attached right where it's needed.
+export default function GameControls() {
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className ?? ''}`}>
-      <KeyCap>←</KeyCap>
-      <KeyCap>→</KeyCap>
-      <span className="text-xs font-medium uppercase tracking-wide text-white/50">move</span>
-      <KeyCap wide>Space</KeyCap>
-      <span className="text-xs font-medium uppercase tracking-wide text-white/50">catch</span>
+    <div className="flex items-start gap-6">
+      <div className="flex flex-col items-center gap-1.5">
+        <div className="flex gap-2">
+          <KeyCap>←</KeyCap>
+          <KeyCap>→</KeyCap>
+        </div>
+        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Move</span>
+      </div>
+      <div className="flex flex-col items-center gap-1.5">
+        <KeyCap wide>Space</KeyCap>
+        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Jump and catch</span>
+      </div>
     </div>
   )
 }

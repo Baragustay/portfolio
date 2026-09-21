@@ -17,6 +17,7 @@ export default function PixelReveal({
   duration = DEFAULT_DURATION_MS,
   label,
   revealFrom = 'random',
+  ready = true,
 }: {
   children: React.ReactNode
   delay?: number
@@ -34,6 +35,15 @@ export default function PixelReveal({
   // with grayscale fading outward on both sides, so the reveal direction
   // echoes that instead of reusing the homepage's fully random dissolve.
   revealFrom?: 'random' | 'center'
+  // False when `children`'s final rendered size isn't known yet (e.g.
+  // an iframe that starts at the browser's default intrinsic size and
+  // grows once its own content loads — see GamePage.tsx). This
+  // component sizes its cover canvas from `children`'s size when this
+  // effect runs, so revealing before that size is final would only
+  // ever dissolve the too-small original area. While `false`, only a
+  // plain solid cover is painted (no dissolve); the effect re-runs and
+  // re-measures once `ready` flips `true`.
+  ready?: boolean
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -64,6 +74,12 @@ export default function PixelReveal({
       getComputedStyle(document.documentElement).getPropertyValue('--color-page-bg').trim() || '#171716'
     ctx.fillStyle = pageBg
     ctx.fillRect(0, 0, width, height)
+
+    // Stay solid (content fully hidden, nothing dissolving yet) until
+    // the caller says `children` is actually done resizing — see the
+    // `ready` doc comment above. This effect re-runs (and re-measures)
+    // once `ready` flips to true, since it's in the dependency array.
+    if (!ready) return
 
     const cols = Math.ceil(width / CELL_SIZE)
     const rows = Math.ceil(height / CELL_SIZE)
@@ -180,7 +196,7 @@ export default function PixelReveal({
         img.removeEventListener('error', handleImgSettled)
       })
     }
-  }, [delay, duration, revealFrom])
+  }, [delay, duration, revealFrom, ready])
 
   return (
     <div ref={containerRef} className="relative">
@@ -195,13 +211,34 @@ export default function PixelReveal({
         // Previously `fixed inset-0` (viewport-relative) instead, which
         // overlapped the hero section above the grid on mobile, where
         // the grid starts well below the top of the viewport.
+        //
+        // Below `lg` (mobile/tablet): `items-start` + a fixed `pt-32`,
+        // not centered — the homepage's hero + nav there already eat a
+        // chunk of the first screen above the grid, so centering within
+        // a full viewport height starting at the grid's own top landed
+        // the label past the initially-visible area entirely. `pt-32`
+        // instead keeps it near the top of the grid — roughly level with
+        // the second third of the first tile (Piggy Bank's image), which
+        // is what's actually still on-screen on load.
+        //
+        // At `lg`+: back to `h-screen items-center` — the desktop layout
+        // has no hero above the grid (Sidebar sits beside it, not above),
+        // so the grid starts right at the top of the viewport there, and
+        // centering within one screen's height works correctly.
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-screen items-center justify-center transition-opacity duration-300 ${
+          className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-center pt-32 transition-opacity duration-300 lg:h-screen lg:items-center lg:pt-0 ${
             revealStarted ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          <p className="font-pixel text-sm uppercase tracking-[0.3em] text-white/70">{label}</p>
+          {/* `text-center` matters once this wraps to 2 lines on narrow
+              screens — a block element wraps left-aligned by default,
+              which read fine on one line but looked off-center once
+              split across two. `max-w-[400px] px-4` keeps it from
+              stretching edge-to-edge on very small screens too. */}
+          <p className="font-pixel max-w-[400px] px-4 text-center text-sm uppercase tracking-[0.3em] text-white/70">
+            {label}
+          </p>
         </div>
       )}
     </div>

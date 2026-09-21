@@ -89,12 +89,12 @@
   }
   #toolbar{
     display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; max-width:480px; box-sizing:border-box;
+    width:100%; box-sizing:border-box;
     flex-wrap:wrap;
   }
   #sound-row{
     display:flex; justify-content:flex-end;
-    width:100%; max-width:480px; box-sizing:border-box;
+    width:100%; box-sizing:border-box;
     padding:2px 2px 0 0;
   }
   .mute-wrap{
@@ -116,9 +116,14 @@
   .mute-btn:active{transform:translateY(1px);}
   #wrap{
     position:relative;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:100vh;gap:8px;padding:14px;
-    max-width:480px; margin:0 auto; box-sizing:border-box;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    /* No `min-height:100vh` — that forced this to fill the entire
+       browser viewport standalone, leaving empty space below content
+       much shorter than the screen. `html,body`'s own
+       `min-height:100vh` still fills the page with the right
+       background regardless. */
+    gap:8px;padding:14px;
+    width:100%; margin:0 auto; box-sizing:border-box;
   }
   h1{
     font-size:14px;color:var(--pink);margin:0;text-align:center;
@@ -135,7 +140,6 @@
     box-shadow:0 0 0 3px var(--yellow), 0 8px 24px rgba(0,0,0,.5);
     background:var(--dark);
     width:100%;
-    max-width:480px;
   }
   canvas{
     display:block;image-rendering:pixelated;
@@ -264,9 +268,22 @@
   .flying-item img{ width:100%; height:100%; }
   #intro{
     position:absolute;inset:0;background:var(--dark);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    display:flex;flex-direction:column;align-items:center;
     text-align:center;padding:22px;gap:12px;
     z-index:20;
+    /* This box's height is locked to the canvas's own fixed 480:420
+       aspect ratio (via #stage), independent of the intro text's own
+       length — on a narrow phone the text can need more height than
+       that ratio provides at any readable font size. `overflow-y:auto`
+       lets it scroll instead of `#stage`'s `overflow:hidden` silently
+       clipping it.
+       `justify-content:safe center`: centers when the content fits
+       (a tall desktop box with short text), but automatically falls
+       back to start-aligned instead of clipping when it doesn't (an
+       overflowing box on a narrow phone, where plain `center` would
+       start the scroll position at the visual middle). */
+    justify-content:safe center;
+    overflow-y:auto;
   }
   #intro h2{font-size:14px;color:var(--pink);margin:0;line-height:1.6;}
   #intro p{font-size:11px;line-height:2;color:var(--cream);max-width:380px;margin:0;}
@@ -276,12 +293,19 @@
     display:none;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:20px;gap:10px;
     z-index:20;
+    /* Unlike `#intro`, this content is short relative to the box, so
+       staying `center`-aligned here (not `flex-start`) still looks
+       right on every screen where it actually fits — only the
+       narrow-phone media query below switches this to a scrollable,
+       top-aligned fallback for when it doesn't. */
+    overflow-y:auto;
   }
   #gameover{
     position:absolute;inset:0;background:var(--dark);
     display:none;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:20px;gap:10px;
     z-index:20;
+    overflow-y:auto;
   }
   #gameover h2{font-size:10px;color:var(--pink);margin:0;}
   #gameover p{font-size:12px;line-height:1.9;color:var(--cream);max-width:340px;margin:0;}
@@ -366,12 +390,119 @@
       font-size: 10px;
       margin-top: 2px;
     }
+    /* `#secret`/`#gameover` stay `justify-content:center` (declared
+       above) at every size since their content is short relative to
+       the box — these smaller sizes just keep that content from
+       running taller than the box on a narrow phone in the first
+       place; `overflow-y:auto` (also above) is the scrollable
+       fallback if it still does. */
+    #secret { padding: 14px; gap: 8px; }
+    #secret h2 { font-size: 11px; }
+    /* `max-width` here is intentionally generous (not a tight wrap
+       width) — the goal is fewer, shorter lines by using the space
+       the box actually has, not more line-wraps at a similar
+       font-size (which would make the block *taller*, not shorter).
+       Shrinking the actual font-size is what reduces total height. */
+    #secret p { font-size: 10px; line-height: 1.6; max-width: 92%; }
+    #swatches { margin-top: 2px; }
+    .swatch { width: 42px; height: 42px; }
+    #tool { font-size: 6px; max-width: 92%; margin-top: 2px; }
+    #secret .go { font-size: 8px; margin-top: 4px; }
+    #gameover { padding: 14px; gap: 8px; }
+    #gameover h2 { font-size: 9px; }
+    #gameover p { font-size: 10px; line-height: 1.6; max-width: 92%; }
+    /* `#dialog` (the fact-reveal popup shown after every catch) has no
+       size reduction elsewhere, so it needs its own here. */
+    #dialog { font-size: 10px; padding: 10px; }
+    #dialog-inner { gap: 8px; }
+    #d-icon { width: 38px; height: 38px; }
+    #dialog .tag { font-size: 8px; margin-bottom: 3px; }
+    #dialog .go { font-size: 7px; margin-top: 6px; }
+  }
+  /* One more step down from the 480px tier — needed below ~440px
+     (confirmed on a real device) without shrinking the 441-480px
+     range that already fits fine. */
+  @media (max-width: 440px) {
+    #secret { padding: 10px; gap: 6px; }
+    #secret h2 { font-size: 10px; }
+    #secret p { font-size: 8px; line-height: 1.45; max-width: 92%; }
+    .swatch { width: 36px; height: 36px; }
+    .swatch span { font-size: 5px; }
+    #tool { font-size: 5.5px; max-width: 92%; margin-top: 1px; }
+    #secret .go { font-size: 7px; margin-top: 3px; }
+    #dialog { font-size: 9px; padding: 8px; }
+    #dialog-inner { gap: 6px; }
+    #d-icon { width: 32px; height: 32px; }
+    #dialog .tag { font-size: 7px; margin-bottom: 2px; }
+    #dialog .go { font-size: 6px; margin-top: 4px; }
+  }
+  /* Everything above is sized for the game at its original ~480px
+     width. `GameEmbed.tsx` lets the iframe grow well past that on
+     tablet/desktop, scaling the canvas up but leaving every font-size
+     and the HUD/backpack/sound-row chrome at their original fixed px
+     — correct at 480px, undersized wider. This tier bumps those up a
+     notch once the game's own rendered width (not the outer page's
+     viewport) has the room for it. */
+  @media (min-width: 560px) {
+    h1 { font-size: 18px; }
+    #sub { font-size: 11px; }
+    #hud { font-size: 11px; padding: 8px 14px; }
+    #backpack .label { font-size: 10px; }
+    #bp-grid { grid-template-columns: repeat(8, 22px); }
+    .slot { width: 22px; height: 22px; }
+    .slot img { width: 16px; height: 16px; }
+    #sound-label { font-size: 10px; }
+    .mute-btn svg { width: 36px; height: 36px; }
+    #intro h2 { font-size: 17px; }
+    #intro p { font-size: 13px; }
+    #intro .go { font-size: 15px; }
+    #dialog { font-size: 15px; }
+    #dialog .tag { font-size: 12px; }
+    #dialog .go { font-size: 11px; }
+    #gameover h2 { font-size: 13px; }
+    #gameover p { font-size: 14px; max-width: 420px; }
+    #secret h2 { font-size: 17px; }
+    #secret p { font-size: 14px; max-width: 460px; }
+    #tool { font-size: 7px; max-width: 440px; }
+    #secret .go { font-size: 11px; }
+  }
+  /* One more notch up from the 560px tier. Only reachable if the game
+     is opened directly full-width (`GameEmbed.tsx` currently caps the
+     embedded iframe at 680px) or its max-width is raised later. */
+  @media (min-width: 1023px) {
+    h1 { font-size: 22px; }
+    #sub { font-size: 13px; }
+    #hud { font-size: 13px; padding: 10px 18px; }
+    #backpack .label { font-size: 11px; }
+    #bp-grid { grid-template-columns: repeat(8, 26px); gap: 4px; }
+    .slot { width: 26px; height: 26px; }
+    .slot img { width: 19px; height: 19px; }
+    #sound-label { font-size: 11px; }
+    .mute-btn svg { width: 42px; height: 42px; }
+    #intro h2 { font-size: 21px; }
+    #intro p { font-size: 15px; max-width: 480px; }
+    #intro .go { font-size: 17px; }
+    #dialog { font-size: 17px; padding: 18px; }
+    #dialog .tag { font-size: 13px; }
+    #dialog .go { font-size: 12px; }
+    #gameover h2 { font-size: 15px; }
+    #gameover p { font-size: 16px; max-width: 480px; }
+    #secret h2 { font-size: 20px; }
+    #secret p { font-size: 16px; max-width: 520px; }
+    #tool { font-size: 8px; max-width: 500px; }
+    #secret .go { font-size: 12px; }
   }
 </style>
 </head>
 <body>
 <div id="wrap">
-  <audio id="bgm" src="bg-music.mp3" loop preload="auto"></audio>
+  <!-- `preload="none"` — this file is 2.3MB, easily the single
+       heaviest asset the game loads, and sound starts muted by
+       default (see `muted = true` below), so most visitors would
+       download it in full for nothing. The small sfx files below stay
+       `auto`: they need to play with zero latency exactly when
+       triggered, which a 2.3MB loop firing once on unmute doesn't. -->
+  <audio id="bgm" src="bg-music.mp3" loop preload="none"></audio>
   <audio id="sfx-catch" src="sfx-catch.mp3" preload="auto"></audio>
   <audio id="sfx-lose-life" src="sfx-lose-life.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="sfx-win.mp3" preload="auto"></audio>
@@ -1197,10 +1328,16 @@ window.addEventListener('keydown', e=>{
 });
 window.addEventListener('keyup', e=>{ keys[e.key]=false; });
 
+// `e.cancelable` guards below: a touchstart firing while the browser
+// has already committed to treating the gesture as a scroll is marked
+// non-cancelable, and calling `preventDefault()` on it anyway logs a
+// harmless but noisy "[Intervention] Ignored attempt to cancel..."
+// console warning (seen in Opera/Chrome on Android) without breaking
+// anything — this just avoids that warning.
 function bindHold(id,key){
   const el = document.getElementById(id);
-  const on = e=>{e.preventDefault();keys[key]=true;};
-  const off = e=>{e.preventDefault();keys[key]=false;};
+  const on = e=>{if(e.cancelable) e.preventDefault();keys[key]=true;};
+  const off = e=>{if(e.cancelable) e.preventDefault();keys[key]=false;};
   el.addEventListener('touchstart', on);
   el.addEventListener('touchend', off);
   el.addEventListener('mousedown', on);
@@ -1209,7 +1346,7 @@ function bindHold(id,key){
 bindHold('left','ArrowLeft');
 bindHold('right','ArrowRight');
 document.getElementById('intro').addEventListener('click', startGame);
-document.getElementById('intro').addEventListener('touchstart', e=>{ e.preventDefault(); startGame(); });
+document.getElementById('intro').addEventListener('touchstart', e=>{ if(e.cancelable) e.preventDefault(); startGame(); });
 
 function trySkip(){
   if(revealing && skipResolver){ const fn = skipResolver; skipResolver = null; fn(); }
@@ -1221,7 +1358,7 @@ document.getElementById('secret').addEventListener('click', e=>{
 });
 
 document.getElementById('jump').addEventListener('touchstart', e=>{
-  e.preventDefault();
+  if(e.cancelable) e.preventDefault();
   if(!gameStarted){ startGame(); return; }
   if(dialogOpen){ closeDialog(); return; }
   tryJump();
