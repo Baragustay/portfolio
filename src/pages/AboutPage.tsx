@@ -33,13 +33,20 @@ const EDUCATION = [
 // shrinking. Rectangular, not circular: the source photo is a
 // portrait/full-body shot, so a circular crop would center on the torso
 // instead of the face; `object-top` keeps the face in frame instead.
-const PHOTO_SIZE = 'h-[259px] w-40'
+// Smaller below `sm` — at the full desktop size, all 5 side by side
+// (5 × 160px + gaps) overflowed a phone-width screen badly.
+const PHOTO_SIZE = 'h-[155px] w-24 sm:h-[259px] sm:w-40'
 const PHOTO_TREATMENTS = [
-  { opacity: 'opacity-20', grayscale: true },
-  { opacity: 'opacity-55', grayscale: true },
-  { opacity: 'opacity-100', grayscale: false },
-  { opacity: 'opacity-55', grayscale: true },
-  { opacity: 'opacity-20', grayscale: true },
+  // Outermost two (most transparent, least visually load-bearing) are
+  // hidden below `sm` instead of just shrunk further — even at a
+  // smaller size, fitting all 5 on a narrow phone screen meant sizing
+  // them small enough to lose the effect entirely. Three (still
+  // showing the full fade-in composition) fit comfortably instead.
+  { opacity: 'opacity-20', grayscale: true, hiddenOnMobile: true },
+  { opacity: 'opacity-55', grayscale: true, hiddenOnMobile: false },
+  { opacity: 'opacity-100', grayscale: false, hiddenOnMobile: false },
+  { opacity: 'opacity-55', grayscale: true, hiddenOnMobile: false },
+  { opacity: 'opacity-20', grayscale: true, hiddenOnMobile: true },
 ]
 
 // Full About page — its own route, separate from the homepage's left
@@ -69,7 +76,7 @@ export default function AboutPage() {
           src="/about/headshot.webp"
           alt={i === 2 ? 'Barbora Gustafsson' : ''}
           aria-hidden={i === 2 ? undefined : true}
-          className={`${PHOTO_SIZE} ${photo.opacity} ${photo.grayscale ? 'grayscale' : ''} shrink-0 rounded-2xl object-cover object-top ring-1 ring-white/10 transition-all`}
+          className={`${PHOTO_SIZE} ${photo.opacity} ${photo.grayscale ? 'grayscale' : ''} ${photo.hiddenOnMobile ? 'hidden sm:block' : ''} shrink-0 rounded-2xl object-cover object-top ring-1 ring-white/10 transition-all`}
         />
       ))}
     </div>
