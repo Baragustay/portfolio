@@ -117,7 +117,12 @@ export default function PixelReveal({
     // Verified by stalling one image request indefinitely via route
     // interception and confirming the reveal simply never proceeds past
     // the solid black state until it resolves.
-    const imgs = Array.from(container.querySelectorAll('img'))
+    // Lazy-loaded images (below-the-fold bento grid tiles) intentionally
+    // don't start downloading until scrolled into view — waiting on
+    // those too would mean this reveal never proceeds at all, since
+    // they'd never fire `load` while still hidden behind the still-solid
+    // canvas. Only images meant to load immediately gate the reveal.
+    const imgs = Array.from(container.querySelectorAll('img')).filter((img) => img.loading !== 'lazy')
     let pendingImages = imgs.filter((img) => !img.complete).length
     let imagesReady = pendingImages === 0
     const handleImgSettled = () => {
