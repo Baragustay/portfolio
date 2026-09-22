@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 // Entrance effect: a "sand grain" pixel dissolve. A grid fine enough to
 // read as sand means low hundreds of thousands of individual cells
@@ -18,6 +18,7 @@ export default function PixelReveal({
   label,
   revealFrom = 'random',
   ready = true,
+  bgColor,
 }: {
   children: React.ReactNode
   delay?: number
@@ -44,13 +45,26 @@ export default function PixelReveal({
   // plain solid cover is painted (no dissolve); the effect re-runs and
   // re-measures once `ready` flips `true`.
   ready?: boolean
+  // Overrides the cover canvas's fill color, which otherwise defaults
+  // to the site-wide `--color-page-bg` (near-black) — needed on any
+  // page whose own background isn't that color (e.g. GamePage.tsx's
+  // purple `GAME_BG`), since a mismatched cover reads as a visible
+  // flash instead of blending into the page underneath it.
+  bgColor?: string
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [done, setDone] = useState(false)
   const [revealStarted, setRevealStarted] = useState(false)
 
-  useEffect(() => {
+  // `useLayoutEffect`, not `useEffect` — the latter runs after the
+  // browser has already painted the first frame, so the real content
+  // underneath (e.g. the game's iframe, momentarily at its default
+  // intrinsic size with its headline visible) would flash on screen
+  // for a frame before this cover canvas gets drawn over it.
+  // `useLayoutEffect` paints the cover synchronously before that first
+  // paint, so there's nothing to flash.
+  useLayoutEffect(() => {
     const container = containerRef.current
     const canvas = canvasRef.current
     if (!container || !canvas) return
@@ -70,9 +84,9 @@ export default function PixelReveal({
     canvas.style.height = `${height}px`
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-    const pageBg =
-      getComputedStyle(document.documentElement).getPropertyValue('--color-page-bg').trim() || '#171716'
-    ctx.fillStyle = pageBg
+    const fillColor =
+      bgColor || getComputedStyle(document.documentElement).getPropertyValue('--color-page-bg').trim() || '#171716'
+    ctx.fillStyle = fillColor
     ctx.fillRect(0, 0, width, height)
 
     // Stay solid (content fully hidden, nothing dissolving yet) until
@@ -196,7 +210,7 @@ export default function PixelReveal({
         img.removeEventListener('error', handleImgSettled)
       })
     }
-  }, [delay, duration, revealFrom, ready])
+  }, [delay, duration, revealFrom, ready, bgColor])
 
   return (
     <div ref={containerRef} className="relative">

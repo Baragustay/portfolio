@@ -3,6 +3,7 @@ import ImageRow from '../components/ImageRow'
 import Carousel from '../components/Carousel'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import PixelWaveDivider from '../components/PixelWaveDivider'
 import { getCaseStudy, type Option, type ParagraphBlock, type Persona } from '../data/caseStudyContent'
 import { setMutedAttribute } from '../lib/video'
 
@@ -145,7 +146,8 @@ export default function CaseStudyPage() {
           {study.title}
         </h1>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 border-y border-ink/10 py-6 sm:grid-cols-4">
+        <PixelWaveDivider className="mt-6" particleClassName="bg-ink/15" animated={false} />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-6 sm:grid-cols-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-ink/40">My role</p>
             <p className="mt-1 text-base text-neutral-700">{study.role}</p>
@@ -163,6 +165,7 @@ export default function CaseStudyPage() {
             <p className="mt-1 text-base text-neutral-700">{study.tools.join(', ')}</p>
           </div>
         </div>
+        <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
 
         <p className="mt-6 text-lg sm:text-xl text-neutral-600">{study.tagline}</p>
         {study.intro && <p className="mt-4 text-base leading-relaxed sm:text-xl text-neutral-600">{study.intro}</p>}

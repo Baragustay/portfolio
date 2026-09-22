@@ -35,7 +35,7 @@ const NAV_LINKS = [
 ]
 
 const EDUCATION = [
-  { programme: 'Web Development & User Experience', school: 'Högskolan Väst' },
+  { programme: 'Web Development & User Experience', note: 'Webmaster programme', school: 'Högskolan Väst' },
   { programme: 'Physiotherapy', school: 'Uppsala University' },
   { programme: 'Content for social media', school: 'Högskolan Dalarna' },
 ]
@@ -125,6 +125,7 @@ export default function Sidebar({
           {EDUCATION.map((entry) => (
             <div key={entry.school}>
               <p className="text-sm text-white/70">{entry.programme}</p>
+              {'note' in entry && <p className="text-xs text-white/40">({entry.note})</p>}
               <p className="text-xs text-white/40">{entry.school}</p>
             </div>
           ))}

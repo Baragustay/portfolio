@@ -97,7 +97,7 @@ export default function GamePage() {
             real measurement keeps that from locking in the wrong
             (tiny, pre-load) size. */}
         <div className="w-full">
-          <PixelReveal delay={0.2} ready={gameReady}>
+          <PixelReveal delay={0.2} ready={gameReady} bgColor={GAME_BG}>
             <GameEmbed onReady={() => setGameReady(true)} />
           </PixelReveal>
         </div>

@@ -137,6 +137,25 @@ body {
   animation: pixel-blink 1.1s steps(1) infinite;
 }
 
+/* Each square in PixelWaveDivider.tsx's divider line runs this once
+   (staggered by its own randomized `animation-delay`/`animation-
+   duration`) — a hop up to its own `--wave-up`, a settle back down
+   past center to its own `--wave-down`, then rest flat. Chained
+   across many squares with an increasing (but jittered) delay, that
+   reads as a wave sweeping through the line before it lands flat —
+   the per-square randomization is what keeps it from looking like
+   the exact same mechanical sweep on every replay. */
+@keyframes pixel-wave {
+  0% { transform: translateY(0); opacity: 0.5; }
+  35% { transform: translateY(var(--wave-up, -4px)); opacity: 1; }
+  65% { transform: translateY(var(--wave-down, 2px)); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-pixel-wave {
+  animation: pixel-wave 0.7s ease-out both;
+}
+
 /* Hides the native scrollbar on the case study horizontal scroll strip
    while keeping it scrollable (wheel/trackpad/touch/drag all still work). */
 .no-scrollbar {

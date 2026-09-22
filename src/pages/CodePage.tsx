@@ -3,6 +3,9 @@ import { devProjects } from '../data/devProjects'
 import Footer from '../components/Footer'
 import PixelReveal from '../components/PixelReveal'
 import { PixelArrow } from '../components/Doodles'
+import TechIcon from '../components/TechIcon'
+import PixelWaveDivider from '../components/PixelWaveDivider'
+import { DEV_SKILL_GROUPS } from '../data/devSkills'
 
 // Full Code page, its own route.
 //
@@ -34,6 +37,7 @@ const PROJECT_IMAGES: Record<string, string> = {
 // width/height ratios cycled per tile index so banner heights vary —
 // the actual source of the masonry stagger (see file-level comment).
 const ASPECTS = [4 / 5, 1, 5 / 4, 4 / 3, 3 / 4]
+
 
 // Each tile's own data comes from two sources — see devProjects.ts:
 // live-demo cards from her curated frontend portfolio site, plus a
@@ -137,15 +141,20 @@ export default function CodePage() {
                 openPrimary()
               }
             }}
-            className="group relative mb-6 block w-full cursor-pointer overflow-hidden rounded-3xl break-inside-avoid bg-textbox"
+            // `transform-gpu`: without it, the banner image's own
+            // `group-hover:scale-105` (see TileBanner) promotes just
+            // that image to its own GPU-composited layer on hover —
+            // Chrome/Safari can then fail to keep applying this card's
+            // `rounded-3xl overflow-hidden` clip consistently against
+            // a child compositing on top of it, so the corners visibly
+            // square off. Promoting this element too keeps the clip on
+            // the same compositing layer as the thing it's clipping.
+            className="group relative mb-6 block w-full transform-gpu cursor-pointer overflow-hidden rounded-3xl break-inside-avoid bg-textbox"
           >
             <TileBanner project={project} aspect={aspect} priority={i < 4} />
             <div className="p-5">
               <div className="flex items-center gap-2">
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: project.languageColor }}
-                />
+                <TechIcon language={project.language} color={project.languageColor} />
                 <span className="text-sm font-medium text-white/70">{project.language}</span>
               </div>
               <h3 className="font-display mt-2 text-2xl text-white">{project.name}</h3>
@@ -187,11 +196,31 @@ export default function CodePage() {
           Dev Projects
         </p>
         <h1 className="font-display text-center text-5xl text-white md:text-6xl">Code</h1>
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
+          I studied full-stack development at Högskolan Väst, and I'm currently improving my skills in
+          React and TypeScript.
+        </p>
+
+        <PixelWaveDivider className="mx-auto mt-6 max-w-6xl" />
+
+        {/* `max-w-6xl` — same as the project grid below (see `grid`'s
+            own className) — instead of the narrower `max-w-2xl` the
+            rest of this hero text uses, so 5 groups have room to sit
+            3-then-2 across at `lg`+ instead of stacking into a much
+            taller 2-column block. Stacks to 1 column below `sm`, 2
+            from `sm`. */}
+        <div className="mx-auto mt-6 grid max-w-6xl grid-cols-1 gap-x-10 gap-y-6 pt-2 text-left sm:grid-cols-2 lg:grid-cols-3">
+          {DEV_SKILL_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="text-sm font-semibold uppercase tracking-wider text-white/40">{group.label}</p>
+              <p className="mt-2 text-base text-white/70 sm:text-lg">{group.value}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Same GitHub profile URL used site-wide (StatusBar, Footer). */}
         <p className="mx-auto mt-6 mb-10 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
-          I'm a Junior Developer who loves building with React. With every project, I'm focused on getting
-          better at accessibility, security, and clean code. I'm also currently implementing and testing
-          different workflows of AI-assisted coding. Check out more on{' '}
+          Here are some of the projects I've built. Check out more on{' '}
           <a
             href="https://github.com/baragustay"
             target="_blank"
