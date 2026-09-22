@@ -6,8 +6,13 @@
     # only used by public/game/catch-a-fact.html, served from this same
     # origin, so it still needs to be allowed here. 'unsafe-inline' on
     # style-src is required because framer-motion animates via inline
-    # `style` attributes, not stylesheet classes.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.google-analytics.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; media-src 'self'; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    # `style` attributes, not stylesheet classes. `data:` on font-src is
+    # for @fontsource/press-start-2p's own CSS, which embeds a legacy
+    # .woff fallback as a base64 data: URI for less-common script
+    # subsets (e.g. Cyrillic Extended) — harmless in practice since no
+    # text on this site uses those characters, but it logged a CSP
+    # console error on every page load regardless.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.google-analytics.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; media-src 'self'; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
