@@ -29,3 +29,6 @@ public/game/gameplay-demo.MOV
 *.njsproj
 *.sln
 *.sw?
+
+# Project notes, kept out of the repo
+DEPLOY.md

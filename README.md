@@ -40,19 +40,17 @@ locally).
 
 ## Deployment
 
-Hosted on **Netlify**, auto-deploying from the `main` branch on every push to
-[github.com/Baragustay/portfolio](https://github.com/Baragustay/portfolio).
-Build command `npm run build`, publish directory `dist`.
+Hosted on **Hostinger**. Hostinger's Git deploy copies a branch into
+`public_html` as-is without building, so `.github/workflows/hostinger.yml`
+runs `npm run build` on every push to `main` and force-pushes only the
+contents of `dist/` to the `hostinger` branch, which Hostinger deploys.
 
-- `public/_redirects` — SPA fallback (`/* /index.html 200`), required since
-  this is a client-side-routed React app.
-- `netlify.toml` — security headers (CSP, X-Frame-Options,
-  X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS).
+- `public/.htaccess` — HTTPS redirect, SPA fallback, security headers (CSP,
+  X-Frame-Options, X-Content-Type-Options, Referrer-Policy,
+  Permissions-Policy, HSTS) and cache headers. Vite copies it into `dist/`.
 
-**Domain**: `barboragustafsson.com` is registered and DNS-managed on
-Hostinger, with an A record (root) and CNAME (`www`) pointing at Netlify.
-Nameservers stay on Hostinger (not switched to Netlify DNS), since Hostinger
-also hosts a separate subdomain (see below).
+**Domain**: `barboragustafsson.com` is registered, DNS-managed and hosted on
+Hostinger.
 
 **`frontend.barboragustafsson.com`**: a separate static site on Hostinger
 hosting the older standalone project demos linked from the Code page
