@@ -1,6 +1,5 @@
-# Hostinger (Apache/LiteSpeed) config — the equivalent of netlify.toml +
-# public/_redirects, which Hostinger ignores. Vite copies this file into
-# dist/ as-is.
+# Hostinger (Apache/LiteSpeed) config: SPA fallback, security headers and
+# caching. Vite copies this file into dist/ as-is.
 
 Options -Indexes
 # public/about, public/code, public/game and public/work are real folders
@@ -29,8 +28,11 @@ DirectorySlash Off
 </IfModule>
 
 <IfModule mod_headers.c>
-  # Same headers as netlify.toml — see the comments there for why each
-  # CSP source is allowed.
+  # Google Analytics (gtag.js) is the only external script/beacon. Google
+  # Fonts is only used by game/catch-a-fact.html. 'unsafe-inline' on
+  # style-src is needed because framer-motion animates via inline `style`
+  # attributes. `data:` on font-src is for @fontsource/press-start-2p,
+  # which embeds a base64 .woff fallback in its CSS.
   Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.google-analytics.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; media-src 'self'; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-Content-Type-Options "nosniff"
