@@ -62,7 +62,7 @@ export default function Home() {
         }}
         scrollContainerRef={scrollRef}
       />
-      <main className="lg:ml-[280px] xl:ml-[320px]">
+      <main id="main" className="lg:ml-[280px] xl:ml-[320px]">
         {/* Entrance sequencing: sidebar fades/slides in first (see
             Sidebar.tsx, no delay, ~0.4s), then the bento grid dissolves
             in via the pixel-reveal effect starting at 0.7s, once the

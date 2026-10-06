@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { workItems, type CaseStudyTile, type VideoTile } from '../data/workItems'
+import { workItems, type AppTile, type CaseStudyTile, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
 import GameControls from './GameControls'
 import VideoLightbox from './VideoLightbox'
-import { setMutedAttribute } from '../lib/video'
+import { posterFor, setMutedAttribute } from '../lib/video'
 
 // Homepage bento grid — emulates danielamuntyan.com's project layout.
 //
@@ -110,7 +110,10 @@ function ImageCell({
   priority?: boolean
 }) {
   return (
-    <Link to={to} className="relative block h-[545px] overflow-hidden">
+    // Hidden from screen readers and skipped in the Tab order: the
+    // `TextCell` beside it links to the same page with the real title,
+    // so exposing both just announces every case study twice.
+    <Link to={to} aria-hidden="true" tabIndex={-1} className="relative block h-[545px] overflow-hidden">
       <img
         src={src}
         alt={alt}
@@ -134,6 +137,17 @@ function ImageCell({
   )
 }
 
+// Small pill beside a tile's title saying what kind of project it is
+// ("Case study", "Live RAG app"), so visitors know before clicking
+// whether they're opening a write-up or a working product.
+function KindBadge({ label, id }: { label: string; id?: string }) {
+  return (
+    <span id={id} className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/80 ring-1 ring-white/15">
+      {label}
+    </span>
+  )
+}
+
 // Shows the study's goal and its concrete benefits rather than just a
 // one-line tagline, so the card communicates what the project achieved,
 // not only what it was. Flat `bg-textbox` on every one of these (not a
@@ -141,43 +155,68 @@ function ImageCell({
 // background is always dark.
 function TextCell({
   title,
+  kind,
   goal,
   benefits,
   meta,
   to,
 }: {
   title: string
+  kind: string
   goal: string
   benefits: string[]
   meta: string
   to: string
 }) {
+  // Link is named by just its title + kind ("Piggy Bank, Case study")
+  // and described by its goal, instead of its entire text content —
+  // keeps screen readers' link lists short and scannable.
+  const id = useId()
   return (
     <Link
       to={to}
+      aria-labelledby={`${id}-title ${id}-kind`}
+      aria-describedby={`${id}-goal`}
       className="group relative flex h-[545px] flex-col justify-center bg-textbox p-6 text-left"
     >
       <OpenArrow />
       <div>
-        <h3 className="font-display text-2xl leading-tight text-white">{title}</h3>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h3 id={`${id}-title`} className="font-display text-2xl leading-tight text-white transition-colors duration-300 group-hover:text-hover-yellow group-hover/card:text-hover-yellow">{title}</h3>
+          <KindBadge id={`${id}-kind`} label={kind} />
+        </div>
         <p className="mt-3 text-sm font-semibold uppercase tracking-[0.15em] text-white/60">Goal</p>
         {/* No `line-clamp` — real goal/benefit copy (including
             SolidHomes' longer set, the longest of the bunch) needs to
             show in full, not truncate with a trailing "…". Text sizes
             kept small enough that it all still fits inside the tile's
             fixed 545px height. */}
-        <p className="mt-1 text-lg text-white/80">{goal}</p>
+        <p id={`${id}-goal`} className="mt-1 text-lg text-white/80">{goal}</p>
         <ul className="mt-3 space-y-1">
           {benefits.slice(0, 3).map((benefit) => (
             <li key={benefit} className="flex gap-1.5 text-base text-white/70">
-              <span className="text-white/40">·</span>
+              <span aria-hidden="true" className="text-white/40">·</span>
               <span>{benefit}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-sm font-medium text-white/50">{meta}</p>
+        <p className="mt-4 text-sm font-medium text-white/60">{meta}</p>
       </div>
     </Link>
+  )
+}
+
+function CaseStudySquare({ item, priority = false }: { item: CaseStudyTile; priority?: boolean }) {
+  return (
+    <SquareCard
+      title={item.title}
+      kind="Case study"
+      goal={item.goal}
+      meta={`${item.tags[0]} · ${item.year}`}
+      image={item.image}
+      to={`/work/${item.slug}`}
+      priority={priority}
+    />
   )
 }
 
@@ -187,12 +226,93 @@ function CaseStudyPair({ item, priority = false }: { item: CaseStudyTile; priori
       <ImageCell src={item.image} alt={item.title} to={`/work/${item.slug}`} priority={priority} />
       <TextCell
         title={item.title}
+        kind="Case study"
         goal={item.goal}
         benefits={item.benefits}
         meta={`${item.tags[0]} · ${item.year}`}
         to={`/work/${item.slug}`}
       />
     </PairCard>
+  )
+}
+
+// A case study (or live app) squeezed into one square instead of a
+// two-cell `PairCard`: image on top, a compact text panel below. Same
+// fixed `h-[545px]`, `group/card` zoom + tint fade and `OpenArrow` as the
+// pair, so it reads as the same family at half the width. Only the goal
+// and meta fit at this size — benefits are left to the detail page.
+// `href` (external, new tab) is used for apps with no case study page of
+// their own; `to` (internal route) for everything else.
+function SquareCard({
+  title,
+  kind,
+  goal,
+  meta,
+  image,
+  to,
+  href,
+  imageOrigin = '',
+  priority = false,
+}: {
+  title: string
+  kind: string
+  goal: string
+  meta: string
+  image: string
+  to?: string
+  href?: string
+  // Per-image zoom origin, for thumbnails whose subject sits off-centre
+  // and would otherwise get cropped by the resting `scale-125`.
+  imageOrigin?: string
+  priority?: boolean
+}) {
+  // Same short name/description split as `TextCell`.
+  const id = useId()
+  const a11y = {
+    'aria-labelledby': `${id}-title ${id}-kind${href ? ` ${id}-newtab` : ''}`,
+    'aria-describedby': `${id}-goal`,
+  }
+  const className =
+    'group/card relative flex h-[545px] flex-col overflow-hidden rounded-3xl bg-textbox text-left ring-1 ring-ink/5'
+  const content = (
+    <>
+      <div className="relative h-[290px] shrink-0 overflow-hidden">
+        <img
+          src={image}
+          // Empty alt: the title is already in this link's text right
+          // below, so naming the image too would read it out twice.
+          alt=""
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={priority ? 'high' : undefined}
+          className={`h-full w-full scale-125 object-cover transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-100 ${imageOrigin}`}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[#4a2e14]/20 transition-opacity duration-[1100ms] ease-in-out group-hover/card:opacity-0" />
+      </div>
+      <div className="relative flex flex-1 flex-col justify-center p-6">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h3 id={`${id}-title`} className="font-display text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">{title}</h3>
+          <KindBadge id={`${id}-kind`} label={kind} />
+        </div>
+        <p className="mt-3 text-sm font-semibold uppercase tracking-[0.15em] text-white/60">Goal</p>
+        <p id={`${id}-goal`} className="mt-1 text-base text-white/80">{goal}</p>
+        <p className="mt-4 text-sm font-medium text-white/60">{meta}</p>
+      </div>
+      <OpenArrow />
+    </>
+  )
+
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" {...a11y} className={className}>
+      {content}
+      <span id={`${id}-newtab`} className="sr-only">
+        (opens in a new tab)
+      </span>
+    </a>
+  ) : (
+    <Link to={to ?? '/'} {...a11y} className={className}>
+      {content}
+    </Link>
   )
 }
 
@@ -264,7 +384,7 @@ function VideoSquare({
             background. */}
         <h3 className="font-display text-2xl leading-tight text-ink">{item.title}</h3>
         <p className="mt-2 text-base sm:text-xl text-ink/70 line-clamp-3">{item.description}</p>
-        <p className="mt-4 text-sm font-medium text-ink/40">{item.role}</p>
+        <p className="mt-4 text-sm font-medium text-ink/70">{item.role}</p>
       </div>
       {/* Rounded corners on the video itself (not just the tile) — once
           it slides down on hover, its top edge separates from the
@@ -274,8 +394,10 @@ function VideoSquare({
           mask sliding away. */}
       <video
         ref={setVideoRef}
+        aria-hidden="true"
         className="absolute inset-0 z-10 h-full w-full rounded-2xl object-cover shadow-[0_12px_20px_-6px_rgba(74,46,20,0.5)] transition-transform duration-500 ease-in-out group-hover:translate-y-[35%]"
         src={item.videoSrc}
+        poster={posterFor(item.videoSrc)}
         autoPlay
         muted
         loop
@@ -341,12 +463,12 @@ function GameCell() {
           stays scoped to the video, where it's actually functioning as
           a "dim the footage" effect. */}
       <div className="order-1 flex-1 p-8 text-center">
-        <h2 className="font-pixel text-5xl uppercase leading-relaxed tracking-widest text-hover-pink">
+        <p className="font-pixel text-5xl uppercase leading-relaxed tracking-widest text-hover-pink">
           Game Time!
-        </h2>
+        </p>
         {/* Same headline size as every other tile (`TextCell`,
             `VideoSquare`: `font-display text-2xl leading-tight`). */}
-        <h3 className="font-display mt-4 text-2xl leading-tight text-white">
+        <h3 className="font-display mt-4 text-2xl leading-tight text-white transition-colors duration-300 group-hover:text-hover-yellow">
           Get to know me with a little game I built
         </h3>
         {/* Keyboard-only info (arrows/space) — useless below `xl` where
@@ -368,7 +490,7 @@ function GameCell() {
         {/* Quiet, not a competing second call to action — the arrow
             circle on the video below is already the click target; this
             just clarifies what clicking it does. */}
-        <p className="mt-2 text-xs text-white/40">Opens in a new window</p>
+        <p className="mt-2 text-xs text-white/55">Opens in a new window</p>
       </div>
       {/* Vertical padding around the video (was flush top/bottom) —
           horizontal stays flush so the card's own rounded corners still
@@ -385,6 +507,7 @@ function GameCell() {
         <div className="relative mx-auto w-full max-w-[480px]">
           <video
             ref={setVideoRef}
+            aria-hidden="true"
             className="relative z-0 block aspect-[480/524] w-full rounded-2xl object-cover"
             src="/game/gameplay-demo.mp4"
             // Confirmed on real Safari: autoplay doesn't start there
@@ -438,6 +561,7 @@ export default function BentoGrid() {
   const [playing, setPlaying] = useState<VideoTile | null>(null)
   const caseStudies = workItems.filter((item): item is CaseStudyTile => item.kind === 'case-study')
   const videoItems = workItems.filter((item): item is VideoTile => item.kind === 'video')
+  const apps = workItems.filter((item): item is AppTile => item.kind === 'app')
   // Used for the video tiles' own background (visible behind the video
   // during its hover-reveal) — case studies don't need this since every
   // `TextCell` uses the same flat `bg-textbox`.
@@ -446,12 +570,36 @@ export default function BentoGrid() {
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 p-6 min-[690px]:grid-cols-2 md:gap-6 md:p-10">
-      <CaseStudyPair item={caseStudies[0]} priority />
-      <CaseStudyPair item={caseStudies[1]} />
+      {/* Screen-reader-only section heading so the tile titles (h3) sit
+          under an h2 instead of jumping straight from the page's h1.
+          `sr-only` is absolutely positioned, so it takes no grid cell. */}
+      <h2 className="sr-only">Projects</h2>
+      {/* Latest case study + the live app, as two single squares side
+          by side rather than one full-width pair. */}
+      <CaseStudySquare item={caseStudies[0]} priority />
+      {apps.map((item) => (
+        <SquareCard
+          key={item.id}
+          title={item.title}
+          kind={item.label}
+          goal={item.goal}
+          meta={`${item.tags[0]} · ${item.year}`}
+          image={item.image}
+          href={item.url}
+          // Squinty sits at the far left of the OG image — keep him in
+          // frame at the resting zoom.
+          imageOrigin="origin-[25%_50%]"
+          priority
+        />
+      ))}
 
       <GameCell />
 
-      {caseStudies.slice(2).map((item) => (
+      {/* Next two case studies as their own row of two squares. */}
+      <CaseStudySquare item={caseStudies[1]} />
+      <CaseStudySquare item={caseStudies[2]} />
+
+      {caseStudies.slice(3).map((item) => (
         <CaseStudyPair key={item.id} item={item} />
       ))}
 

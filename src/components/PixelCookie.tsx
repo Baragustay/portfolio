@@ -39,7 +39,7 @@ const CHOCOLATE = '#4a2e14'
 
 export default function PixelCookie({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 16 18" shapeRendering="crispEdges" className={className}>
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 16 18" shapeRendering="crispEdges" className={className}>
       {BODY_CELLS.map(([x, y, w, h]) => (
         <rect key={`body-${x}-${y}`} x={x} y={y} width={w} height={h} fill={DOUGH} />
       ))}

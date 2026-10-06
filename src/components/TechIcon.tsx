@@ -143,7 +143,7 @@ function pickIcon(language: string): boolean[][] {
 export default function TechIcon({ language, color }: { language: string; color: string }) {
   const grid = pickIcon(language)
   return (
-    <svg viewBox={`0 0 ${GRID_SIZE} ${GRID_SIZE}`} shapeRendering="crispEdges" className="h-4 w-4 shrink-0">
+    <svg aria-hidden="true" focusable="false" viewBox={`0 0 ${GRID_SIZE} ${GRID_SIZE}`} shapeRendering="crispEdges" className="h-4 w-4 shrink-0">
       {grid.map((row, y) => row.map((filled, x) => (filled ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={color} /> : null)))}
     </svg>
   )

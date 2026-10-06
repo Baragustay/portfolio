@@ -28,11 +28,11 @@ export default function GameControls() {
           <KeyCap>←</KeyCap>
           <KeyCap>→</KeyCap>
         </div>
-        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Move</span>
+        <span className="text-xs font-medium uppercase tracking-wide text-white/60">Move</span>
       </div>
       <div className="flex flex-col items-center gap-1.5">
         <KeyCap wide>Space</KeyCap>
-        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Jump and catch</span>
+        <span className="text-xs font-medium uppercase tracking-wide text-white/60">Jump and catch</span>
       </div>
     </div>
   )

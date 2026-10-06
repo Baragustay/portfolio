@@ -79,7 +79,7 @@ export default function PixelCatCute({
   bodyColor?: string
 }) {
   return (
-    <svg viewBox="0 0 32 32" shapeRendering="crispEdges" className={className}>
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 32 32" shapeRendering="crispEdges" className={className}>
       <Blocks cells={TAIL_CELLS} color={bodyColor} />
       <Blocks cells={BODY_CELLS} color={bodyColor} />
       <Blocks cells={EAR_CELLS} color={bodyColor} />

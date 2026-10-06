@@ -12,3 +12,11 @@
 export function setMutedAttribute(el: HTMLVideoElement | null) {
   if (el) el.setAttribute('muted', '')
 }
+
+// Every video under /work/videos has a still frame saved next to it as
+// `<name>-poster.webp`, shown until the video has loaded — and for good
+// wherever autoplay is refused (Safari "Never Auto-Play", Low Power
+// Mode), instead of an empty tile. Add one alongside any new video.
+export function posterFor(src: string) {
+  return src.replace(/\.mp4$/, '-poster.webp')
+}

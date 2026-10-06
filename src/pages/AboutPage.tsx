@@ -91,7 +91,7 @@ export default function AboutPage() {
       <GridHoverBackground />
       <Navbar />
 
-      <section className="relative z-10 px-6 pb-16 pt-[164px] md:px-12">
+      <main id="main" className="relative z-10 px-6 pb-16 pt-[164px] md:px-12">
         <div className="mx-auto max-w-4xl">
           {/* Pixel-dissolve entrance, echoing the homepage's.
               `revealFrom="center"` (rather than the homepage's fully
@@ -139,7 +139,7 @@ export default function AboutPage() {
           <div>
             {SKILLS.map((skill) => (
               <div key={skill.label} className="py-4">
-                <p className="text-sm font-semibold uppercase tracking-wider text-white/40">
+                <p className="text-sm font-semibold uppercase tracking-wider text-white/55">
                   {skill.label}
                 </p>
                 <p className="mt-2 text-base sm:text-lg text-white/70">{skill.value}</p>
@@ -162,14 +162,14 @@ export default function AboutPage() {
                   {/* Stacks onto its own line below `sm` (`block`) —
                       inline right after the programme name from `sm`
                       up, where there's room for it on the same line. */}
-                  {'note' in entry && <span className="block text-sm text-white/40 sm:inline"> ({entry.note})</span>}
+                  {'note' in entry && <span className="block text-sm text-white/55 sm:inline"> ({entry.note})</span>}
                 </p>
-                <p className="mt-1 text-sm text-white/40">{entry.school}</p>
+                <p className="mt-1 text-sm text-white/55">{entry.school}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </main>
 
       {/* `relative z-10` here too, not just on the section above — the
           grid is `position: absolute` and stretches to cover this whole

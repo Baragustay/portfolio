@@ -22,6 +22,10 @@
      it was swapped to the cooler `--color-accent` above, rather than
      inventing a third pink. */
   --color-hover-pink: #e1b8ba;
+  /* Soft butter yellow for homepage tile titles on hover — same muted,
+     pastel weight as `hover-pink` so it sits with the palette, but a
+     warmer signal that the tile opens a page. */
+  --color-hover-yellow: #ecd58f;
   /* Pantone Color of the Year 2026, "Cloud Dancer" (PANTONE 11-4201,
      RGB 240/238/233) — overrides Tailwind's built-in `white` theme value,
      so every `bg-white`/`text-white`/`ring-white/X` etc. across the whole
@@ -165,4 +169,21 @@ body {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Tailwind v4 dropped the pointer cursor on buttons (preflight resets
+   them to `cursor: default`), so clickable tiles like the homepage
+   video squares showed a plain arrow and didn't read as playable.
+   Restored site-wide, as the Tailwind v4 upgrade guide suggests. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* The skip link (App.tsx) focuses `<main id="main">` programmatically;
+   no need to draw a focus ring around the entire page content. */
+main:focus {
+  outline: none;
 }

@@ -14,8 +14,8 @@ import { reopenCookiePreferences } from '../lib/cookieConsent'
 // bg`, so its footer needs light text; every other page is light, using
 // the site's usual dark `ink` text.
 export default function Footer({ dark }: { dark?: boolean }) {
-  const linkClass = `transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-ink/60 hover:text-ink'}`
-  const noteClass = dark ? 'text-white/40' : 'text-ink/40'
+  const linkClass = `transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-ink/75 hover:text-ink'}`
+  const noteClass = dark ? 'text-white/55' : 'text-ink/70'
   return (
     <footer className="flex flex-col items-center gap-4 px-6 py-10 text-sm font-medium">
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
@@ -23,7 +23,7 @@ export default function Footer({ dark }: { dark?: boolean }) {
           Email
         </a>
         <a href="https://github.com/baragustay" target="_blank" rel="noreferrer" className={linkClass}>
-          GitHub
+          GitHub<span className="sr-only"> (opens in a new tab)</span>
         </a>
         <a
           href="https://www.linkedin.com/in/barbora-gustafsson"
@@ -31,7 +31,7 @@ export default function Footer({ dark }: { dark?: boolean }) {
           rel="noreferrer"
           className={linkClass}
         >
-          LinkedIn
+          LinkedIn<span className="sr-only"> (opens in a new tab)</span>
         </a>
         <Link to="/privacy" className={linkClass}>
           Privacy Policy

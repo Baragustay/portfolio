@@ -13,23 +13,25 @@ export default function NotFoundPage() {
   return (
     <div id="top" className="min-h-screen bg-page-bg">
       <Navbar />
-      <PixelReveal delay={0.15}>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 pb-24 pt-24 text-center">
-          <PixelCatWarrior className="h-56 w-56 sm:h-72 sm:w-72" />
-          <div>
-            <h1 className="font-pixel text-3xl uppercase tracking-widest text-hover-pink sm:text-4xl">
-              Oh no!
-            </h1>
-            <p className="font-display mt-3 text-2xl leading-tight text-white">There's nothing here</p>
+      <main id="main">
+        <PixelReveal delay={0.15}>
+          <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 pb-24 pt-24 text-center">
+            <PixelCatWarrior className="h-56 w-56 sm:h-72 sm:w-72" />
+            <div>
+              <h1 className="font-pixel text-3xl uppercase tracking-widest text-hover-pink sm:text-4xl">
+                Oh no!
+              </h1>
+              <p className="font-display mt-3 text-2xl leading-tight text-white">There's nothing here</p>
+            </div>
+            <Link
+              to="/"
+              className="rounded-full bg-white/90 px-6 py-3 text-base font-semibold text-ink transition-colors hover:bg-white"
+            >
+              Take me home
+            </Link>
           </div>
-          <Link
-            to="/"
-            className="rounded-full bg-white/90 px-6 py-3 text-base font-semibold text-ink transition-colors hover:bg-white"
-          >
-            Take me home
-          </Link>
-        </div>
-      </PixelReveal>
+        </PixelReveal>
+      </main>
     </div>
   )
 }

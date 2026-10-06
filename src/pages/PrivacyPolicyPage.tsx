@@ -13,10 +13,10 @@ export default function PrivacyPolicyPage() {
       <GridHoverBackground />
       <Navbar />
 
-      <article className="relative z-10 mx-auto max-w-2xl px-6 pb-24 pt-[164px] md:px-0">
-        <p className="text-sm font-semibold uppercase tracking-wider text-white/40">Legal</p>
+      <main id="main" className="relative z-10 mx-auto max-w-2xl px-6 pb-24 pt-[164px] md:px-0">
+        <p className="text-sm font-semibold uppercase tracking-wider text-white/55">Legal</p>
         <h1 className="font-display mt-2 text-4xl leading-tight text-white md:text-5xl">Privacy Policy</h1>
-        <p className="mt-4 text-base text-white/40">Last updated: 2026</p>
+        <p className="mt-4 text-base text-white/55">Last updated: 2026</p>
 
         <div className="mt-8 flex flex-col items-center gap-2">
           <PixelCatCute className="h-40 w-40 sm:h-48 sm:w-48" />
@@ -57,6 +57,7 @@ export default function PrivacyPolicyPage() {
                 className="text-white underline underline-offset-2 hover:text-hover-pink"
               >
                 Google's own privacy policy
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>{' '}
               for details on how they handle it.
             </p>
@@ -95,7 +96,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
         </div>
-      </article>
+      </main>
 
       <div className="relative z-10">
         <Footer dark />

@@ -80,7 +80,7 @@ export default function PixelCatWarrior({
   bodyColor?: string
 }) {
   return (
-    <svg viewBox="0 0 43 40" shapeRendering="crispEdges" className={className}>
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 43 40" shapeRendering="crispEdges" className={className}>
       <Blocks cells={BLADE_CELLS} color="#d8dde3" />
       <Blocks cells={HILT_CELLS} color="#6b4226" />
       <Blocks cells={CAT_CELLS} color={bodyColor} />

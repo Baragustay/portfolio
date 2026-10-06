@@ -31,7 +31,7 @@ export function PixelArrow({ className }: DoodleProps) {
     // default "meet" behavior padding extra width with empty space —
     // that's what lets a wider className actually elongate the arrow
     // rather than just letterboxing it.
-    <svg
+    <svg aria-hidden="true" focusable="false"
       viewBox="0 0 9 7"
       preserveAspectRatio="none"
       fill="currentColor"
@@ -58,7 +58,7 @@ export function PixelPlay({ className }: DoodleProps) {
     [1, 6],
   ]
   return (
-    <svg viewBox="0 0 6 7" fill="currentColor" shapeRendering="crispEdges" className={className}>
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 6 7" fill="currentColor" shapeRendering="crispEdges" className={className}>
       {cells.map(([x, y]) => (
         <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} />
       ))}

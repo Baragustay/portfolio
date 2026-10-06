@@ -34,10 +34,22 @@ export default function Carousel({ items }: { items: { src: string; caption?: st
       <div
         ref={trackRef}
         onScroll={handleScroll}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Image carousel"
         className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl ring-1 ring-ink/5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {items.map((item) => (
-          <div key={item.src} className="w-full shrink-0 snap-start bg-neutral-50">
+        {items.map((item, i) => (
+          <div
+            key={item.src}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} of ${items.length}`}
+            // Off-screen slides hidden from screen readers so they read
+            // only the one actually showing.
+            aria-hidden={i !== index}
+            className="w-full shrink-0 snap-start bg-neutral-50"
+          >
             <img src={item.src} alt={item.caption ?? ''} loading="lazy" decoding="async" className="w-full object-contain" />
           </div>
         ))}
@@ -45,30 +57,37 @@ export default function Carousel({ items }: { items: { src: string; caption?: st
 
       {items.length > 1 && (
         <>
+          {/* Announces the newly shown image (and its caption, which is
+              its alt text) after Previous/Next/dot navigation. */}
+          <p className="sr-only" aria-live="polite">
+            Image {index + 1} of {items.length}
+            {items[index]?.caption ? `: ${items[index].caption}` : ''}
+          </p>
           <button
             type="button"
-            aria-label="Previous"
+            aria-label="Previous image"
             onClick={() => scrollToIndex(index - 1)}
             disabled={index === 0}
             className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow ring-1 ring-ink/10 transition-opacity hover:bg-white disabled:opacity-0"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           <button
             type="button"
-            aria-label="Next"
+            aria-label="Next image"
             onClick={() => scrollToIndex(index + 1)}
             disabled={index === items.length - 1}
             className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow ring-1 ring-ink/10 transition-opacity hover:bg-white disabled:opacity-0"
           >
-            →
+            <span aria-hidden="true">→</span>
           </button>
           <div className="mt-3 flex items-center justify-center gap-2">
             {items.map((item, i) => (
               <button
                 key={item.src}
                 type="button"
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={`Go to image ${i + 1}`}
+                aria-current={i === index ? 'true' : undefined}
                 onClick={() => scrollToIndex(i)}
                 className={`h-2 rounded-full transition-all ${
                   i === index ? 'w-6 bg-ink' : 'w-2 bg-ink/20'

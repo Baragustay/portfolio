@@ -29,10 +29,11 @@ export default function Navbar() {
   const { pathname } = useLocation()
   // A light circle on a light page has almost no contrast, so the
   // back-arrow button flips to dark-on-light on the dark pages
-  // (`/about`, `/code`, `/privacy`, `/game`) instead of assuming one
-  // fixed style works everywhere. Case studies stayed light on purpose.
-  const isDarkPage =
-    pathname === '/about' || pathname === '/code' || pathname === '/privacy' || pathname === '/game'
+  // instead of assuming one fixed style works everywhere. Every page is
+  // dark except case studies (`/work/...`), which stayed light on
+  // purpose — checked that way round so the homepage (mobile) and the
+  // 404 page count as dark too.
+  const isDarkPage = !pathname.startsWith('/work/')
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 24)
@@ -82,19 +83,23 @@ export default function Navbar() {
         className="fixed top-[52px] left-1/2 z-50 -translate-x-1/2 px-2"
       >
         <motion.nav
+          aria-label="Main"
           animate={{
             paddingInline: scrolled ? 8 : 14,
             paddingBlock: scrolled ? 8 : 12,
           }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="flex items-center gap-2 rounded-full border border-white/50
-                     bg-white/30 shadow-[0_8px_32px_rgba(29,43,43,0.12),0_2px_12px_rgba(225,184,186,0.16)]
+          // `bg-white/75` on dark pages: the glassy `bg-white/30` over a
+          // near-black page came out mid-grey, leaving the pill's dark
+          // text at ~2:1 contrast (WCAG AA needs 4.5:1).
+          className={`flex items-center gap-2 rounded-full border border-white/50
+                     ${isDarkPage ? 'bg-white/75' : 'bg-white/30'} shadow-[0_8px_32px_rgba(29,43,43,0.12),0_2px_12px_rgba(225,184,186,0.16)]
                      backdrop-blur-xl backdrop-saturate-150
                      before:pointer-events-none before:absolute before:inset-0
                      before:rounded-full before:bg-gradient-to-r
                      before:from-accent/40 before:via-white/10 before:to-ink/10
                      before:opacity-70
-                     relative overflow-hidden sm:gap-6"
+                     relative overflow-hidden sm:gap-6`}
         >
           {/* Just "Barbora", not the full "Barbora Gustafsson" — short
               enough to fit at every width once the pill's own gaps/
@@ -112,6 +117,7 @@ export default function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }
             }}
+            aria-current={pathname === '/' ? 'page' : undefined}
             className={`font-pixel relative z-10 rounded-full py-1.5 pl-2 pr-1.5 text-xs uppercase tracking-wide transition-colors hover:bg-accent-soft/50 sm:pl-3 sm:pr-3 sm:text-sm ${
               pathname === '/' ? 'bg-accent-soft/50 font-bold' : 'font-normal'
             }`}
@@ -123,6 +129,7 @@ export default function Navbar() {
               <li key={link.to}>
                 <Link
                   to={link.to}
+                  aria-current={pathname === link.to ? 'page' : undefined}
                   className={`rounded-full px-1.5 py-1.5 uppercase tracking-wide transition-colors hover:bg-accent-soft/50 sm:px-3 ${
                     pathname === link.to ? 'bg-accent-soft/50 font-bold' : 'font-normal'
                   }`}

@@ -62,7 +62,7 @@ export default function GamePage() {
       {/* No `pb-*` here — `Footer` (last child) already carries its own
           `py-10`; adding padding after it too just stacked redundant
           empty space below the footer for no reason. */}
-      <main className="flex flex-col items-center px-6 pt-[164px] lg:ml-[280px] lg:items-stretch lg:pt-8 xl:ml-[320px]">
+      <main id="main" className="flex flex-col items-center px-6 pt-[164px] lg:ml-[280px] lg:items-stretch lg:pt-8 xl:ml-[320px]">
         {/* `lg:`-only — below that, `Navbar` (above) already renders its
             own fixed back-arrow in the top-left corner; this would just
             be a second, redundant one competing for the same spot. At

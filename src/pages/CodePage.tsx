@@ -48,14 +48,14 @@ const ASPECTS = [4 / 5, 1, 5 / 4, 4 / 3, 3 / 4]
 function ColorWave({ color }: { color: string }) {
   return (
     <div className="absolute inset-0" style={{ backgroundColor: color }}>
-      <svg
+      <svg aria-hidden="true" focusable="false"
         className="absolute inset-x-0 bottom-0 h-1/2 w-full"
         viewBox="0 0 400 80"
         preserveAspectRatio="none"
       >
         <path d="M0,40 C100,80 300,0 400,40 L400,80 L0,80 Z" fill="rgba(0,0,0,0.18)" />
       </svg>
-      <svg
+      <svg aria-hidden="true" focusable="false"
         className="absolute inset-x-0 bottom-0 h-1/3 w-full"
         viewBox="0 0 400 80"
         preserveAspectRatio="none"
@@ -121,35 +121,28 @@ export default function CodePage() {
         const primaryLabel = project.liveHref ? 'View live' : 'View code'
         const showSecondaryGithub = project.liveHref && project.githubHref
         const aspect = ASPECTS[i % ASPECTS.length]
-        const openPrimary = () => window.open(primaryHref, '_blank', 'noopener,noreferrer')
 
         return (
-          // A `<div>` with `role="link"`, not an `<a>` — the secondary
-          // "View code" link below needs to be a real `<a>` too, and an
-          // `<a>` can't validly contain another `<a>` (invalid HTML;
-          // React logs a hydration-mismatch warning and the browser
-          // silently un-nests them at parse time, which breaks click
-          // targeting on whichever one ends up de-nested).
+          // Accessible "stretched link" card: the project name is the one
+          // real primary `<a>`, and its `after:` pseudo-element is
+          // stretched over the whole card so clicking anywhere still
+          // opens it. Screen readers get a single clearly-named link
+          // instead of the old `div role="link"` (which read out the
+          // entire card as its name and wrapped a second link inside
+          // itself). "View code" sits above the overlay (`relative z-10`)
+          // so it stays its own separate link.
+          //
+          // `transform-gpu`: without it, the banner image's own
+          // `group-hover:scale-105` (see TileBanner) promotes just that
+          // image to its own GPU-composited layer on hover — Chrome/Safari
+          // can then fail to keep applying this card's `rounded-3xl
+          // overflow-hidden` clip consistently against a child compositing
+          // on top of it, so the corners visibly square off. Promoting
+          // this element too keeps the clip on the same compositing layer
+          // as the thing it's clipping.
           <div
             key={project.id}
-            role="link"
-            tabIndex={0}
-            onClick={openPrimary}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                openPrimary()
-              }
-            }}
-            // `transform-gpu`: without it, the banner image's own
-            // `group-hover:scale-105` (see TileBanner) promotes just
-            // that image to its own GPU-composited layer on hover —
-            // Chrome/Safari can then fail to keep applying this card's
-            // `rounded-3xl overflow-hidden` clip consistently against
-            // a child compositing on top of it, so the corners visibly
-            // square off. Promoting this element too keeps the clip on
-            // the same compositing layer as the thing it's clipping.
-            className="group relative mb-6 block w-full transform-gpu cursor-pointer overflow-hidden rounded-3xl break-inside-avoid bg-textbox"
+            className="group relative mb-6 block w-full transform-gpu overflow-hidden rounded-3xl break-inside-avoid bg-textbox has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-white"
           >
             <TileBanner project={project} aspect={aspect} priority={i < 4} />
             <div className="p-5">
@@ -157,13 +150,31 @@ export default function CodePage() {
                 <TechIcon language={project.language} color={project.languageColor} />
                 <span className="text-sm font-medium text-white/70">{project.language}</span>
               </div>
-              <h3 className="font-display mt-2 text-2xl text-white">{project.name}</h3>
+              <h2 className="font-display mt-2 text-2xl text-white">
+                <a
+                  href={primaryHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="outline-none after:absolute after:inset-0 after:content-['']"
+                >
+                  {project.name}
+                  <span className="sr-only">
+                    {' '}
+                    ({primaryLabel.toLowerCase()}, opens in a new tab)
+                  </span>
+                </a>
+              </h2>
               <p className="mt-2 text-base sm:text-lg text-white/70">{project.description}</p>
               {/* Pixel arrows (not plain "→" text), matching the same
                   `PixelArrow` used for the bento grid's open arrows and
                   the back-nav button. */}
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <p className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/70 group-hover:text-white">
+                {/* Visual cue only — the title link above already says
+                    this to screen readers. */}
+                <p
+                  aria-hidden="true"
+                  className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/70 group-hover:text-white"
+                >
                   {primaryLabel}
                   <PixelArrow className="h-3 w-3 -rotate-45" />
                 </p>
@@ -172,10 +183,10 @@ export default function CodePage() {
                     href={project.githubHref}
                     target="_blank"
                     rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50 hover:text-white/80"
+                    className="relative z-10 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/60 hover:text-white/80"
                   >
                     View code
+                    <span className="sr-only"> for {project.name} (opens in a new tab)</span>
                     <PixelArrow className="h-3 w-3 -rotate-45" />
                   </a>
                 )}
@@ -191,8 +202,8 @@ export default function CodePage() {
     <div id="top" className="bg-page-bg">
       <Navbar />
 
-      <section className="px-6 py-24 pt-[164px] md:px-12">
-        <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-white/40">
+      <main id="main" className="px-6 py-24 pt-[164px] md:px-12">
+        <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-white/55">
           Dev Projects
         </p>
         <h1 className="font-display text-center text-5xl text-white md:text-6xl">Code</h1>
@@ -212,7 +223,7 @@ export default function CodePage() {
         <div className="mx-auto mt-6 grid max-w-6xl grid-cols-1 gap-x-10 gap-y-6 pt-2 text-left sm:grid-cols-2 lg:grid-cols-3">
           {DEV_SKILL_GROUPS.map((group) => (
             <div key={group.label}>
-              <p className="text-sm font-semibold uppercase tracking-wider text-white/40">{group.label}</p>
+              <p className="text-sm font-semibold uppercase tracking-wider text-white/55">{group.label}</p>
               <p className="mt-2 text-base text-white/70 sm:text-lg">{group.value}</p>
             </div>
           ))}
@@ -228,6 +239,7 @@ export default function CodePage() {
             className="font-semibold text-white underline underline-offset-2 hover:text-white/80"
           >
             GitHub
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
           .
         </p>
@@ -235,7 +247,7 @@ export default function CodePage() {
         {/* Pixel-dissolve entrance, same as the homepage. Plays on every
             visit, no session gating. */}
         <PixelReveal delay={0.2}>{grid}</PixelReveal>
-      </section>
+      </main>
 
       <Footer dark />
     </div>

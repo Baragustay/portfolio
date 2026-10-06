@@ -2,7 +2,7 @@
 // shown together in one feed. Real content pulled from barboragustafsson.com
 // (2026-09-18). See project memory `portfolio-v2-work-section`.
 //
-// Exactly 6 real tiles, no color-fill filler. Earlier versions padded
+// Exactly 7 real tiles, no color-fill filler. Earlier versions padded
 // the grid out with decorative color tiles when the item count felt
 // sparse; retired along with the pink/green palette they used (see
 // `portfolio-v2-stack-brand`).
@@ -31,7 +31,20 @@ export type VideoTile = BaseTile & {
   videoSrc: string
 }
 
-export type WorkTile = CaseStudyTile | VideoTile
+// A live app with no case study of its own — its tile links straight
+// out to the running app instead of a /work/ detail page.
+export type AppTile = BaseTile & {
+  kind: 'app'
+  title: string
+  label: string // shown as a badge beside the title, e.g. "Live RAG app"
+  goal: string
+  year: string
+  tags: string[]
+  image: string
+  url: string
+}
+
+export type WorkTile = CaseStudyTile | VideoTile | AppTile
 
 export const workItems: WorkTile[] = [
   {
@@ -49,6 +62,17 @@ export const workItems: WorkTile[] = [
     year: '2026',
     tags: ['UX/UI Design', 'Accessibility', 'FinTech', 'Children'],
     image: '/work/images/piggy-bank-thumb.webp',
+  },
+  {
+    id: 'squinty',
+    kind: 'app',
+    title: 'Squinty',
+    label: 'Live RAG app',
+    goal: 'Privacy policies and terms of 23 popular services, explained in plain English, with every claim linked to the original text.',
+    year: '2026',
+    tags: ['Design & Build', 'RAG', 'AI', 'React', 'Accessibility'],
+    image: '/work/images/squinty-thumb.webp',
+    url: 'https://squinty.barboragustafsson.com/',
   },
   {
     id: 'promptkee',

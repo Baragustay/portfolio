@@ -35,6 +35,7 @@ const NAV_LINKS = [
 ]
 
 const EDUCATION = [
+  { programme: 'AI tools & workflows', school: 'Courses & hands-on projects' },
   { programme: 'Web Development & User Experience', note: 'Webmaster programme', school: 'Högskolan Väst' },
   { programme: 'Physiotherapy', school: 'Uppsala University' },
   { programme: 'Content for social media', school: 'Högskolan Dalarna' },
@@ -94,18 +95,19 @@ export default function Sidebar({
         {/* Tagline leads, then role, then location smallest/most muted. */}
         <p className="mt-3 text-xl text-white/80">I study people</p>
         <p className="mt-1 text-xl text-white/60">UX &amp; Product design</p>
-        <p className="mt-3 text-sm text-white/40">Uppsala/Stockholm, Sweden</p>
+        <p className="mt-3 text-sm text-white/55">Uppsala/Stockholm, Sweden</p>
 
         {/* Sits right under name/role/location, ahead of the education
             block at the bottom, so it reads as navigation rather than
             getting buried under prose. No horizontal padding — flush
             with the name/tagline above it. */}
-        <nav className="mt-6 flex flex-col items-start gap-1">
+        <nav aria-label="Main" className="mt-6 flex flex-col items-start gap-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="py-1.5 text-xl font-semibold text-white transition-colors hover:text-white/70"
+              aria-current={pathname === link.to ? 'page' : undefined}
+              className="py-1.5 text-xl font-semibold text-white transition-colors duration-300 hover:text-hover-yellow"
             >
               {link.label}
             </Link>
@@ -120,13 +122,13 @@ export default function Sidebar({
           name brighter/first, school name dimmer/smaller right under it
           — so the two are never visually confused with each other. */}
       <div className="relative z-10">
-        <p className="font-pixel text-xs uppercase tracking-[0.2em] text-white/40">Education</p>
-        <div className="mt-2 flex flex-col gap-2">
+        <p className="font-pixel text-sm uppercase tracking-[0.2em] text-white/60">Education</p>
+        <div className="mt-3 flex flex-col gap-3">
           {EDUCATION.map((entry) => (
             <div key={entry.school}>
-              <p className="text-sm text-white/70">{entry.programme}</p>
-              {'note' in entry && <p className="text-xs text-white/40">({entry.note})</p>}
-              <p className="text-xs text-white/40">{entry.school}</p>
+              <p className="text-base font-medium leading-snug text-white/90">{entry.programme}</p>
+              {'note' in entry && <p className="text-sm text-white/55">({entry.note})</p>}
+              <p className="text-sm text-white/55">{entry.school}</p>
             </div>
           ))}
         </div>
