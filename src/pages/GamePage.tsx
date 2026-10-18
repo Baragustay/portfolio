@@ -44,7 +44,9 @@ export default function GamePage() {
     <div
       ref={scrollRef}
       style={{ backgroundColor: GAME_BG }}
-      className="lg:mt-9 lg:h-[calc(100vh-2.25rem)] lg:overflow-y-auto lg:overscroll-y-contain"
+      // `relative`: keeps absolutely positioned descendants (Footer's
+      // `sr-only` spans) inside this scroll container — see Home.tsx.
+      className="relative lg:mt-9 lg:h-[calc(100vh-2.25rem)] lg:overflow-y-auto lg:overscroll-y-contain"
     >
       <div className="lg:hidden">
         <Navbar />

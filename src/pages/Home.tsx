@@ -48,9 +48,16 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   return (
+    // `relative` makes this scroll container the containing block for
+    // absolutely positioned descendants with no other positioned
+    // ancestor (e.g. Footer's `sr-only` "(opens in a new tab)" spans).
+    // Without it they escape to the initial containing block, sit at
+    // their static position thousands of px down, and stretch the
+    // *document* past the viewport, so the window itself scrolls and
+    // the light `<body>` background shows below this container.
     <div
       ref={scrollRef}
-      className="bg-page-bg lg:mt-9 lg:h-[calc(100vh-2.25rem)] lg:overflow-y-auto lg:overscroll-y-contain"
+      className="relative bg-page-bg lg:mt-9 lg:h-[calc(100vh-2.25rem)] lg:overflow-y-auto lg:overscroll-y-contain"
     >
       <div className="lg:hidden">
         <Navbar />
