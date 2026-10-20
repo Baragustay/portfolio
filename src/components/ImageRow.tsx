@@ -18,14 +18,20 @@ const GAP = 16
 export default function ImageRow({
   srcs,
   alt = '',
-  maxHeight = DEFAULT_MAX_HEIGHT,
+  maxHeight: maxHeightProp,
+  className = '',
 }: {
   srcs: string[]
   alt?: string
   // Per-instance override of the target/ceiling height described above,
   // for a specific image that should render smaller than the default.
   maxHeight?: number
+  className?: string
 }) {
+  // Without an explicit ceiling, images may grow with the screen (up to
+  // 80% of its height), so a full-width row on a big monitor isn't
+  // capped at a small, fixed height.
+  const maxHeight = maxHeightProp ?? Math.max(DEFAULT_MAX_HEIGHT, Math.round(window.innerHeight * 0.8))
   const containerRef = useRef<HTMLDivElement>(null)
   const [ratios, setRatios] = useState<number[] | null>(null)
   const [containerWidth, setContainerWidth] = useState(0)
@@ -78,7 +84,7 @@ export default function ImageRow({
   }
 
   return (
-    <div ref={containerRef} className="mt-6 flex flex-wrap items-center justify-center" style={{ gap: GAP }}>
+    <div ref={containerRef} className={`mt-6 flex flex-wrap items-center justify-center ${className}`} style={{ gap: GAP }}>
       {srcs.map((src, i) => (
         <img
           key={src}

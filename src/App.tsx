@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
+import { LazyMotion, MotionConfig } from 'framer-motion'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import StatusBar from './components/StatusBar'
 import CookieBanner from './components/CookieBanner'
@@ -13,6 +14,8 @@ const CodePage = lazy(() => import('./pages/CodePage'))
 const GamePage = lazy(() => import('./pages/GamePage'))
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+
+const loadMotionFeatures = () => import('./lib/motionFeatures').then((mod) => mod.default)
 
 // React Router doesn't reset scroll position on navigation — without
 // this, clicking a link while scrolled down (e.g. the footer's
@@ -30,47 +33,52 @@ function ScrollToTop() {
 
 function App() {
   return (
-    <>
-      {/* First thing a keyboard/screen-reader user reaches: jumps past
-          the status bar and nav straight to the page's `<main id="main">`
-          (every page has one). Hidden until focused. Focus is moved by
-          hand rather than relying on the `#main` hash alone, since the
-          homepage's `main` sits inside its own scroll container. */}
-      <a
-        href="#main"
-        onClick={(e) => {
-          const main = document.getElementById('main')
-          if (!main) return
-          e.preventDefault()
-          main.tabIndex = -1
-          main.focus()
-        }}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-12 focus:z-[100] focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:font-semibold focus:text-ink focus:shadow-lg"
-      >
-        Skip to main content
-      </a>
-      <ScrollToTop />
-      {/* Rendered once, above every route — see StatusBar.tsx. Every
-          other fixed-position element (Navbar's pill/back-arrow, the
-          homepage Sidebar) and every page's top padding is offset by its
-          36px (`h-9`) height. */}
-      <StatusBar />
-      {/* Also rendered once, above every route — see CookieBanner.tsx.
-          Shows itself on first visit; reopenable later via the footer's
-          "Cookie preferences" link or the privacy policy page. */}
-      <CookieBanner />
-      <Suspense fallback={null}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/work/:slug" element={<CaseStudyPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/code" element={<CodePage />} />
-          <Route path="/game" element={<GamePage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Suspense>
-    </>
+    // `strict`: a stray full `motion.*` component (which bundles every
+    // feature) throws in dev instead of silently undoing the split.
+    // `reducedMotion="user"` follows the OS reduced-motion setting.
+    <LazyMotion features={loadMotionFeatures} strict>
+      <MotionConfig reducedMotion="user">
+        {/* First thing a keyboard/screen-reader user reaches: jumps past
+            the status bar and nav straight to the page's `<main id="main">`
+            (every page has one). Hidden until focused. Focus is moved by
+            hand rather than relying on the `#main` hash alone, so the
+            next Tab continues from inside `main`. */}
+        <a
+          href="#main"
+          onClick={(e) => {
+            const main = document.getElementById('main')
+            if (!main) return
+            e.preventDefault()
+            main.tabIndex = -1
+            main.focus()
+          }}
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-12 focus:z-[100] focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:font-semibold focus:text-ink focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
+        <ScrollToTop />
+        {/* Rendered once, above every route — see StatusBar.tsx. Every
+            other fixed-position element (the Navbar bar, the homepage
+            Sidebar) and every page's top padding is offset by its
+            36px (`h-9`) height. */}
+        <StatusBar />
+        {/* Also rendered once, above every route — see CookieBanner.tsx.
+            Shows itself on first visit; reopenable later via the footer's
+            "Cookie preferences" link or the privacy policy page. */}
+        <CookieBanner />
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/work/:slug" element={<CaseStudyPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/code" element={<CodePage />} />
+            <Route path="/game" element={<GamePage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </MotionConfig>
+    </LazyMotion>
   )
 }
 

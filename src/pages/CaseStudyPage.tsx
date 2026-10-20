@@ -1,49 +1,165 @@
-import { useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { m, type Variants } from 'framer-motion'
+import { Link, useParams } from 'react-router-dom'
 import ImageRow from '../components/ImageRow'
 import Carousel from '../components/Carousel'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import PixelWaveDivider from '../components/PixelWaveDivider'
-import { getCaseStudy, type Option, type ParagraphBlock, type Persona } from '../data/caseStudyContent'
-import { posterFor, setMutedAttribute } from '../lib/video'
+import { getCaseStudy, type CaseStudy, type Option, type ParagraphBlock, type Persona, type Section } from '../data/caseStudyContent'
+import { posterFor, useInViewVideo } from '../lib/video'
+import { impactBySlug, type Impact } from '../data/impact'
+import { useBodyBackground, usePageMeta } from '../lib/pageMeta'
 
-// Ambient muted/looped preview clip — same real-attribute fix the
-// homepage bento grid's video tiles use, see `lib/video.ts`.
+// Media break out of the text column on large
+// screens, centred on it, to near the full window width.
+const WIDE = 'xl:relative xl:left-1/2 xl:w-[min(1600px,calc(100vw-6rem))] xl:-translate-x-1/2'
+
+// Ambient muted/looped preview clip — plays only while on screen, same
+// as the homepage bento grid's video tiles (see `useInViewVideo`).
 function AutoplayLoopVideo({ src, className }: { src: string; className?: string }) {
+  const { targetRef, setVideoRef } = useInViewVideo<HTMLDivElement>()
   return (
-    <video
-      ref={setMutedAttribute}
-      className={className}
-      src={src}
-      poster={posterFor(src)}
-      autoPlay
-      muted
-      loop
-      playsInline
-    />
+    <div ref={targetRef}>
+      <video
+        ref={setVideoRef}
+        className={className}
+        src={src}
+        poster={posterFor(src)}
+        muted
+        loop
+        playsInline
+        preload="none"
+      />
+    </div>
+  )
+}
+
+// A screen recording inside a landscape tablet. Plays muted while on
+// screen like `AutoplayLoopVideo`, but with a visible play/pause button,
+// a progress bar and a "Screen recording" label, since a frame alone
+// still read as a static screenshot. The button also lets visitors stop
+// the motion (WCAG 2.2.2); under reduced motion it never starts on its
+// own and the button reads "Play".
+function TabletVideo({ src, caption }: { src: string; caption?: string }) {
+  const { targetRef, setVideoRef } = useInViewVideo<HTMLElement>()
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const toggle = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) video.play().catch(() => {})
+    else video.pause()
+  }
+
+  return (
+    <figure ref={targetRef} className="mx-auto w-full">
+      <div className="relative rounded-[28px] bg-ink p-2.5 shadow-[0_30px_60px_rgba(31,35,51,0.22)] sm:rounded-[36px] sm:p-4">
+        <span aria-hidden="true" className="absolute left-1/2 top-1 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white/25 sm:top-1.5" />
+        <div className="relative overflow-hidden rounded-[18px] bg-black sm:rounded-[22px]">
+          <video
+            ref={(el) => {
+              videoRef.current = el
+              setVideoRef(el)
+            }}
+            className="block w-full"
+            src={src}
+            poster={posterFor(src)}
+            muted
+            loop
+            playsInline
+            preload="none"
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onTimeUpdate={(e) => {
+              const v = e.currentTarget
+              if (v.duration) setProgress(v.currentTime / v.duration)
+            }}
+          />
+          <button
+            type="button"
+            onClick={toggle}
+            className="absolute bottom-3 left-3 flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-white shadow-lg ring-2 ring-white/80 transition-colors hover:bg-ink/85"
+          >
+            <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
+            {playing ? 'Pause' : 'Play'}
+          </button>
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1 bg-white/25">
+            <div className="h-full bg-white" style={{ width: `${progress * 100}%` }} />
+          </div>
+        </div>
+      </div>
+      {caption && (
+        <figcaption className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-base text-neutral-700 sm:text-lg">
+          <span className="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-ink/75">
+            Screen recording
+          </span>
+          {caption}
+        </figcaption>
+      )}
+    </figure>
   )
 }
 
 // A paragraph slot is either plain text or an inline image/video —
 // lets media sit exactly between two specific paragraphs instead of
 // only ever at the end of a whole section.
+// `[text](/path)` inside a paragraph string becomes a site link, e.g. one
+// case study pointing to another. Internal paths only.
+const INLINE_LINK = /\[([^\]]+)\]\((\/[^)\s]*)\)/g
+
+function withLinks(text: string) {
+  const parts: React.ReactNode[] = []
+  let last = 0
+  for (const match of text.matchAll(INLINE_LINK)) {
+    parts.push(text.slice(last, match.index))
+    parts.push(
+      <Link key={match.index} to={match[2]} className="font-semibold text-ink underline decoration-2 underline-offset-4 hover:decoration-ink/40">
+        {match[1]}
+      </Link>,
+    )
+    last = match.index + match[0].length
+  }
+  parts.push(text.slice(last))
+  return parts
+}
+
 function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyTitle: string }) {
   if (typeof block === 'string') {
-    return <p className="text-base leading-relaxed sm:text-xl text-neutral-700">{block}</p>
+    return <p className="text-base leading-relaxed sm:text-xl text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
-    return <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} />
+    return block.small ? (
+      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={360} />
+    ) : (
+      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} />
+    )
+  }
+  if (block.type === 'videoPair') {
+    // `lg:`: breaks out of the 768px text column (centred on it), so each
+    // tablet stays large enough to read side by side.
+    return (
+      <div className="grid gap-10 pt-4 lg:relative lg:left-1/2 lg:w-[min(1600px,calc(100vw-6rem))] lg:-translate-x-1/2 lg:grid-cols-2 lg:gap-8">
+        {block.videos.map((video) => (
+          <TabletVideo key={video.src} src={video.src} caption={video.caption} />
+        ))}
+      </div>
+    )
   }
   return (
-    <div>
+    <div className={WIDE}>
       {block.heading && (
         <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-ink/70">{block.heading}</p>
       )}
-      {block.autoplayLoop ? (
-        <AutoplayLoopVideo src={block.src} className="mx-auto block max-h-[600px] rounded-2xl ring-1 ring-ink/5" />
+      {block.frame === 'tablet' ? (
+        <TabletVideo src={block.src} caption={block.caption} />
+      ) : block.autoplayLoop ? (
+        <AutoplayLoopVideo src={block.src} className="mx-auto block max-h-[85vh] rounded-2xl ring-1 ring-ink/5" />
       ) : (
         <video
-          className="mx-auto block max-h-[600px] rounded-2xl ring-1 ring-ink/5"
+          className="mx-auto block max-h-[85vh] rounded-2xl ring-1 ring-ink/5"
           src={block.src}
           poster={posterFor(block.src)}
           controls
@@ -118,9 +234,283 @@ function OptionsGrid({ options }: { options: Option[] }) {
   )
 }
 
+// The "what changed because of this work" summary, right under the
+// title/meta block so it's the first thing a skimming reader takes in.
+// One colour per slice; the legend repeats every share as text, so the
+// chart never relies on telling the colours apart.
+// Shared motion: content fades up once as it scrolls into view, and groups
+// stagger their children. `MotionConfig reducedMotion="user"` (App.tsx)
+// drops the movement for people who ask for less motion.
+const EASE = [0.22, 1, 0.36, 1] as const
+const REVEAL = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '0px 0px -10% 0px' },
+  transition: { duration: 0.6, ease: EASE },
+}
+const STAGGER: Variants = { hidden: {}, shown: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } }
+const RISE: Variants = { hidden: { opacity: 0, y: 16 }, shown: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } } }
+
+const SKILL_COLORS = ['#1f2333', '#4a44a8', '#5f59c2', '#9a95e0', '#2e4b61', '#144c6b', '#83c6e9', '#f2aa3c']
+
+// Compact donut of the UX skills a project used and each one's share of
+// the work, with the legend beside it. The SVG is
+// decorative; the legend list carries the numbers for screen readers.
+function SkillsChart({ skills, note }: { skills: NonNullable<CaseStudy['skills']>; note?: string }) {
+  const starts = skills.map((_, i) => skills.slice(0, i).reduce((sum, s) => sum + s.share, 0))
+  return (
+    <section aria-labelledby="skills-heading" className="py-6">
+      <h2 id="skills-heading" className="text-sm font-semibold uppercase tracking-wider text-ink/70">
+        UX skills applied
+        {/* Points to the note under the chart; the note is read anyway, so
+            screen readers skip the asterisk on both ends. */}
+        {note && <span aria-hidden="true">*</span>}
+      </h2>
+      <div className="mt-4 flex items-center gap-5 sm:gap-8">
+        <svg viewBox="0 0 42 42" className="h-24 w-24 shrink-0 -rotate-90 sm:h-28 sm:w-28" aria-hidden="true">
+          {skills.map((skill, i) => (
+            <m.circle
+                key={skill.name}
+                cx="21"
+                cy="21"
+                r="15.9155"
+                fill="none"
+                stroke={SKILL_COLORS[i % SKILL_COLORS.length]}
+                strokeWidth="8"
+                pathLength={100}
+                strokeDashoffset={-starts[i]}
+                initial={{ strokeDasharray: `0 100` }}
+                whileInView={{ strokeDasharray: `${skill.share} ${100 - skill.share}` }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: (starts[i] / 100) * 0.9, ease: 'easeOut' }}
+              />
+          ))}
+        </svg>
+        <ul className="grid flex-1 grid-cols-1 gap-x-8 gap-y-1 text-sm text-neutral-700 md:grid-cols-2">
+          {skills.map((skill, i) => (
+            <li key={skill.name} className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="h-3 w-3 shrink-0 rounded-sm"
+                style={{ backgroundColor: SKILL_COLORS[i % SKILL_COLORS.length] }}
+              />
+              <span className="flex-1">{skill.name}</span>
+              <span className="tabular-nums text-ink">{skill.share}%</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {note && (
+        <p className="mt-4 text-sm text-neutral-600">
+          <span aria-hidden="true">* </span>
+          {note}
+        </p>
+      )}
+    </section>
+  )
+}
+
+// Dark card on the light page, echoing the homepage tiles where the same
+// copy appears on hover.
+function ImpactCard({ impact }: { impact: Impact }) {
+  return (
+    // Full width; on `xl`, as wide as the media below it, with the headline
+    // on the left and the points on the right so lines stay readable.
+    <m.section
+      {...REVEAL}
+      aria-labelledby="impact-heading"
+      className={`mt-8 rounded-3xl bg-ink p-6 text-white sm:p-8 xl:grid xl:grid-cols-2 xl:gap-12 xl:p-12`}
+    >
+      <div>
+        <h2 id="impact-heading" className="font-pixel text-xs uppercase tracking-[0.2em] text-hover-yellow">
+          {impact.label}
+        </h2>
+        <p className="mt-4 text-lg leading-snug text-white/85 sm:text-xl xl:text-2xl">
+          <span className="font-display mb-2 block text-4xl leading-none text-white sm:text-5xl xl:text-6xl">{impact.highlight}</span>
+          {impact.summary}
+        </p>
+      </div>
+      <div>
+        <m.ul
+          variants={STAGGER}
+          initial="hidden"
+          whileInView="shown"
+          viewport={{ once: true }}
+          className="mt-5 space-y-2 border-t border-white/15 pt-5 xl:mt-0 xl:border-l xl:border-t-0 xl:pl-12 xl:pt-0"
+        >
+          {impact.points.map((point) => (
+            <m.li variants={RISE} key={point} className="flex gap-2.5 text-base text-white/80 xl:text-lg">
+              <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 bg-hover-yellow" />
+              <span>{point}</span>
+            </m.li>
+          ))}
+        </m.ul>
+        {impact.note && <p className="mt-4 text-sm text-white/55 xl:pl-12">{impact.note}</p>}
+      </div>
+    </m.section>
+  )
+}
+
+// midoma.cz's own page ground and its `.glow` (lavender top-left, sky
+// bottom-right), for the Midoma study's `theme`.
+const MIDOMA_PAPER = '#f4f2fc'
+const MIDOMA_GLOW = `radial-gradient(55% 75% at 6% 0%, rgb(121 115 211 / 0.16), transparent 70%),
+  radial-gradient(50% 70% at 100% 100%, rgb(131 198 233 / 0.22), transparent 70%), ${MIDOMA_PAPER}`
+
+// Midoma's `gradient-dark`: slate into indigo with a purple and a sky glow.
+const MIDOMA_DARK = `radial-gradient(55% 80% at 0% 0%, rgb(121 115 211 / 0.3), transparent 70%),
+  radial-gradient(45% 70% at 100% 100%, rgb(131 198 233 / 0.18), transparent 70%),
+  linear-gradient(135deg, #2e4b61 0%, #2a3a64 100%)`
+
+// Opening band for a study with `hero`: logo (or the name as a wordmark),
+// headline, what was made, who for and with what, beside the mockup. Holds
+// the page's h1; the logo stands in for the name, which is repeated for
+// screen readers.
+function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; headline: string }) {
+  const hero = study.hero!
+  return (
+    <div className="overflow-hidden pb-14 pt-[200px] text-white sm:pb-20" style={{ background: hero.background ?? MIDOMA_DARK }}>
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+        <m.div variants={STAGGER} initial="hidden" animate="shown">
+          <m.div variants={RISE}>
+            {hero.logo ? (
+              <img src={hero.logo} alt="" width={500} height={204} className="h-12 w-auto sm:h-20" />
+            ) : (
+              <p aria-hidden="true" className="font-display text-4xl sm:text-6xl">{name}</p>
+            )}
+          </m.div>
+          <m.h1 variants={RISE} className="font-display mt-5 text-3xl leading-tight sm:text-4xl md:text-5xl">
+            <span className="sr-only">{name}: </span>
+            {headline}
+          </m.h1>
+          <m.ul variants={RISE} className="mt-6 flex flex-wrap gap-2" aria-label="What I made">
+            {hero.deliverables.map((d) => (
+              <li key={d} className="rounded-full bg-white/12 px-4 py-2 text-sm font-semibold ring-1 ring-white/20">
+                {d}
+              </li>
+            ))}
+          </m.ul>
+          <m.dl variants={RISE} className="mt-8 grid gap-4 text-base sm:grid-cols-2">
+            <div>
+              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">For</dt>
+              <dd className="mt-1">{hero.client}</dd>
+            </div>
+            <div>
+              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">Built with</dt>
+              <dd className="mt-1 flex items-center gap-2">
+                {hero.builtWithLogo && (
+                  <img src={hero.builtWithLogo} alt="" width={24} height={24} className="h-6 w-6" />
+                )}
+                {hero.builtWith}
+              </dd>
+            </div>
+          </m.dl>
+        </m.div>
+        <m.img
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
+          src={study.heroImage}
+          alt={hero.imageAlt}
+          // Capped height: a square phone shot at full column width filled
+          // the whole first screen.
+          className="animate-float mx-auto max-h-[480px] w-auto max-w-full lg:scale-110"
+        />
+      </div>
+    </div>
+  )
+}
+
+const chapterId = (title: string) => 'chapter-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+// Floating chapter menu, fixed right under the Navbar bar so the
+// study's structure is visible from the first screen. Marks the chapter
+// being read (`aria-current`) and moves focus to the chapter title it
+// jumps to.
+function ChapterNav({ sections }: { sections: Section[] }) {
+  const chapters = sections.flatMap((s) => (s.chapter ? [{ id: chapterId(s.chapter.title), nav: s.chapter.nav }] : []))
+  const [active, setActive] = useState<string | null>(null)
+
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      // The current chapter is the last one whose title has passed 40 %
+      // of the way down the screen.
+      const line = window.innerHeight * 0.4
+      let current: string | null = null
+      for (const c of chapters) {
+        const el = document.getElementById(c.id)
+        if (el && el.getBoundingClientRect().top <= line) current = c.id
+      }
+      setActive(current)
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+    // `chapters` is rebuilt every render but only changes with `sections`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections])
+
+  const jump = (e: React.MouseEvent, id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    e.preventDefault()
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+    el.focus({ preventScroll: true })
+  }
+
+  if (chapters.length < 2) return null
+  return (
+    <nav
+      aria-label="Chapters"
+      className="fixed top-[102px] left-1/2 z-40 w-max max-w-[calc(100vw-1rem)] -translate-x-1/2 drop-shadow-[0_8px_16px_rgba(31,35,51,0.16)]"
+    >
+      {/* Pixel outline: an ink layer behind, with the white menu inset 1px. */}
+      <div className="pixel-corners bg-ink/25 p-px">
+      <ol className="pixel-corners flex items-center gap-1 bg-white p-1">
+        {chapters.map((c) => (
+          <li key={c.id}>
+            <a
+              href={`#${c.id}`}
+              onClick={(e) => jump(e, c.id)}
+              aria-current={active === c.id ? 'location' : undefined}
+              className={`pixel-corners block min-h-11 whitespace-nowrap px-3 py-3 text-sm font-semibold leading-5 [--px:3px] transition-[color,background-color,transform] active:translate-y-px sm:px-5 ${
+                active === c.id ? 'bg-ink text-white' : 'text-ink hover:bg-ink/5'
+              }`}
+            >
+              {c.nav}
+            </a>
+          </li>
+        ))}
+      </ol>
+      </div>
+    </nav>
+  )
+}
+
 export default function CaseStudyPage() {
   const { slug } = useParams<{ slug: string }>()
   const study = slug ? getCaseStudy(slug) : undefined
+  usePageMeta(study ? `${study.title} case study` : 'Case study not found', `/work/${slug ?? ''}`)
+  // The only light page — keep overscroll/short-page gaps light too
+  // (the body default is the dark `--color-page-bg`, see index.css).
+  const midoma = study?.theme === 'midoma'
+  const subtitle =
+    midoma && study.title.includes(': ')
+      ? study.title.slice(study.title.indexOf(': ') + 2).replace(/^./, (c) => c.toUpperCase())
+      : null
+  const hasChapters = !!study?.sections.some((s) => s.chapter)
+  useBodyBackground(midoma ? MIDOMA_PAPER : 'var(--color-white)')
 
   if (!study) {
     return (
@@ -135,22 +525,42 @@ export default function CaseStudyPage() {
 
   return (
     <div id="top">
+      {/* `fixed`, not on the wrapper: on a page this tall the glows would
+          otherwise stretch over its whole height and fade to nothing. */}
+      {midoma && <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10" style={{ background: MIDOMA_GLOW }} />}
       <Navbar />
 
-      {/* No "← Back to work" text link here — Navbar's own fixed
-          back-arrow button already covers "go back" on every non-home
-          page, so a second text link would be redundant. */}
-      <main id="main" className="mx-auto max-w-3xl px-6 pb-24 pt-[164px] md:px-0">
+      {/* No "← Back to work" text link here — the Navbar's Home link and
+          Case studies menu already cover going back. */}
+      <main id="main">
         <article>
-          <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">
-            Case study · {study.year}
-          </p>
-          <h1 className="font-display mt-2 text-5xl leading-tight text-ink md:text-7xl">
-            {study.title}
-          </h1>
-
-          <PixelWaveDivider className="mt-6" particleClassName="bg-ink/15" animated={false} />
-          <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-6 sm:grid-cols-4">
+          {study.hero && (
+            <StudyHero
+              study={study}
+              name={subtitle ? study.title.slice(0, study.title.indexOf(': ')) : study.title}
+              headline={subtitle ?? study.tagline}
+            />
+          )}
+          <div
+            className={`mx-auto max-w-5xl px-6 pb-24 md:px-10 ${
+              study.hero ? 'pt-6' : hasChapters ? 'pt-[210px]' : 'pt-[164px]'
+            }`}
+          >
+          {!study.hero && (
+            <>
+              {/* midoma theme: the name is the heading, and the description
+                  after the colon becomes a smaller subheading, so the
+                  headline doesn't fill the first screen. */}
+              <h1 className="font-display text-5xl leading-tight text-ink md:text-7xl">
+                {subtitle ? study.title.slice(0, study.title.indexOf(': ')) : study.title}
+              </h1>
+              {subtitle && <p className="mt-3 text-2xl leading-snug text-neutral-700 md:text-3xl">{subtitle}</p>}
+              <PixelWaveDivider className="mt-6" particleClassName="bg-ink/15" animated={false} />
+            </>
+          )}
+          {/* Tools gets the widest column — it's the longest list and
+              wrapped to five lines in an equal quarter-width column. */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-6 sm:grid-cols-[1.2fr_0.6fr_0.8fr_2fr]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">My role</p>
               <p className="mt-1 text-base text-neutral-700">{study.role}</p>
@@ -163,25 +573,42 @@ export default function CaseStudyPage() {
               <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">Duration</p>
               <p className="mt-1 text-base text-neutral-700">{study.duration}</p>
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">Tools</p>
               <p className="mt-1 text-base text-neutral-700">{study.tools.join(', ')}</p>
             </div>
           </div>
           <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
 
-          <p className="mt-6 text-lg sm:text-xl text-neutral-600">{study.tagline}</p>
+          {study.skills && (
+            <>
+              <SkillsChart skills={study.skills} note={study.skillsNote} />
+              <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
+            </>
+          )}
+          {slug && impactBySlug[slug] && <ImpactCard impact={impactBySlug[slug]} />}
+
+          {/* With a hero, its headline already says what the tagline would. */}
+          {!study.hero && <h2 className="font-display mt-10 text-4xl text-ink">{study.tagline}</h2>}
           {study.intro && <p className="mt-4 text-base leading-relaxed sm:text-xl text-neutral-600">{study.intro}</p>}
 
-          <ImageRow srcs={[study.heroImage]} alt={study.title} />
+          {!study.hero && <ImageRow srcs={[study.heroImage]} alt={study.title} className={WIDE} />}
 
-          {study.sections.map((section) => (
-            <section key={section.heading} className="mt-16">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-ink/70">
-                {section.heading}
-              </p>
-              {section.eyebrow && (
-                <h2 className="font-display mt-2 text-4xl text-ink">{section.eyebrow}</h2>
+          {study.sections.map((section, i) => (
+            // An empty `heading` continues the text above without a
+            // headline of its own.
+            <m.section {...REVEAL} key={section.heading || i} className="mt-16">
+              {section.heading && (
+                // A section that starts a chapter is the chapter menu's
+                // jump target: scroll-mt clears the fixed Navbar and
+                // chapter menu, tabIndex lets the menu move focus here.
+                <h2
+                  id={section.chapter ? chapterId(section.chapter.title) : undefined}
+                  tabIndex={section.chapter ? -1 : undefined}
+                  className="font-display scroll-mt-56 text-4xl text-ink outline-none"
+                >
+                  {section.heading}
+                </h2>
               )}
               <div className="mt-4 space-y-6">
                 {section.paragraphs.map((block, i) => (
@@ -215,6 +642,7 @@ export default function CaseStudyPage() {
                   srcs={section.images}
                   alt={`${study.title} - ${section.heading} screenshot`}
                   maxHeight={section.imagesMaxHeight}
+                  className={WIDE}
                 />
               )}
               {section.carousel && (
@@ -228,36 +656,52 @@ export default function CaseStudyPage() {
                 </>
               )}
               {section.video && section.video.autoplayLoop && (
-                <AutoplayLoopVideo
-                  src={section.video.src}
-                  className="mt-8 mx-auto block max-h-[600px] rounded-2xl ring-1 ring-ink/5"
-                />
+                <div className={WIDE}>
+                  <AutoplayLoopVideo
+                    src={section.video.src}
+                    className="mt-8 mx-auto block max-h-[85vh] rounded-2xl ring-1 ring-ink/5"
+                  />
+                </div>
               )}
               {section.video && !section.video.autoplayLoop && (
-                <video
-                  className="mt-8 mx-auto block max-h-[600px] rounded-2xl ring-1 ring-ink/5"
-                  src={section.video.src}
-                  poster={posterFor(section.video.src)}
-                  controls
-                  playsInline
-                />
+                <div className={WIDE}>
+                  <video
+                    className="mt-8 mx-auto block max-h-[85vh] rounded-2xl ring-1 ring-ink/5"
+                    src={section.video.src}
+                    poster={posterFor(section.video.src)}
+                    controls
+                    playsInline
+                  />
+                </div>
               )}
-            </section>
+            </m.section>
           ))}
 
-          {(study.externalLink || study.githubLink) && (
+          {(study.externalLink || study.moreLinks || study.githubLink) && (
             <div className="mt-16 flex flex-wrap gap-4 border-t border-ink/10 pt-8">
               {study.externalLink && (
                 <a
                   href={study.externalLink.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-ink px-5 py-2.5 text-base font-medium text-white transition-opacity hover:opacity-80"
+                  className="group rounded-full bg-ink px-5 py-2.5 text-base font-medium text-white transition-opacity hover:opacity-80"
                 >
-                  {study.externalLink.label} <span aria-hidden="true">→</span>
+                  {study.externalLink.label} <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               )}
+              {study.moreLinks?.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group rounded-full border border-ink/20 px-5 py-2.5 text-base font-medium transition-colors hover:bg-accent-soft"
+                >
+                  {link.label} <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              ))}
               {study.githubLink && (
                 <a
                   href={study.githubLink}
@@ -271,10 +715,12 @@ export default function CaseStudyPage() {
               )}
             </div>
           )}
+          </div>
         </article>
       </main>
 
       <Footer />
+      {hasChapters && <ChapterNav sections={study.sections} />}
     </div>
   )
 }

@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import PixelReveal from '../components/PixelReveal'
 import PixelCatWarrior from '../components/PixelCatWarrior'
+import { usePageMeta } from '../lib/pageMeta'
 
 // Catch-all for any URL that doesn't match a real route (App.tsx's `*`
 // route) — without this, an unmatched path just rendered a blank page
@@ -10,6 +11,7 @@ import PixelCatWarrior from '../components/PixelCatWarrior'
 // the homepage/About/Code — this page shouldn't look like a bare error
 // screen bolted onto an otherwise pixel-art-themed site.
 export default function NotFoundPage() {
+  usePageMeta('Page not found', useLocation().pathname)
   return (
     <div id="top" className="min-h-screen bg-page-bg">
       <Navbar />

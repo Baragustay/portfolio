@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import type { VideoTile } from '../data/workItems'
 import { posterFor } from '../lib/video'
 
@@ -51,7 +51,7 @@ export default function VideoLightbox({ item, onClose }: { item: VideoTile; onCl
 
   return (
     <AnimatePresence>
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -59,7 +59,7 @@ export default function VideoLightbox({ item, onClose }: { item: VideoTile; onCl
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
         onClick={onClose}
       >
-        <motion.div
+        <m.div
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
@@ -92,8 +92,8 @@ export default function VideoLightbox({ item, onClose }: { item: VideoTile; onCl
           <p className="mt-3 text-center text-lg text-white/70">
             {item.role} · {item.title}
           </p>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </AnimatePresence>
   )
 }

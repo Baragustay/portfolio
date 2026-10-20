@@ -5,10 +5,11 @@ import { useEffect, useState } from 'react'
 // a status dot right next to them. Real LinkedIn presence isn't
 // available to third-party sites (no public API exposes it, and
 // scraping it would violate their ToS and break constantly), so this is
-// a schedule-based stand-in instead — green ("Active now") from 06:00
-// to 22:59, red ("Away") otherwise. Computed in *her* local time
-// (Europe/Stockholm), not the visitor's, since it's meant to describe
-// her actual availability regardless of who's looking at the site.
+// a schedule-based stand-in instead — green from 06:00 to 22:59, red
+// otherwise. Computed in *her* local time (Europe/Stockholm), not the
+// visitor's. Worded as the time of day in Sweden rather than "Active
+// now"/"Away": it's driven by the clock, not by her actually being
+// online, so it shouldn't promise a live reply.
 const TIMEZONE = 'Europe/Stockholm'
 const ONLINE_FROM_HOUR = 6
 const ONLINE_UNTIL_HOUR = 23
@@ -56,7 +57,7 @@ export default function StatusBar() {
   }, [])
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[70] flex h-9 items-center gap-3 bg-statusbar px-4 text-xs text-white shadow-[0_4px_10px_rgba(23,23,22,0.6)] sm:px-6">
+    <div className="fixed inset-x-0 top-0 z-[70] flex h-9 items-center gap-3 overflow-hidden whitespace-nowrap bg-statusbar px-4 text-xs text-white shadow-[0_4px_10px_rgba(23,23,22,0.6)] sm:px-6">
       {/* Status + Email + LinkedIn + GitHub, all grouped on the left as
           one unit — GitHub used to sit alone on the far right, where it
           read as disconnected from the other icons. */}
@@ -66,9 +67,9 @@ export default function StatusBar() {
             className={`h-2 w-2 shrink-0 rounded-full ${online ? 'bg-emerald-400' : 'bg-rose-400'}`}
             aria-hidden="true"
           />
-          <span className="sm:hidden">{online ? 'Active now' : 'Away'}</span>
+          <span className="sm:hidden">{online ? 'Say hi' : 'Night in Sweden'}</span>
           <span className="hidden truncate sm:inline">
-            {online ? 'Active now - say hi' : "Away - I'll reply as soon as I can"}
+            {online ? 'Daytime in Sweden - say hi' : "Night in Sweden - I'll reply in the morning"}
           </span>
         </span>
         <span className="text-white/30" aria-hidden="true">

@@ -28,12 +28,11 @@ DirectorySlash Off
 </IfModule>
 
 <IfModule mod_headers.c>
-  # Google Analytics (gtag.js) is the only external script/beacon. Google
-  # Fonts is only used by game/catch-a-fact.html. 'unsafe-inline' on
+  # Google Analytics (gtag.js) is the only external script/beacon. 'unsafe-inline' on
   # style-src is needed because framer-motion animates via inline `style`
   # attributes. `data:` on font-src is for @fontsource/press-start-2p,
   # which embeds a base64 .woff fallback in its CSS.
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.google-analytics.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; media-src 'self'; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; media-src 'self'; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
@@ -43,13 +42,20 @@ DirectorySlash Off
   # The standalone game runs its logic in inline <script> tags, so it needs
   # 'unsafe-inline' — loosened for this one file only.
   <Files "catch-a-fact.html">
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; media-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
   </Files>
 
   # Vite's hashed build assets never change, so cache them for a year;
   # index.html must always be revalidated so new deploys show up.
   <FilesMatch "\.(js|css|woff2?|svg|png)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # Images, video and audio from public/ keep their names between deploys
+  # (unhashed), so they can't be immutable — but they rarely change, and
+  # without this the homepage's video previews were re-downloaded on every
+  # visit. 30 days.
+  <FilesMatch "\.(webp|jpe?g|gif|mp4|webm|mp3)$">
+    Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
   # favicon.svg comes from public/ unhashed, so it can't be immutable.
   <Files "favicon.svg">

@@ -103,9 +103,14 @@ html, body {
   overscroll-behavior-y: none;
 }
 
+/* Dark by default: every page except the case studies is dark, and the
+   body shows through below short pages and during overscroll — it was
+   the light `--color-white`, which flashed a white strip under dark
+   pages. CaseStudyPage switches it back to light while mounted
+   (`useBodyBackground` in lib/pageMeta.ts). */
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: var(--color-white);
+  background: var(--color-page-bg);
   color: var(--color-ink);
 }
 
@@ -160,6 +165,62 @@ body {
   animation: pixel-wave 0.7s ease-out both;
 }
 
+/* Stepped "pixel" corners instead of rounded ones: two square steps of
+   `--px` cut from each corner. A clip-path also clips box-shadows and
+   borders, so a pixel outline is a second `.pixel-corners` layer behind
+   (see the chapter menu in CaseStudyPage.tsx). */
+@layer components {
+.pixel-corners {
+  --px: 4px;
+  clip-path: polygon(
+    0 calc(var(--px) * 2), var(--px) calc(var(--px) * 2), var(--px) var(--px),
+    calc(var(--px) * 2) var(--px), calc(var(--px) * 2) 0,
+    calc(100% - var(--px) * 2) 0, calc(100% - var(--px) * 2) var(--px),
+    calc(100% - var(--px)) var(--px), calc(100% - var(--px)) calc(var(--px) * 2),
+    100% calc(var(--px) * 2), 100% calc(100% - var(--px) * 2),
+    calc(100% - var(--px)) calc(100% - var(--px) * 2), calc(100% - var(--px)) calc(100% - var(--px)),
+    calc(100% - var(--px) * 2) calc(100% - var(--px)), calc(100% - var(--px) * 2) 100%,
+    calc(var(--px) * 2) 100%, calc(var(--px) * 2) calc(100% - var(--px)),
+    var(--px) calc(100% - var(--px)), var(--px) calc(100% - var(--px) * 2),
+    0 calc(100% - var(--px) * 2)
+  );
+}
+
+/* Two-row checkerboard of 4px squares: the Navbar bar's bottom edge
+   dissolving into the page like an 8-bit dither. Its colour comes from
+   `color` (currentColor). */
+.pixel-dither {
+  height: 8px;
+  background: repeating-conic-gradient(currentColor 0 25%, transparent 0 50%) 0 0 / 8px 8px;
+}
+}
+
+/* Case study hero mockup: a slow 6px bob, so the band feels alive. */
+@keyframes float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+.animate-float {
+  animation: float 6s ease-in-out 1.2s infinite;
+}
+
+/* Navbar microinteractions, in hard 8-bit steps rather than smooth eases:
+   the house hops on hover, and the Case studies panel drops open. */
+@keyframes pixel-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.group:hover .animate-pixel-hop-on-hover {
+  animation: pixel-hop 0.4s steps(2) 1;
+}
+@keyframes pixel-drop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-pixel-drop {
+  animation: pixel-drop 0.2s steps(4) both;
+}
+
 /* Hides the native scrollbar on the case study horizontal scroll strip
    while keeping it scrollable (wheel/trackpad/touch/drag all still work). */
 .no-scrollbar {
@@ -186,4 +247,20 @@ body {
    no need to draw a focus ring around the entire page content. */
 main:focus {
   outline: none;
+}
+
+/* Visitors who ask their OS for reduced motion get no looping/blinking
+   animations and near-instant transitions. framer-motion follows the
+   same setting via `<MotionConfig reducedMotion="user">` (App.tsx),
+   PixelReveal skips its dissolve, and video previews don't autoplay
+   (lib/video.ts). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

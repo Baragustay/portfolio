@@ -6,6 +6,7 @@ import { PixelArrow } from '../components/Doodles'
 import TechIcon from '../components/TechIcon'
 import PixelWaveDivider from '../components/PixelWaveDivider'
 import { DEV_SKILL_GROUPS } from '../data/devSkills'
+import { usePageMeta } from '../lib/pageMeta'
 
 // Full Code page, its own route.
 //
@@ -110,6 +111,7 @@ function TileBanner({
 }
 
 export default function CodePage() {
+  usePageMeta('Code projects', '/code')
   const grid = (
     <div className="mx-auto max-w-6xl columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
       {devProjects.map((project, i) => {
@@ -166,8 +168,7 @@ export default function CodePage() {
               </h2>
               <p className="mt-2 text-base sm:text-lg text-white/70">{project.description}</p>
               {/* Pixel arrows (not plain "→" text), matching the same
-                  `PixelArrow` used for the bento grid's open arrows and
-                  the back-nav button. */}
+                  `PixelArrow` used for the bento grid's open arrows. */}
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
                 {/* Visual cue only — the title link above already says
                     this to screen readers. */}

@@ -3,11 +3,13 @@ import Footer from '../components/Footer'
 import GridHoverBackground from '../components/GridHoverBackground'
 import PixelCatCute from '../components/PixelCatCute'
 import { reopenCookiePreferences } from '../lib/cookieConsent'
+import { usePageMeta } from '../lib/pageMeta'
 
 // Dark `bg-page-bg`, matching the site's other dark pages (About, Code)
 // rather than the light case-study reading style — same
 // `GridHoverBackground` + light-text-on-dark treatment as AboutPage.tsx.
 export default function PrivacyPolicyPage() {
+  usePageMeta('Privacy policy', '/privacy')
   return (
     <div id="top" className="relative bg-page-bg">
       <GridHoverBackground />

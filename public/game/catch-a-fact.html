@@ -5,9 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#241c3d">
 <title>Catch a Fact About Barbora</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="preload" href="press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Self-hosted (copied from @fontsource/press-start-2p) instead of
+     Google Fonts: no third-party request leaking visitors' IPs, and no
+     extra DNS/TLS round trips before the text can render. */
+  @font-face{
+    font-family:'Press Start 2P';
+    font-style:normal;
+    font-weight:400;
+    font-display:swap;
+    src:url(press-start-2p.woff2) format('woff2');
+  }
   :root{
     --bg-deep:#241c3d;
     --panel:#2f2550;

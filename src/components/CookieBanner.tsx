@@ -41,10 +41,12 @@ export default function CookieBanner() {
   if (!visible) return null
 
   return (
-    <div role="region" aria-label="Cookie consent" className="fixed inset-x-0 bottom-0 z-[80] flex justify-center px-4 pb-4 sm:px-6 sm:pb-6">
-      <div className="flex w-full max-w-4xl flex-col items-center gap-6 rounded-3xl bg-hover-pink p-7 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.55)] ring-1 ring-ink/10 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
-        <PixelCookie className="h-16 w-16 shrink-0 sm:h-20 sm:w-20" />
-        <p className="text-lg leading-relaxed text-ink sm:text-xl">
+    // Compact on purpose: the earlier card (big padding, text-xl, stacked
+    // on phones) covered about half a phone screen on first visit.
+    <div role="region" aria-label="Cookie consent" className="fixed inset-x-0 bottom-0 z-[80] flex justify-center px-3 pb-3 sm:px-6 sm:pb-6">
+      <div className="flex w-full max-w-3xl flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl bg-hover-pink px-4 py-3 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.55)] ring-1 ring-ink/10 sm:flex-nowrap sm:px-6 sm:py-4">
+        <PixelCookie className="hidden h-10 w-10 shrink-0 sm:block" />
+        <p className="min-w-0 flex-1 basis-60 text-sm leading-snug text-ink sm:text-base">
           This site uses cookies for basic visit analytics. You can accept or reject them, and change
           your mind any time via{' '}
           <Link to="/privacy" className="font-bold text-ink underline underline-offset-2 hover:text-ink/70">
@@ -52,18 +54,18 @@ export default function CookieBanner() {
           </Link>
           .
         </p>
-        <div className="flex w-full shrink-0 items-center gap-4 sm:w-auto">
+        <div className="flex w-full shrink-0 items-center gap-3 sm:w-auto">
           <button
             type="button"
             onClick={() => choose('rejected')}
-            className="flex-1 rounded-full border-2 border-ink/40 px-6 py-4 text-base font-semibold text-ink transition-colors hover:bg-ink/10 sm:flex-none"
+            className="flex-1 rounded-full border-2 border-ink/40 px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-ink/10 sm:flex-none"
           >
             Reject
           </button>
           <button
             type="button"
             onClick={() => choose('accepted')}
-            className="flex-1 rounded-full bg-ink px-7 py-4 text-base font-bold text-hover-pink transition-transform hover:scale-105 sm:flex-none"
+            className="flex-1 rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-hover-pink transition-transform hover:scale-105 sm:flex-none"
           >
             Accept
           </button>

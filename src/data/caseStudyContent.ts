@@ -20,13 +20,32 @@ export type Option = {
 // `images`/`video` below still do, for content that doesn't need that
 // precision).
 export type ParagraphBlock =
+  // `[text](/work/slug)` inside the string renders as a link.
   | string
-  | { type: 'image'; src: string; alt?: string }
-  | { type: 'video'; src: string; heading?: string; autoplayLoop?: boolean }
+  // `small`: kept inside the text column at a modest height, for a
+  // supporting image that shouldn't compete with the design work.
+  | { type: 'image'; src: string; alt?: string; small?: boolean }
+  | {
+      type: 'video'
+      src: string
+      heading?: string
+      autoplayLoop?: boolean
+      // 'tablet': shown inside a landscape tablet, with a play/pause button
+      // and progress bar so it reads as a film, not a screenshot.
+      frame?: 'tablet'
+      caption?: string
+    }
+  // Two tablet screen recordings side by side on desktop (stacked on
+  // phones), wider than the text column, to compare two products.
+  | { type: 'videoPair'; videos: { src: string; caption: string }[] }
 
 export type Section = {
+  // Starts a chapter: an entry in the floating chapter menu that jumps to
+  // this section (`nav` is its short label there; `title` names its anchor).
+  chapter?: { title: string; nav: string }
+  // One headline per section that states its point, so reading only the
+  // headlines tells the story.
   heading: string
-  eyebrow?: string
   paragraphs: ParagraphBlock[]
   bullets?: string[]
   // `bg`: per-quote background override (hex), falls back to the
@@ -39,8 +58,7 @@ export type Section = {
   // height, for a section whose image should render smaller.
   imagesMaxHeight?: number
   // Small label rendered directly above `carousel` below (e.g. "Design
-  // iterations") — separate from `eyebrow`, which belongs to the
-  // section as a whole and sits up near `heading`.
+  // iterations").
   carouselHeading?: string
   // Step-through sequence (prev/next + dots) for showing how a design
   // changed across iterations, distinct from `images` (a same-line
@@ -69,39 +87,80 @@ export type CaseStudy = {
   heroImage: string
   sections: Section[]
   externalLink?: { label: string; href: string }
+  // Further live links, shown as outline buttons after `externalLink`.
+  moreLinks?: { label: string; href: string }[]
   githubLink?: string
+  // Full-width opening band: the logo (or the name as a wordmark when there
+  // is none), what was made, who for and what with, next to `heroImage`
+  // (which then isn't repeated below). `background` is CSS for the band,
+  // in the project's own colors; it defaults to Midoma's dark gradient.
+  hero?: {
+    logo?: string
+    client: string
+    deliverables: string[]
+    builtWith: string
+    builtWithLogo?: string
+    imageAlt: string
+    background?: string
+  }
+  // UX skills used in the project, shown as a small pie chart at the top of
+  // the study. `share` is that skill's percentage of the work; they add up
+  // to 100.
+  skills?: { name: string; share: number }[]
+  // One line under the chart saying how the shares were estimated.
+  skillsNote?: string
+  // 'midoma': the client's lavender page gradient behind the study.
+  theme?: 'midoma'
 }
 
 export const caseStudies: CaseStudy[] = [
   {
     slug: 'piggy-bank',
     title: 'Piggy Bank App',
-    tagline: 'Children ages 4-7 handling money in a cash-free world: an interface for the child-facing part of a money-saving app.',
-    intro: '',
+    tagline: 'A pocket money app that children ages 4–7 can use before they can read',
+    intro:
+      'Small children want to handle their own money, but in a cash-free world parents rarely carry coins. I designed the child-facing part of a money-saving app, for children who can’t read yet.',
     year: '2026',
     role: 'UX/UI designer, end-to-end',
     duration: '4 weeks',
-    tools: ['Figma', 'Illustrator', 'Claude (brainstorming)', 'Gemini (image generation)'],
+    tools: ['Figma', 'Illustrator', 'Claude (brainstorming)', 'Gemini (user photo and avatars)'],
     heroImage: '/work/images/piggy-bank-1.webp',
+    hero: {
+      client: 'Children ages 4–7 and their parents',
+      deliverables: ['Child app', 'UX research', 'Prototype'],
+      builtWith: 'Figma and Illustrator',
+      imageAlt: 'The Piggy Bank app on a phone: Freja’s piggy banks, each filled with its own color, and her total',
+      background: 'radial-gradient(55% 80% at 0% 0%, rgb(247 216 247 / 0.22), transparent 70%), linear-gradient(135deg, #3b1f73 0%, #4a2a8c 100%)',
+    },
+    skills: [
+      { name: 'Visual and UI design', share: 25 },
+      { name: 'User research', share: 20 },
+      { name: 'Accessibility (non-readers)', share: 15 },
+      { name: 'Prototyping', share: 15 },
+      { name: 'Usability testing', share: 15 },
+      { name: 'Competitor analysis', share: 10 },
+    ],
+    skillsNote: 'Estimated share of my time on the project, looking back at how long each part took.',
     sections: [
       {
-        heading: 'The challenge',
+        chapter: { title: 'The brief', nav: 'Brief' },
+        heading: 'Children want to handle money, but parents no longer carry coins',
         paragraphs: [
-          'Small children want to be able to handle money but parents often don’t carry coins on them.',
+          'This was a personal project. I wanted to practice designing for young children and learn what is specific to that kind of work, so I picked a real problem: small children want to handle money, but parents often don’t carry coins on them. I designed the child’s side of a money-saving app, end to end, in four weeks.',
+          'I defined the questions I wanted the design to answer:',
         ],
         bullets: [
-          'How do we make sure children who can’t read yet can still fully engage with the app?',
-          'How do we create a tool that makes it easy for both parents and small children to track pocket money?',
-          'How do we keep the app simple enough for small children to enjoy, without losing functionality?',
+          'How can children who can’t read yet still use the app on their own?',
+          'How can both parents and children keep track of pocket money easily?',
+          'How can the app stay simple enough for small children to enjoy, without losing what it is for?',
         ],
       },
       {
-        heading: 'Research',
-        eyebrow: "What's the problem?",
+        chapter: { title: 'Research', nav: 'Research' },
+        heading: 'No app on the market was made for the youngest savers',
         paragraphs: [
-          'Younger children wanting to handle their pocket money in a cashless society is a problem many parents and caregivers are already trying to solve. There are various apps both from banks and private developers  already avilable.',
-          'Bomad, for example, is a piggy bank app designed for older kids, now moving towards connecting with real bank accounts. But there is currently no "go-to" solution that parents trust and kids enjoy. Competitor analysis showed that bank apps were hard to test without creating accounts and paying subscriptions, and the apps from private developers were often buggy or unfinished - none focused specifically on the youngest age group.',
-          'Secondary research (comment sections under various piggy bank apps in the App Store, Reddit threads and Facebook discussions) and informal conversations with 5 parents at a local playground revealed what users are looking for and what’s missing on the market.',
+          'To begin with, I looked at what was already out there. Bank apps were hard to test without creating an account and paying a subscription, and apps from private developers were often buggy or unfinished. Bomad, for example, is made for older kids and is moving towards real bank accounts. None focused on the youngest age group.',
+          'Then I read App Store reviews of piggy bank apps, Reddit threads and Facebook discussions, and talked informally with 5 parents at a local playground. Here’s what I found:',
         ],
         quote: {
           text: 'Yes, children definitely want to be able to track their money, they even work with it in kindergarten. But I think Lova (name changed) is too small for a bank account so I just hold onto the money and write it down in my Notes app on my phone. It’s not very convenient but kind of works.',
@@ -114,92 +173,226 @@ export const caseStudies: CaseStudy[] = [
           'Young children want their own say in what happens with their money.',
         ],
       },
-
       {
-        heading: 'Process',
-        eyebrow: 'Design challenges',
+        chapter: { title: 'Design', nav: 'Design' },
+        heading: 'Every screen works without reading',
         paragraphs: [
-          'Clear and simple messaging, making saving feel visual: the first idea was to fill the piggy bank with an image of what the child is saving for - for example a rabbit photo inside a pig shape. That turned out to be visual clutter with low contrast and unclear visual cues. Instead, each pig fills up with its own color. Large buttons or clickable objects ensure children don’t miss them, and simple words are used across the app instead of longer phrases - "Total" not "Altogether you have saved."',
-          'Autonomy and accessibility mattered most: children aged 4-7 can’t read, or can’t read well, so every text and number needed to work without literacy. As a bonus, the talking app gives parents awareness of what the child is doing without having to watch over their shoulder.',
-          {
-            type: 'image',
-            src: '/work/images/piggy-bank-2.webp',
-            alt: 'Piggy Bank history screen showing colour-coded transactions, next to an earlier layout of the same screen',
-          },
-          'Keeping the app fun while functionality is limited on purpose: the child can take photos and choose their own avatar, count and move coins inside a piggy bank, and drag-and-drop (or tap-and-tap) to sort money into their piggy banks. History shows big colorful numbers and pictures of what they earned or spent money on. Limited options, but every one of them feels good to use.',
-          { type: 'video', src: '/work/videos/piggy-bank-demo.mp4', autoplayLoop: true },
+          'Children ages 4 to 7 can’t read, or can’t read well, so autonomy and accessibility mattered most. Every text and number had to work without reading. As a bonus, an app that talks lets parents know what the child is doing without watching over their shoulder.',
+          'Here are the rules I followed:',
         ],
         bullets: [
-          'All text and numbers get read aloud on tap, so a child never has to read to use the app',
-          'Icons and distinct colors on every button, so nothing depends on reading',
-          'Color guidance throughout: green for money in, red for money out',
-          'Large text in a legible font, short words, and repetition to help memorize meaning',
-          'High contrast and large tap targets sized for developing motor skills',
-          'Functionality limited on purpose, to keep focus on saving, reading, and counting',
-        ],
-        carouselHeading: 'Design iterations',
-        carousel: [
-          { src: '/work/images/piggy-bank-evolution-1.webp', caption: 'v1 - low contrast, redundant notification text, a confusing single savings visualisation' },
-          { src: '/work/images/piggy-bank-evolution-2.webp', caption: 'v2 - simplified the balance overview, but the details/overview toggle turned out redundant for this age group' },
-          { src: '/work/images/piggy-bank-evolution-3.webp', caption: 'v3 - tried filling each pig with a photo of what the child was saving for; too much visual clutter, low contrast' },
-          { src: '/work/images/piggy-bank-evolution-4.webp', caption: 'v4 - back to flat color fills per goal, refining the palette for cohesiveness' },
-          { src: '/work/images/piggy-bank-evolution-5.webp', caption: 'v5 - final direction: large hand-drawn type, one flat color per goal, a simplified color-coded menu' },
+          'All text and numbers are read aloud on tap, so a child never has to read.',
+          'Every button has an icon and its own color, so nothing depends on reading.',
+          'Colors guide the child throughout: green for money in, red for money out.',
+          'Large text in a legible font, short words like “Total” instead of “Altogether you have saved”, and repetition to help remember meaning.',
+          'High contrast and large tap targets, sized for developing motor skills.',
+          'Functionality limited on purpose, to keep the focus on saving, reading and counting.',
         ],
       },
       {
-        heading: 'Solution',
-        eyebrow: 'A mobile app with audio guidance and two different interfaces',
+        heading: 'Fewer features, but every one feels good to use',
         paragraphs: [
-          'A dual mobile app with a simple, fun interface for children and a sister app on the caretaker’s device where all administrative tasks take place. Some adult settings can be accessed inside the child’s app so adjustments can be made without switching devices - these are hidden behind a math equation only adults can answer.',
-          'The child’s interface has limited functionality on purpose. Fewer options means no decision fatigue. The child stays focused on what the app is actually for: learning to save money, read, and count. Every text and number has voice support so children who can’t read yet can use the app on their own.',
+          'My first idea was to fill each piggy bank with a picture of what the child is saving for, for example a rabbit photo inside a pig shape. It turned out to be visual clutter, with low contrast and unclear cues. Instead, each pig now fills up with its own color.',
+          {
+            type: 'image',
+            src: '/work/images/piggy-bank-2.webp',
+            alt: 'Piggy Bank history screen showing color-coded transactions, next to an earlier layout of the same screen',
+          },
+          'I also kept the app small on purpose. The child can take photos and choose an avatar, count and move coins, and drag and drop (or tap and tap) money into their piggy banks. History shows big colorful numbers and pictures of what they earned or spent money on.',
+          { type: 'video', src: '/work/videos/piggy-bank-demo.mp4', autoplayLoop: true },
+        ],
+        carouselHeading: 'Design iterations',
+        carousel: [
+          { src: '/work/images/piggy-bank-evolution-1.webp', caption: 'v1: low contrast, repeated notification text and one confusing savings visual' },
+          { src: '/work/images/piggy-bank-evolution-2.webp', caption: 'v2: a simpler balance overview, but the details/overview toggle wasn’t needed for this age group' },
+          { src: '/work/images/piggy-bank-evolution-3.webp', caption: 'v3: each pig filled with a photo of the savings goal; too much clutter, low contrast' },
+          { src: '/work/images/piggy-bank-evolution-4.webp', caption: 'v4: back to one flat color per goal, with a more cohesive palette' },
+          { src: '/work/images/piggy-bank-evolution-5.webp', caption: 'v5: final direction, with large hand-drawn type, one flat color per goal and a simple color-coded menu' },
+        ],
+      },
+      {
+        heading: 'A simple app for the child, with a parent app planned for the admin',
+        paragraphs: [
+          'I designed the child’s app: simple and fun. The admin would happen in a sister app on the parent’s phone, which is a concept for now and out of scope for this phase. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
+          'Fewer options mean no decision fatigue, so the child stays focused on what the app is for: learning to save money, read and count.',
+          { type: 'video', src: '/work/videos/piggy-bank-walkthrough.mp4', heading: 'Full app walkthrough' },
         ],
         images: ['/work/images/piggy-bank-4.webp'],
       },
       {
-        heading: 'User testing',
-        eyebrow: 'Kids couldn’t use the Figma prototype, but validated the concept when shown a demo',
+        chapter: { title: 'Testing', nav: 'Testing' },
+        heading: 'Children lost interest in the prototype, but loved the demo',
         paragraphs: [
-          'I tested the high-fidelity Figma prototype with three children (ages 3, 5 and 8), but the testing didn’t go as expected. Since the prototype was a bit laggy and not fully functional, the children lost interest quickly - for this age group, a working MVP would likely produce better test results than a Figma prototype.',
-          'I also ran a guided demonstration, walking the children through the intended user flow. Children were excited about the design, and all three expressed interest in having the app for real so they could track their own savings and explore on their own.',
-          'The child’s interface walks through four main paths: logging in / failed login, viewing savings, receiving money and sorting it into piggy banks, and exploring what’s inside each piggy bank (history, changing user avatar, logging out). Every screen uses large tap targets and simple icons so the app works without reading - in the full product, all text and numbers would be accompanied by audio on tap.',
+          'I tested the high-fidelity Figma prototype with three children, ages 3, 5 and 8. It didn’t go as expected. The prototype was a bit laggy and not fully working, so the children lost interest quickly. For this age group, a working MVP would give better results than a Figma prototype.',
+          'So I also walked the children through the intended flow in a guided demo. They were excited about the design, and all three wanted the app for real, to track their own savings.',
         ],
         images: ['/work/images/piggy-bank-3.webp'],
         imagesMaxHeight: 310,
       },
       {
-        heading: 'Outcomes',
-        eyebrow: 'A validated concept',
+        chapter: { title: 'Outcomes', nav: 'Outcomes' },
+        heading: 'A promising concept, and how I would prove it',
         paragraphs: [
-          'This project is a validated concept. Guided demo confirmed interest from children in the target age range, but the working MVP needed to properly test usability with 4-7 year olds still needs to be built.',
+          'All three children wanted the app, but only one of them was in the 4–7 target range, and a guided demo isn’t a usability test. So this is a promising concept, not a validated one. The app hasn’t launched, so there is no usage data yet. Here’s what comes next, and what I would measure:',
         ],
         bullets: [
-          'Build a working MVP so testing measures real interaction, not a laggy prototype',
-          'Design and test the caretaker-facing app, currently out of scope for this phase',
-          'Re-test the on-tap audio reader with non-readers specifically, to confirm it removes the literacy barrier it was designed for',
-          'Validate the math-equation adult lock with real parents, to check it is not confusing to set up or to use',
+          'Build a working MVP, so testing measures real interaction, not a laggy prototype.',
+          'Test with more children ages 4–7, including ones who can’t read, to confirm the audio reader removes the reading barrier.',
+          'Design and test the parent app, and check that the math-question lock is easy for parents to use.',
+          'Track completion rate on logging in, sorting money and checking history. A high drop-off on sorting would mean drag and drop needs a simpler option, like tap to select.',
+          'Compare how often parents check the parent app with their old method, a Notes app or mental math. That’s the real success metric: did it replace something that wasn’t working?',
+          'Test the same children again after a few weeks, because an app looks different on day one than once the novelty wears off.',
         ],
       },
       {
-        heading: 'Measuring Success',
+        heading: 'Less is more: removing features made the app better',
         paragraphs: [
-          'This project didn’t launch, so there’s no usage data yet. Here’s how I’d use it if it had.',
-          'I’d track completion rate on each core flow: logging in, sorting money into piggy banks, checking history. A high drop-off on sorting would tell me the drag-and-drop interaction needs a simpler option, like tap-to-select instead.',
-          'I’d watch how often kids tap the on-tap reader versus ignore it. Low usage might mean the audio cue isn’t obvious enough, not that kids don’t want it.',
-          'I’d ask parents to compare how often they check the caretaker app against how often they used their old method, a Notes app or mental math. That’s the real success metric: did this replace something that wasn’t working.',
-          'I’d retest with the same kids after a few weeks, not just once. A novelty app looks different on day one than it does once the novelty wears off.',
+          'The biggest lesson was getting comfortable removing features I had already designed. It’s tempting to think a good app has many options. But what 4 to 7 year olds can actually do asks for simplicity. Using that space for larger fonts, bigger tap targets and audio made the app better and more accessible.',
+          'Next, the parent app needs to be designed too. That will likely show missing pieces in the child’s app and help improve it as well.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'midoma',
+    title: 'Midoma: redesign and design system for a growing company',
+    tagline: 'A design system built to grow with the company, across two websites',
+    intro:
+      'Midoma is a growing Prague property company with plans to expand into new branches. It needed a website for property owners (midoma.cz), a portal for tenants, and a design system that keeps every future part of the brand consistent, even when new designers join.',
+    year: '2026',
+    role: 'Solo: UX, design system and development, with Claude Code',
+    duration: '10 days',
+    tools: ['Figma', 'Claude Code', 'Astro', 'React', 'Tailwind'],
+    heroImage: '/work/images/midoma-hero.webp',
+    hero: {
+      logo: '/work/images/midoma-logo-white.webp',
+      client: 'Midoma Správa, property management in Prague',
+      deliverables: ['Website', 'Tenant portal', 'Design system'],
+      builtWith: 'Claude Code',
+      builtWithLogo: '/work/images/claude-code.svg',
+      imageAlt: 'Midoma website on a laptop and the tenant portal on a phone',
+    },
+    skills: [
+      { name: 'Design systems', share: 20 },
+      { name: 'Visual and UI design', share: 18 },
+      { name: 'Accessibility', share: 14 },
+      { name: 'Prototyping and front-end', share: 14 },
+      { name: 'Information architecture', share: 10 },
+      { name: 'UX auditing', share: 9 },
+      { name: 'Usability testing (synthetic)', share: 9 },
+      { name: 'User research (reused)', share: 6 },
+    ],
+    skillsNote:
+      'Estimated share of my time on the project, looking back at how long each part took. User research is low because I reused the research from the original website.',
+    // Midoma's own look: lavender page.
+    theme: 'midoma',
+    externalLink: { label: 'Visit midoma.cz', href: 'https://midoma.cz/' },
+    moreLinks: [{ label: 'Visit najemnici.midoma.cz', href: 'https://najemnici.midoma.cz/' }],
+    sections: [
+      {
+        chapter: { title: 'The brief', nav: 'Brief' },
+        heading: 'A forced name change was the chance to rebuild an outdated website',
+        paragraphs: [
+          'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress when I was less skilled, which you can read about in the [SolidHomes case study](/work/solidhomes). With the company growing and planning new branches, that website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
+          'I worked completely alone. I didn’t start from zero, though: I reused the user research, competitor research and stakeholder interviews I had done for the original website, and applied them with better design thinking, more refined skills and a much faster tech stack.',
+          'The website has two kinds of users. Owners of apartment buildings, often families, are choosing a company to trust with their property. Tenants of those buildings want to report a fault, find a phone number or read a notice, quickly. Many of them are older.',
+          'I defined the design and business goals I wanted to achieve with the project:',
+        ],
+        bullets: [
+          'I wanted one consistent look that every future branch of the company can use, even when new designers join.',
+          'I wanted a modern design that older owners and tenants find easy to use and trustworthy.',
+        ],
+        images: ['/work/images/midoma-before-after.webp'],
+      },
+      {
+        chapter: { title: 'The design system', nav: 'Design system' },
+        heading: 'I started with foundations: every color named by its job',
+        paragraphs: [
+          'Before I get to how the goals were achieved, let’s take a look at the process of making the design system. For inspiration, I looked at Dribbble and image search to understand the current trends.',
+          'One major design constraint I had to take into account was that the logo and its green had to stay. The structure and content of the old site were also working well, so I kept them and focused on the details.',
+          'To begin with, I defined the basic building blocks: typography, colors and corners. Every color got a name that describes its job rather than its look, for example cta, sea or danger. This way a new designer knows where a color may go before using it.',
+          { type: 'image', src: '/work/images/midoma-foundations.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches grouped as brand, one job each (sea for forms, domsys for the app, danger for emergencies only) and grounds and tiles, and corner radii of 12, 20, 32 px and pill' },
+        ],
+      },
+      {
+        heading: 'The foundations grew into 11 documented components',
+        paragraphs: [
+          'Things got more interesting and tangible when I started combining these foundations into components, like buttons, cards and the header, and then into patterns like the bento home page. Every component documents its rules, what a page must provide and what not to do.',
+          { type: 'image', src: '/work/images/midoma-strip.webp', alt: 'How the system builds up: tokens, then 11 components, then patterns such as the bento home page, the menu and the page header, then the two websites' },
+          { type: 'image', src: '/work/images/midoma-components.webp', alt: 'Live components from both sites: the header with page title, bento tiles, a step list, a notice card, the AskUs box and the orange main button' },
+        ],
+      },
+      {
+        heading: 'Goal 1: one system keeps both sites, and every future branch, consistent',
+        paragraphs: [
+          'The old site had inconsistent sizing, spacing and colors, and with new branches coming, this would only get worse. Here’s how I made sure the system stays consistent:',
+          '1. I wrote down six design principles that every screen follows. They explain why the sites look the way they do, and they get the company, designers and developers on the same page.',
+          { type: 'image', src: '/work/images/midoma-principles.webp', alt: 'Six design principles: one main CTA per screen, task-oriented design, be wary of borders, every color has one job, smooth transitions, readable for older eyes' },
+          '2. I kept the whole design system as Markdown files: the tokens, the rules, a page per component and a changelog of every version. It also exists as a Claude skill, so it can be transferred to any new project very easily. This way the next designer, or the next branch of the company, starts from the system instead of a blank page.',
+          '3. I used the system on two websites at once. Both share the logo, header, type and orange call to action, but each asks something different of its visitors. midoma.cz is clear and structured, because owners are choosing a business to trust with their building. The tenant portal skips the introduction and opens on one tile per task, because tenants just want to solve a problem as fast as possible.',
           {
-            type: 'video',
-            src: '/work/videos/piggy-bank-walkthrough.mp4',
-            heading: 'Full app walkthrough',
+            type: 'videoPair',
+            videos: [
+              { src: '/work/videos/midoma-owners.mp4', caption: 'midoma.cz: built to earn owners’ trust' },
+              { src: '/work/videos/midoma-tenants.mp4', caption: 'Tenant portal: the fastest way to find information' },
+            ],
           },
         ],
       },
       {
-        heading: 'Reflection',
-        eyebrow: 'Less is more',
+        heading: 'Goal 2: same colors, new rules, so older users always see the next step',
         paragraphs: [
-          'The biggest takeaway from this project was getting comfortable removing features that were already designed and added. It’s tempting to see a good app as one with many options and room for personalisation. But user data and the actual capabilities of 4-7 year olds ask for simplicity. Stripping features and using that space for larger fonts, bigger tap targets, and audio feedback made the app better and more accessible.',
-          'To create a full app design, the adult interface needs to be thought out and designed as well. That process would likely reveal some missing pieces in the child’s interface and help improve it too.',
+          'Color plays a big part in how quickly people understand a page. Earlier, in the old site, I overused green and purple. Green filled backgrounds, blocks and buttons, so nothing stood out. I explored more muted combinations and kept coming back to purple, because it matches the green but feels fresher. Therefore I kept the same colors and changed the rules for using them. Here are the changes I made:',
+          { type: 'image', src: '/work/images/midoma-green.webp', alt: 'Imagery that supports the brand identity: the green Midoma logo next to the site photos, each chosen for its trees, greenery or plants, and the purple and lavender interface colors' },
+        ],
+        bullets: [
+          'I removed green from interface elements like backgrounds, blocks and buttons. Instead, I chose photos with trees, gardens and plants, so the brand green from the logo carries through the page without looking dated.',
+          'I made orange the color of the main action only, one per screen. Because nothing else is orange, the next step always stands out.',
+          'I separated blocks by color instead of borders, so pages feel calm and each block is easy to tell apart.',
+          'I raised the smallest reading size to 15 px and kept every text and background pair at least 4.5:1, because many owners and tenants are older.',
+        ],
+      },
+      {
+        chapter: { title: 'Built and tested with AI', nav: 'AI' },
+        heading: 'AI-assisted UX and development: from prompts to rules to a design system',
+        paragraphs: [
+          'I started by writing a product requirements document (PRD) with Claude in chat. Then I moved to Claude Code, rebuilt the old site one-to-one and redesigned it one prompt at a time. Every decision became a written rule that the next change had to follow, and over time these rules became the design system.',
+          'Before building the tenant portal, I also asked Claude to review the plan from three points of view: a tenant in a hurry, a first-time tenant and a manager. Accessibility audits followed every round of changes.',
+        ],
+      },
+      {
+        heading: '1,010 synthetic test scenarios found issues before publishing',
+        paragraphs: [
+          'With almost no real traffic yet, I asked Claude to test the sites the way real people do. It ran 1,010 scenarios in four suites: screens (550 combinations of page and screen size, from 320 to 1920 px and at 200% zoom), odd addresses, form fuzzing (filling the forms with nonsense, and worse) and quiz paths. On top of that, it walked five personas through real tasks, among them Jarmila, 72, and Petr, who uses a screen reader.',
+          { type: 'image', src: '/work/images/midoma-testing.webp', alt: 'What synthetic testing found: issues across screen sizes, forms, the quiz and five personas' },
+          'The AI found the issues, but I decided what to fix:',
+        ],
+        bullets: [
+          'Fixed: the Back button left the quiz and lost every answer.',
+          'Fixed: screen readers read whole cards as one paragraph.',
+          'Not changed: moving the emergency tile higher. I want to test this with real tenants first.',
+          'After the fixes, all 11 re-tests passed.',
+        ],
+      },
+      {
+        chapter: { title: 'Outcomes', nav: 'Outcomes' },
+        heading: 'The system now works for the company, designers, developers and users',
+        paragraphs: [
+          { type: 'image', small: true, src: '/work/images/midoma-lighthouse.webp', alt: 'Lighthouse scores: midoma.cz performance 97 on mobile and 99 on desktop, the tenant portal 95 and 100; accessibility, best practices and SEO 100 on both sites' },
+        ],
+        bullets: [
+          'Company: both websites now look consistent, any new branch can build on the same system, and both sites publish a plain-language summary for AI assistants (llms.txt).',
+          'Designers: written rules, components and a changelog, kept in Markdown and as a Claude skill, make it a lot easier for a new designer or a new project to start.',
+          'Developers: the system is built from the code, so what is documented is what is live.',
+          'Owners and tenants: both sites score 100 for accessibility, SEO and best practices, with performance at 95–100.',
+        ],
+      },
+      {
+        heading: 'Synthetic users helped, but real users come next',
+        paragraphs: [
+          'Synthetic testing turned out to be a great tool for issues that could otherwise go unnoticed for a long time, for example the “Tenants” label overflowing the logo when a phone uses large text. But the personas are simulated. They don’t feel the stress of a burst pipe, and they can’t tell me whether they trust what they see.',
+          'Next time, I would make real user testing part of the whole project. This work is clearly missing how actual users experience it. Now that both websites are live, this knowledge will come from real use, and over the next months I will gather feedback through short surveys, in a gentle, non-invasive way.',
+          'Building this design system took a lot of back and forth, especially with the colors. But it was definitely worth the effort.',
         ],
       },
     ],
@@ -209,28 +402,48 @@ export const caseStudies: CaseStudy[] = [
     title: 'SolidHomes',
     tagline: 'Building trust for a family property business with no online presence',
     intro:
-      'SolidHomes is a Prague-based property management company with no website and no brand identity at the start of this project. Stakeholders knew they needed to grow their market presence but couldn’t define who they were trying to reach or how they wanted to be perceived. This is the story of how research, three logo concepts, and a lot of stakeholder conversations turned that uncertainty into a cohesive brand and a live bilingual website.',
-    year: '2025–2026',
-    role: 'Product designer, end-to-end',
-    duration: '10 weeks',
-    tools: ['Figma', 'Illustrator', 'WordPress'],
+      'SolidHomes is a property management company in Prague that had no brand when I started. The stakeholders knew they needed to grow, but not who they wanted to reach. This case study covers the research and the branding: how interviews, a benchmark and three logo concepts turned that uncertainty into a clear brand.',
+    year: '2024',
+    role: 'Designer: research and brand identity',
+    duration: '14 days',
+    tools: ['Figma', 'Illustrator'],
     heroImage: '/work/images/solidhomes-1.webp',
+    hero: {
+      logo: '/work/images/solidhomes-logo-white.webp',
+      client: 'SolidHomes, a family property management company in Prague',
+      deliverables: ['Brand identity', 'UX research'],
+      builtWith: 'Figma and Illustrator',
+      imageAlt: 'The SolidHomes brand in use on the company’s website',
+      background: 'radial-gradient(55% 80% at 0% 0%, rgb(122 178 98 / 0.28), transparent 70%), linear-gradient(135deg, #22382a 0%, #2b4433 100%)',
+    },
+    skills: [
+      { name: 'Brand identity', share: 30 },
+      { name: 'User research', share: 20 },
+      { name: 'Stakeholder management', share: 20 },
+      { name: 'Competitive benchmarking', share: 15 },
+      { name: 'Accessibility (color)', share: 15 },
+    ],
+    skillsNote: 'Estimated share of my time on the project, looking back at how long each part took.',
     sections: [
       {
-        heading: 'The challenge',
-        paragraphs: ['No brand, no audience, no starting point.'],
+        chapter: { title: 'The brief', nav: 'Brief' },
+        heading: 'A company with no brand, no audience and no website',
+        paragraphs: [
+          'SolidHomes needed to grow its market presence, but it had no brand identity and no defined audience. Before anything could be designed, someone had to find out who the company was for. The company has since been renamed Midoma, and the [Midoma case study](/work/midoma) shows how I rebuilt it with a design system.',
+          'I defined the goals I wanted to achieve with the project:',
+        ],
         bullets: [
-          'Help stakeholders define a brand position in a market split between cold corporate sites and outdated text-heavy ones?',
-          'Build trust with older Czech property owners who are skeptical of modern interfaces?',
-          'Create a site that a non-technical client can actually maintain after handoff?',
+          'I wanted a clear brand position, in a market split between cold corporate sites and outdated, text-heavy ones.',
+          'I wanted older Czech property owners, who are skeptical of modern interfaces, to trust the brand.',
+          'I wanted a brand system complete enough for the client to build on.',
         ],
       },
       {
-        heading: 'Research',
-        eyebrow: 'Understanding the problem before building anything',
+        chapter: { title: 'Research', nav: 'Research' },
+        heading: '“Anybody”: defining the audience was the first design problem',
         paragraphs: [
-          'I started with secondary market research and competitor analysis, then conducted interviews with property owners to understand their expectations. The market analysis revealed a clear split: highly polished sales-driven sites on one end, outdated information dumps on the other. Neither was building real trust with the audience SolidHomes needed.',
-          'Early stakeholder conversations revealed that the client had no defined target audience. When asked who they wanted to reach, the answer was: "Anybody. I would be happy to sell my services to frogs for all I care." That quote shaped the entire research phase - defining the audience wasn’t optional, it was the first design problem to solve.',
+          'To begin with, I did secondary market research and a competitor analysis, then interviewed property owners about what they expect. The market had two extremes: polished, sales-driven sites on one end and outdated information dumps on the other. Neither built real trust with the audience SolidHomes needed.',
+          'When I asked the client who they wanted to reach, the answer shaped the whole research phase. Defining the audience wasn’t optional, it was the first design problem to solve. I created a persona for that audience: older adults, families who own buildings and people with limited technical confidence.',
         ],
         quote: {
           text: 'Anybody. I would be happy to sell my services to frogs for all I care.',
@@ -245,75 +458,74 @@ export const caseStudies: CaseStudy[] = [
             'Prefers trustworthy, professional design over modern or sales-driven interfaces',
             'Not confident with technology, expects information to be easy to find without scrolling',
             'Wants to understand services and pricing before making contact',
-            'Representative of the broader audience: older adults, families owning buildings, users with limited technical confidence',
+            'Represents the wider audience: older adults, families owning buildings, users with limited technical confidence',
           ],
         },
       },
       {
-        heading: 'Data & insights',
-        eyebrow: 'Letting numbers settle an argument opinions couldn’t',
+        heading: 'A speed benchmark settled what opinions couldn’t',
         paragraphs: [
-          'Stakeholder opinions on brand direction were split with no way to resolve it through more conversation, so I ran a quick benchmark instead of asking for another opinion: page weight and estimated bounce rate across 6 competitor sites. The text-heavy "information dump" sites were slow to load and, going by industry benchmarks for that load time, likely losing well over 70% of visitors before the page even finished rendering. The polished, sales-driven sites loaded fine but used language the interview participants specifically described as untrustworthy. Neither extreme was a style preference to settle by taste, it was a measurable trust-and-speed gap to close.',
-          'That benchmark, not a subjective design opinion, is what defined the brand position: fast-loading, structured, and plainly worded rather than either extreme.',
+          'The stakeholders’ opinions on brand direction were split, and more conversation didn’t help. So instead of asking for another opinion, I benchmarked page weight and estimated bounce rate on 6 competitor sites.',
+          'The text-heavy sites were slow. Going by industry benchmarks for that load time, they likely lost well over 70% of visitors before the page finished loading. The polished sites loaded fine, but used language the property owners I interviewed called untrustworthy. This defined the brand position: fast, structured and plainly worded, between the two extremes.',
         ],
       },
       {
-        heading: 'Process',
-        eyebrow: 'Double diamond, applied',
+        chapter: { title: 'Branding', nav: 'Branding' },
+        heading: 'Three logo concepts gave the client words for what they wanted',
         paragraphs: [
-          'Discover: competitor audit, stakeholder interviews, property owner research to define target audience. Define: core audience identified - older users, families, low technical confidence - with brand positioning placed deliberately between the two market extremes. Develop: three logo concepts explored, brand system built from the chosen direction, wireframes developed with shallow navigation and large accessible type. Deliver: high-fidelity prototype, WordPress implementation, bilingual SEO-optimised site launched.',
-          'The three-concept exercise turned out to solve more than a branding problem. Stakeholders couldn’t articulate their preferences in words, but responding to visuals gave them a language for it. They saw what was missing in each option, and the decision made itself.',
+          'The stakeholders couldn’t describe their preferences in words, so I explored three logo concepts. Reacting to visuals gave them a language for it. They saw what was missing in each option, and the decision made itself.',
         ],
         options: [
           {
             label: 'A',
-            description:
-              'Sleek black typography, high-end and minimal. Looked refined but felt cold - wrong for an audience seeking personal, trustworthy service.',
+            description: 'Sleek black typography, high-end and minimal. It looked refined but felt cold, wrong for an audience looking for personal, trustworthy service.',
             image: '/work/images/solidhomes-logo-a.webp',
           },
           {
             label: 'B',
-            description:
-              'Playful custom font with bright colors. Energetic, but too casual for the context and demographic.',
+            description: 'A playful custom font with bright colors. Energetic, but too casual for the context and the audience.',
             image: '/work/images/solidhomes-logo-b.webp',
           },
           {
             label: 'C',
-            description:
-              'Clean sans-serif with a green accent. Credible without being cold - green differentiated SolidHomes from a blue-dominated competitor landscape while reading as stable and approachable.',
+            description: 'A clean sans-serif with a green accent. Credible without being cold. Green set SolidHomes apart from mostly blue competitors, while reading as stable and approachable.',
             image: '/work/images/solidhomes-logo-c.webp',
             chosen: true,
           },
         ],
       },
       {
-        heading: 'Solution',
+        heading: 'Every brand color got one job, chosen for older eyes',
         paragraphs: [
-          'SolidHomes launched with a bilingual website presenting services, pricing, and contact options clearly for an older, less technical audience. Typography was set larger than standard - 20px body minimum - with generous line height and a shallow navigation structure that doesn’t require scrolling to find key information. A city map showing managed properties replaced a description-only approach, giving users something visual to anchor their understanding of the business.',
-          'The color system was built around accessibility from the start. The brand green anchors the identity but couldn’t carry the whole site functionally: purple handles buttons and CTAs because it creates strong contrast against green without competing with it, and yellow covers links on dark backgrounds, where green would disappear. Neither choice was aesthetic first - both exist because the target audience includes older users with potentially declining vision, and color contrast isn’t optional for them.',
-          'The brand system included a main logo, favicon, stacked email signature version, full color palette, and typography specification, giving the client a complete foundation to build from.',
-        ],
-        images: ['/work/images/solidhomes-2.webp', '/work/images/solidhomes-4.webp'],
-      },
-      {
-        heading: 'Outcomes',
-        paragraphs: [
-          'SolidHomes went from no online presence to a live, professional site with a defined brand identity. Real client inquiries started coming in within weeks of the January 2026 launch, with the full brand system, bilingual content, and SEO foundation in place. SEO is still in its early building phase, so organic traffic is low, but the infrastructure is in place and the key metrics to watch over the next three to six months are defined.',
-          'Early analytics from the first six weeks post-launch showed an average session of around 2 minutes 40 seconds and a mobile bounce rate near 38%, a meaningful improvement over the well-over-70% bounce rate estimated for the old-style competitor sites used as the original benchmark, though the sample is still small enough that this reads as an early signal, not a conclusion.',
+          'The brand green anchors the identity, but it couldn’t carry everything on its own. The audience includes older people whose eyesight may be declining, so contrast wasn’t optional. Here’s how I divided the work between the colors:',
         ],
         bullets: [
-          'Will organic visibility for "property management Prague" grow as the SEO foundation matures?',
-          'Does the contact form convert, or do visitors call or email directly?',
-          'Can the client update content independently over time without breaking the layout?',
-          'Does having services and pricing available online actually reduce the time spent explaining the business in initial conversations?',
+          'Green anchors the brand and sets SolidHomes apart from mostly blue competitors.',
+          'Purple carries buttons and calls to action, because it contrasts strongly with green without competing with it.',
+          'Yellow is for links on dark backgrounds, where green would disappear.',
         ],
       },
       {
-        heading: 'Reflection',
-        eyebrow: "A client who can't tell you what they want is still telling you something",
+        heading: 'A complete brand system the client can build on',
         paragraphs: [
-          'The most useful thing I did on this project wasn’t design work, it was reframing the stakeholder relationship. When someone can’t define their audience or their brand position in words, pushing for clearer briefs doesn’t help. Showing them three distinct options and watching which one makes them uncomfortable taught me more about what SolidHomes needed than any interview question could have.',
-          'Advocating for the user here meant first doing the work of defining who that user actually was. The persona wasn’t a formality, it was the thing that made every subsequent decision defensible. Once the persona existed, the font size decision made sense, the navigation depth made sense, the tone of the copy made sense. Good design for this project meant starting with research the client didn’t know they needed.',
+          'I delivered the main logo, a favicon, a stacked version for email signatures, the full color palette and a typography specification. The brand launched with the company’s bilingual website. When the company later had to change its name, the logo and its green carried over into [Midoma](/work/midoma).',
+        ],
+      },
+      {
+        chapter: { title: 'Outcomes', nav: 'Outcomes' },
+        heading: 'Research turned an undefined brief into a clear brand',
+        paragraphs: ['SolidHomes went from no identity to a defined position, a persona for its audience and a complete brand system. Here’s what the research changed:'],
+        bullets: [
+          'The audience went from “anybody” to a persona: older owners, families and people with limited technical confidence.',
+          'A split stakeholder debate was settled by a benchmark instead of taste.',
+          'The logo was chosen by reacting to three concepts, not by writing a brief.',
+        ],
+      },
+      {
+        heading: 'A client who can’t say what they want is still telling you something',
+        paragraphs: [
+          'The most useful thing I did on this project wasn’t design work. It was changing how I worked with the stakeholders. When someone can’t put their audience or brand into words, asking for a clearer brief doesn’t help. Showing three different options and watching which one made them uncomfortable taught me more than any interview question.',
+          'Advocating for the user here meant first defining who that user was. Once the persona existed, the logo, the colors and the tone of the copy all made sense.',
         ],
       },
     ],
@@ -323,28 +535,47 @@ export const caseStudies: CaseStudy[] = [
     title: 'PromptKee',
     tagline: 'Helping teachers actually use the AI tools they already have',
     intro:
-      'Teachers in Uppsala were given access to powerful AI tools and a short onboarding session. Most stopped using them. The interface assumed knowledge they didn’t have. This is the story of what happened when I tried to fix that.',
+      'Teachers in Uppsala got access to powerful AI tools and a short onboarding session. Most of them stopped using the tools, because the interface assumed knowledge they didn’t have. I designed and built PromptKee to fix that.',
     year: '2026',
     role: 'Product designer, end-to-end',
     duration: '10 weeks',
     tools: ['Figma', 'Claude'],
     heroImage: '/work/images/promptkee-1.webp',
+    hero: {
+      client: 'Teachers in Uppsala',
+      deliverables: ['Web app', 'UX research'],
+      builtWith: 'Figma and Claude',
+      imageAlt: 'PromptKee on four phones: the start page, choosing a task and filling in a form',
+      background: 'radial-gradient(55% 80% at 0% 0%, rgb(214 72 140 / 0.3), transparent 70%), linear-gradient(135deg, #3a1838 0%, #2d1b4a 100%)',
+    },
+    skills: [
+      { name: 'User research', share: 20 },
+      { name: 'Content and UX writing', share: 15 },
+      { name: 'Visual and UI design', share: 15 },
+      { name: 'Prototyping and front-end', share: 15 },
+      { name: 'Usability testing', share: 15 },
+      { name: 'Research synthesis', share: 10 },
+      { name: 'Ideation and concepts', share: 10 },
+    ],
+    skillsNote: 'Estimated share of my time on the project, looking back at how long each part took.',
     sections: [
       {
-        heading: 'The challenge',
-        paragraphs: ['Three problems standing between teachers and AI.'],
+        chapter: { title: 'The brief', nav: 'Brief' },
+        heading: 'Teachers had AI tools, but most of them stopped using them',
+        paragraphs: ['I worked as the product designer, end to end, for 10 weeks. I defined the goals I wanted to achieve:'],
         bullets: [
-          'Help teachers write reliable prompts without teaching them prompt engineering?',
-          'Remove language uncertainty before they even start?',
-          'Make the tool usable during actual lesson prep, not in dedicated training sessions?',
+          'I wanted teachers to write reliable prompts without learning prompt engineering.',
+          'I wanted to remove the language uncertainty before they even start.',
+          'I wanted the tool to work during real lesson prep, not only in training sessions.',
         ],
       },
       {
-        heading: 'Research',
-        eyebrow: 'Understanding the problem before building anything',
+        chapter: { title: 'Research', nav: 'Research' },
+        heading: 'It was a trust problem, not an adoption problem',
         paragraphs: [
-          'I conducted qualitative interviews with teachers and supplemented that with secondary research on platforms like Reddit, where people talk openly about their frustrations with AI tools. To speed that up, I used an AI tool to scrape and summarise discussion threads, which let me get through a much larger volume of material than I could have manually.',
-          'What came up consistently: teachers did not know what made a prompt work and how to reduce the risk of AI hallucinations. Small changes in wording produced completely different results, with no explanation why. The tool felt unpredictable, so they stopped trusting it. Several teachers were genuinely unsure whether to write in Swedish or English and whether it affected the quality of the answer - that uncertainty alone was enough to stop some of them from starting.',
+          'To begin with, I interviewed teachers and read what people say openly about AI tools on platforms like Reddit. I used an AI tool to scrape and summarize 42 discussion threads, so I could get through much more material than by hand.',
+          'Two things came up again and again. Teachers didn’t know what makes a prompt work or how to reduce the risk of hallucinations. Small changes in wording gave completely different results, so the tool felt unpredictable and they stopped trusting it. Several teachers were also unsure whether to write in Swedish or English, and that alone stopped some of them from starting.',
+          'When I sorted the threads by complaint, about two-thirds were about not trusting the output, and a much smaller share about not being interested in AI at all. That’s why built-in accuracy rules became the core of the product.',
         ],
         quote: { text: 'AI can’t be trusted, it makes stuff up constantly.', attribution: 'Teacher interviewed during research' },
         persona: {
@@ -362,73 +593,46 @@ export const caseStudies: CaseStudy[] = [
         },
       },
       {
-        heading: 'Data & insights',
-        eyebrow: 'Reframing the problem with a number, not a hunch',
-        paragraphs: [
-          'The AI-assisted scrape covered 42 Reddit threads on teachers and AI tools. Coding those threads by complaint type showed roughly two-thirds referenced not trusting the output (hallucinations, inconsistent results, no idea why wording changed the answer), against a much smaller share citing lack of interest in AI at all. That ratio reframed the whole brief in Define: this was a trust problem wearing an adoption problem’s clothes, and it’s the reason the built-in accuracy rules became the product’s core feature rather than a footnote.',
-        ],
-      },
-      {
-        heading: 'Process',
-        eyebrow: 'Double diamond, applied',
-        paragraphs: [
-          'Discover: teacher interviews and secondary research to understand real pain points. Define: core barriers identified as language uncertainty and cognitive load. Develop: three solution directions explored and evaluated against user needs. Deliver: designed, built, and launched - currently in user testing.',
-        ],
+        chapter: { title: 'Design', nav: 'Design' },
+        heading: 'Of three directions, only pre-filled forms helped during lesson prep',
+        paragraphs: ['I followed the double diamond and explored three directions, then compared them against what teachers need:'],
         options: [
-          {
-            label: 'A',
-            description:
-              'Prompting coach. Great as a learning tool, but did nothing to help teachers during actual lesson planning.',
-          },
-          {
-            label: 'B',
-            description:
-              'AI-powered checker. Functionally accurate but wasteful on tokens - not sustainable from a practical standpoint.',
-          },
-          {
-            label: 'C',
-            description:
-              'Pre-filled forms + rule-based checker. Gentle guidance with a practical output, ready to use straight away.',
-            chosen: true,
-          },
+          { label: 'A', description: 'A prompting coach. Great for learning, but it didn’t help teachers during actual lesson planning.' },
+          { label: 'B', description: 'An AI-powered checker. Accurate, but it used too many tokens to be sustainable.' },
+          { label: 'C', description: 'Pre-filled forms with a rule-based checker. Gentle guidance and a practical result, ready to use straight away.', chosen: true },
         ],
         images: ['/work/images/promptkee-3.webp'],
       },
       {
-        heading: 'Solution',
-        eyebrow: 'A structured prompt in 3 steps',
+        heading: 'A ready-to-use prompt in three steps',
         paragraphs: [
-          'PromptKee is a web-based prompt generator. Based on research I identified the 10 most common AI use cases for teachers - each one has its own pre-filled form. Teachers fill in the relevant details, generate a prompt, and paste it into whichever AI tool they use.',
-          'The generated prompt includes built-in rules: the AI cannot lie, must admit when it does not know something, and must always produce output suitable for a school environment. Teachers do not need to know any of this - it is handled automatically.',
+          'PromptKee is a web-based prompt generator. From the research, I identified the 10 most common ways teachers use AI, and each one got its own pre-filled form. Teachers fill in the details, generate a prompt and paste it into whichever AI tool they use.',
+          'Every prompt includes built-in rules: the AI can’t lie, must admit when it doesn’t know something and must keep the output suitable for school. Teachers don’t need to know any of this, because it happens automatically.',
         ],
       },
       {
-        heading: 'Outcomes',
-        eyebrow: 'Early signals are encouraging',
+        chapter: { title: 'Outcomes', nav: 'Outcomes' },
+        heading: 'Teachers who had given up on AI wrote a prompt on their first try',
         paragraphs: [
-          '2 out of 2 teachers who previously gave up on AI completed a structured prompt without help on their first try, and zero language hesitation was observed when the interface was shown in Swedish.',
-          'All three teachers in the broader testing group responded positively to the concept. Testing also revealed that the interface still assumed more understanding of how AI works than most teachers have - users lacked a mental model for what the tool was doing behind the scenes. That’s something I had underestimated in the initial design, and it directly shaped the next iteration: simplifying the language and adding contextual cues to make the process more transparent.',
+          '2 out of 2 teachers who had given up on AI completed a structured prompt on their first try, without help. With the interface in Swedish, I saw no language hesitation. All 3 teachers in the wider test group responded positively.',
+          'Testing also showed that the interface still assumed more understanding of AI than most teachers have. They had no mental model of what the tool does behind the scenes. I had underestimated this, and it shaped the next iteration: simpler language and contextual cues that make the process more transparent.',
         ],
       },
       {
-        heading: 'What testing taught me',
-        eyebrow: 'The challenge I am still working on',
-        paragraphs: [
-          'The core tension in this project is how to give teachers a genuinely useful tool without asking them to learn anything new. Teachers do not have time for onboarding - the design has to be immediately obvious or it will not get used at all.',
-        ],
+        heading: 'Open questions for the next round of testing',
+        paragraphs: ['Teachers have no time for onboarding, so the design has to be obvious right away or it won’t be used. Here’s what I still want to find out:'],
         bullets: [
-          'Are the 10 categories the right 10, or are there gaps that only show up in real use?',
-          'Do teachers feel AI responses are more reliable when the built-in rules are applied?',
-          'Is the copy-paste step a friction point significant enough to affect whether people return?',
-          'Does using the tool change how teachers feel about AI over time, not just in the moment?',
+          'Are the 10 categories the right ones, or are there gaps that only show up in real use?',
+          'Do teachers find AI answers more reliable with the built-in rules?',
+          'Is copying and pasting enough friction to stop people from coming back?',
+          'Does the tool change how teachers feel about AI over time, not just in the moment?',
         ],
       },
       {
-        heading: 'Reflection',
-        eyebrow: 'Access ≠ usability',
+        heading: 'Access to a tool is not the same as being able to use it',
         paragraphs: [
-          'Giving people a tool is not enough. If the interaction is unclear, users will stop and blame the tool, not the onboarding. The teachers I spoke with were not wrong to be frustrated - the entry point just had too much friction.',
-          'Language turned out to be a UX problem, not just a content one. Offering the interface in the user’s own language is not a nice-to-have. For some users it directly affects whether they feel confident enough to start at all. That is an accessibility consideration as much as anything else.',
+          'Giving people a tool is not enough. If the interaction is unclear, they stop and blame the tool. The teachers I spoke with were right to be frustrated: the way in just had too much friction.',
+          'Language also turned out to be a UX problem, not only a content one. For some users, an interface in their own language decides whether they feel confident enough to start at all. That makes it an accessibility question too.',
         ],
       },
     ],
@@ -439,76 +643,89 @@ export const caseStudies: CaseStudy[] = [
     title: 'JavaScript Memory Game',
     tagline: 'What does good UX look like when your user is four years old and losing patience?',
     intro:
-      'This started as a JavaScript course project. I turned it into a UX research problem. Children ages 3 to 8 have completely different cognitive abilities, attention spans, and motor control. Building one game that works across that range meant testing with real kids and redesigning everything I thought I already knew about interaction design.',
+      'This started as a JavaScript course project, and I turned it into a UX research problem. Children ages 3 to 8 have very different abilities, attention spans and motor control, so making one game for all of them meant testing with real children.',
     year: '2025',
     role: 'Designer and developer, end-to-end',
     duration: '4 weeks',
     tools: ['JavaScript', 'HTML5', 'CSS3', 'Figma'],
     heroImage: '/work/images/memory-game-1.webp',
+    hero: {
+      client: 'Children ages 3–8',
+      deliverables: ['Web game', 'Usability testing'],
+      builtWith: 'JavaScript, HTML and CSS',
+      imageAlt: 'The memory game: animal cards and three difficulty buttons',
+      background: 'radial-gradient(50% 75% at 100% 100%, rgb(236 213 143 / 0.22), transparent 70%), linear-gradient(135deg, #2a2266 0%, #3a2f86 100%)',
+    },
+    skills: [
+      { name: 'Front-end (JavaScript)', share: 25 },
+      { name: 'Observational research', share: 20 },
+      { name: 'Usability testing', share: 15 },
+      { name: 'Interaction design', share: 15 },
+      { name: 'Visual and UI design', share: 15 },
+      { name: 'Accessibility', share: 10 },
+    ],
+    skillsNote: 'Estimated share of my time on the project, looking back at how long each part took.',
     sections: [
       {
-        heading: 'The challenge',
-        paragraphs: ["Designing for users who can't tell you what's wrong."],
+        chapter: { title: 'The brief', nav: 'Brief' },
+        heading: 'One memory game for children ages 3 to 8',
+        paragraphs: ['I designed and built the game end to end, in four weeks. My users couldn’t tell me what was wrong, so I defined the questions the design had to answer:'],
         bullets: [
-          'How might we make a game accessible to a 3-year-old without boring an 8-year-old?',
-          'How might we design touch interactions for users with limited fine motor control?',
-          'How might we keep children engaged when frustration leads directly to disengagement?',
+          'How can a game work for a 3-year-old without boring an 8-year-old?',
+          'How can touch work for children with limited fine motor control?',
+          'How can the game keep children playing, when frustration makes them quit?',
         ],
       },
       {
-        heading: 'Research',
-        eyebrow: 'Understanding the problem before building anything',
-        paragraphs: [
-          'I ran informal testing sessions with children across the target age range, watching how they actually interacted with the game rather than asking them to describe their experience - children this age can’t articulate what isn’t working, so observation was the only reliable method.',
-          'Four things came up consistently: younger children couldn’t handle time pressure, visual recognition worked better with familiar animals than abstract shapes, touch accuracy varied significantly by age, and the emotional response to failure was fast and total. A frustrated four-year-old does not try again.',
-        ],
+        chapter: { title: 'Research', nav: 'Research' },
+        heading: 'A frustrated four-year-old does not try again',
+        paragraphs: ['Children this age can’t explain what isn’t working, so I watched them play instead of asking them. I ran informal test sessions across the whole age range. Four things came up again and again:'],
         quote: { text: 'The timer is too fast! I can’t remember that quick!', attribution: 'Testing participant, age 4' },
+        bullets: [
+          'Younger children couldn’t handle time pressure.',
+          'Familiar animals worked better than abstract shapes.',
+          'Touch accuracy varied a lot by age.',
+          'The reaction to failure was fast and total.',
+        ],
         images: ['/work/images/memory-game-2.webp'],
       },
       {
-        heading: 'Data & insights',
-        eyebrow: 'Timing the sessions instead of trusting first impressions',
+        heading: 'Timing every round showed where children give up',
         paragraphs: [
-          'Alongside the observation notes, I timed rounds with a stopwatch across every test session. Average round completion landed around 46 seconds in easy mode versus 21 seconds in hard mode, which confirmed the pacing gap between difficulty levels was actually working as intended rather than just feeling right in the room. The timing data is also what caught the frustration threshold: rounds that ran past roughly 90 seconds without a match were the ones that ended in a child giving up, which set the practical upper bound for how long any single round should ever be allowed to run.',
+          'Alongside my notes, I timed every round with a stopwatch. A round took about 46 seconds on easy and 21 seconds on hard, so the difficulty levels pace as intended. The timing also showed the frustration threshold: rounds that ran past about 90 seconds without a match ended with a child giving up. That set the upper limit for how long a round may run.',
         ],
       },
       {
-        heading: 'Process',
-        eyebrow: 'Double diamond, applied',
-        paragraphs: [
-          'Discover: observation sessions with children ages 3 to 8, noting where interaction broke down and where engagement held. Define: core constraints identified - fine motor limitations, time pressure sensitivity, need for visual familiarity, and the frustration threshold problem. Develop: three difficulty levels designed around age-based ability, a visual system built for contrast and recognition, touch targets sized for small, inaccurate hands. Deliver: built, tested across difficulty levels, confirmed that 3-year-olds could complete easy mode and 8-year-olds found hard mode appropriately challenging.',
+        chapter: { title: 'Design', nav: 'Design' },
+        heading: 'Three levels, familiar animals and touch targets for small hands',
+        paragraphs: ['Following the double diamond, I turned these findings into design rules. Here’s what I did:'],
+        bullets: [
+          'I made three difficulty levels mapped to age. Easy mode has fewer cards and more time, hard mode is fast-paced for older children.',
+          'I used purple and yellow for strong contrast, and animal photos children recognize right away.',
+          'I added a clear flip animation, so every tap confirms itself.',
+          'I sized fonts, card spacing and touch targets for young children’s motor skills, not standard web conventions.',
         ],
         images: ['/work/images/memory-game-3.webp'],
       },
       {
-        heading: 'Solution',
+        chapter: { title: 'Outcomes', nav: 'Outcomes' },
+        heading: 'Each level reached the age it was made for',
         paragraphs: [
-          'A mobile-first memory game with three difficulty levels mapped to age-based ability. Easy mode has fewer cards and more time; hard mode is fast-paced for older children. The visual system uses purple and yellow for strong contrast against developing vision, with animal photography children could immediately recognise. Cards flip with a clear animation so the interaction always confirms itself visually.',
-          'Every sizing decision, from font size to card spacing to touch targets, was driven by the specific constraints of young children’s motor skills rather than standard web conventions.',
+          'In testing, 3-year-olds completed easy mode, and 8-year-olds found hard mode challenging. The most unexpected finding was that younger children sometimes stopped playing to explore the visuals, and ran out of time. That’s a problem, but it also means the visuals were doing their job.',
+          'Here’s what I would improve next:',
         ],
-      },
-      {
-        heading: 'Outcomes',
-        paragraphs: [
-          '3-year-olds completed easy mode successfully in testing, and 8-year-olds found hard mode appropriately challenging - the game covers the full target age range, with each difficulty level reaching its intended users. The most unexpected finding was that younger children sometimes stopped playing to explore the visual design instead, which caused them to run out of time. That’s a problem, but it also means the visuals were doing their job.',
-        ],
-      },
-      {
-        heading: 'What testing taught me',
-        paragraphs: [],
         bullets: [
-          'Touch event handling needs refinement for children under 5 - tap registration still drops occasionally.',
-          'Adaptive difficulty that adjusts in real time based on player performance would remove the need to choose a level at all.',
-          'More structured usability testing with a larger sample to confirm the findings hold beyond informal sessions.',
-          'Track completion rate and average round time per difficulty level with real usage data, to replace stopwatch sampling from a handful of sessions.',
+          'Touch handling for children under 5, because taps still drop occasionally.',
+          'Difficulty that adapts in real time to how the child plays, so nobody has to choose a level.',
+          'More structured usability testing with a larger group, to confirm the findings hold.',
+          'Completion rate and round time per level from real usage data, instead of a stopwatch in a few sessions.',
         ],
       },
       {
-        heading: 'Reflection',
-        eyebrow: 'What works for adults is a starting point, not a solution',
+        heading: 'Designing for children means testing every assumption again',
         paragraphs: [
-          'User testing with children is a different discipline. They won’t tell you the timer is too fast in a feedback form, they’ll just stop playing. Every assumption I brought from standard web design had to be tested from scratch - touch targets that seemed generous weren’t, time limits that seemed fair weren’t. The gap between designing for adults and designing for children is much larger than the gap between designing for two different adult groups.',
-          'The most valuable moment in this project wasn’t a design decision. It was watching a 4-year-old forget to play the game because she was too interested in looking at the animals. It reframed what accessibility means for this audience - it isn’t just about contrast ratios and font sizes, it’s about understanding what attention actually looks like in a 4-year-old and designing around that reality.',
+          'Children won’t tell you the timer is too fast in a feedback form, they just stop playing. Every assumption I brought from web design had to be tested again: touch targets that seemed generous weren’t, and time limits that seemed fair weren’t.',
+          'The most valuable moment wasn’t a design decision. It was watching a 4-year-old forget to play because she was too interested in the animals. Accessibility for this audience isn’t only contrast and font sizes, it’s understanding what attention looks like at four and designing around it.',
         ],
       },
     ],

@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { prefersReducedMotion } from '../lib/video'
 
 // Entrance effect: a "sand grain" pixel dissolve. A grid fine enough to
 // read as sand means low hundreds of thousands of individual cells
@@ -19,6 +20,7 @@ export default function PixelReveal({
   revealFrom = 'random',
   ready = true,
   bgColor,
+  skip = false,
 }: {
   children: React.ReactNode
   delay?: number
@@ -51,11 +53,16 @@ export default function PixelReveal({
   // purple `GAME_BG`), since a mismatched cover reads as a visible
   // flash instead of blending into the page underneath it.
   bgColor?: string
+  // Render `children` straight away with no cover/dissolve (e.g. the
+  // homepage after its first visit in a session). Also forced on under
+  // `prefers-reduced-motion`.
+  skip?: boolean
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [done, setDone] = useState(false)
   const [revealStarted, setRevealStarted] = useState(false)
+  const [skipped] = useState(() => skip || prefersReducedMotion())
 
   // `useLayoutEffect`, not `useEffect` — the latter runs after the
   // browser has already painted the first frame, so the real content
@@ -67,7 +74,7 @@ export default function PixelReveal({
   useLayoutEffect(() => {
     const container = containerRef.current
     const canvas = canvasRef.current
-    if (!container || !canvas) return
+    if (skipped || !container || !canvas) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -210,13 +217,13 @@ export default function PixelReveal({
         img.removeEventListener('error', handleImgSettled)
       })
     }
-  }, [delay, duration, revealFrom, ready, bgColor])
+  }, [delay, duration, revealFrom, ready, bgColor, skipped])
 
   return (
     <div ref={containerRef} className="relative">
       {children}
-      {!done && <canvas ref={canvasRef} aria-hidden className="pointer-events-none absolute inset-0" />}
-      {!done && label && (
+      {!done && !skipped && <canvas ref={canvasRef} aria-hidden className="pointer-events-none absolute inset-0" />}
+      {!done && !skipped && label && (
         // Anchored to the top of this container (the bento grid), not
         // stretched across its full height — the grid runs to several
         // times a screen's height, so centering across all of `inset-0`

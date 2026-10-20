@@ -101,7 +101,12 @@ export default function GameEmbed({ onReady }: { onReady?: () => void }) {
         // border anymore either, so the iframe reads as part of the
         // page's own background instead of a bordered "card" sitting
         // on top of it.
-        className="block w-full bg-game-dark"
+        //
+        // Until the real height is measured, reserve roughly the game's
+        // usual height (measured: ~440px on phones, ~712px on desktop)
+        // instead of the browser's 150px default — otherwise the footer
+        // below jumps down once the game loads (CLS 0.21 on mobile).
+        className={`block w-full bg-game-dark ${height === null ? 'h-[440px] lg:h-[712px]' : ''}`}
       />
     </div>
   )

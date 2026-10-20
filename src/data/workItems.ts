@@ -2,7 +2,7 @@
 // shown together in one feed. Real content pulled from barboragustafsson.com
 // (2026-09-18). See project memory `portfolio-v2-work-section`.
 //
-// Exactly 7 real tiles, no color-fill filler. Earlier versions padded
+// Real tiles only, no color-fill filler. Earlier versions padded
 // the grid out with decorative color tiles when the item count felt
 // sparse; retired along with the pink/green palette they used (see
 // `portfolio-v2-stack-brand`).
@@ -75,6 +75,22 @@ export const workItems: WorkTile[] = [
     url: 'https://squinty.barboragustafsson.com/',
   },
   {
+    id: 'midoma',
+    kind: 'case-study',
+    slug: 'midoma',
+    title: 'Midoma',
+    tagline: 'A design system for a growing company, across two websites.',
+    goal: 'One design system that keeps a growing brand consistent, for owners and tenants alike.',
+    benefits: [
+      'Two sites that are instantly told apart, but clearly one family',
+      '1,010 synthetic test scenarios run with Claude',
+      'Accessibility and SEO scored 100 on both live sites',
+    ],
+    year: '2026',
+    tags: ['Design System', 'UX Audit', 'Synthetic Testing', 'Claude Code', 'Accessibility'],
+    image: '/work/images/midoma-thumb.webp',
+  },
+  {
     id: 'promptkee',
     kind: 'case-study',
     slug: 'promptkee',
@@ -104,15 +120,15 @@ export const workItems: WorkTile[] = [
     slug: 'solidhomes',
     title: 'SolidHomes',
     tagline: 'Building trust for a property business with no online presence.',
-    goal: 'Turn zero brand identity into a trustworthy online business.',
+    goal: 'Turn zero brand identity into a brand older property owners trust.',
     benefits: [
-      'Accessible, WCAG compliant design for an older audience',
-      'Design that evokes trust in users',
-      'Bilingual site that builds credibility with local clients',
-      'Real client inquiries within weeks of launch',
+      'A brand position based on research, not taste',
+      'A persona for an older, less technical audience',
+      'Brand colors chosen for contrast and older eyes',
+      'A complete brand system: logo, favicon, palette and typography',
     ],
-    year: '2025',
-    tags: ['UI & UX Design', 'Web Design', 'WordPress Development', 'User Testing', 'Maintenance', 'SEO'],
+    year: '2024',
+    tags: ['Branding', 'UX Research', 'Competitor Analysis', 'Personas'],
     image: '/work/images/solidhomes-thumb.webp',
   },
   {

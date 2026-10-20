@@ -39,8 +39,16 @@
          without this hint the browser can't discover/start fetching it
          until React actually renders — this lets it start immediately
          from the raw HTML instead. Keep this in sync with
-         `workItems.ts`'s first case study's `image` field. -->
-    <link rel="preload" as="image" href="/work/images/piggy-bank-thumb.webp" fetchpriority="high" />
+         `workItems.ts`'s first case study's `image` field (and with
+         BentoGrid.tsx's `thumbSrcSet`/`SQUARE_THUMB_SIZES`). -->
+    <link
+      rel="preload"
+      as="image"
+      href="/work/images/piggy-bank-thumb.webp"
+      imagesrcset="/work/images/piggy-bank-thumb-800.webp 800w, /work/images/piggy-bank-thumb.webp 1500w"
+      imagesizes="(min-width: 690px) 660px, 90vw"
+      fetchpriority="high"
+    />
   </head>
   <body>
     <div id="root"></div>

@@ -4,6 +4,7 @@ import GridHoverBackground from '../components/GridHoverBackground'
 import PixelReveal from '../components/PixelReveal'
 import PixelWaveDivider from '../components/PixelWaveDivider'
 import { DEV_SKILL_GROUPS } from '../data/devSkills'
+import { usePageMeta } from '../lib/pageMeta'
 
 // UX/Design rows are specific to this page's own bio; the technical
 // ones (Languages, Frameworks & Tools, Databases, etc.) come from the
@@ -69,6 +70,7 @@ const PHOTO_TREATMENTS = [
 // `h1` size, and their rows are a plain `divide-y` list with no card
 // background/radius, not boxes.
 export default function AboutPage() {
+  usePageMeta('About', '/about')
   // Plays on every page load, not gated to once per session like the
   // homepage/Code page entrances (see Home.tsx, CodePage.tsx) — this
   // one is meant to replay every time.

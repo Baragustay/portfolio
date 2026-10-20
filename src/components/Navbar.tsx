@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { m } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
-import { PixelArrow } from './Doodles'
+import { PixelGamepad, PixelHouse } from './Doodles'
+import { workItems, type CaseStudyTile } from '../data/workItems'
 
 // Used on every page except the homepage's desktop (`lg:`+) layout,
 // which has its own pinned Sidebar.tsx instead. Below `lg`, the
@@ -10,100 +11,63 @@ import { PixelArrow } from './Doodles'
 // are their own pages. No Contact link here — Contact lives only in
 // the homepage sidebar (desktop) / MobileHero (mobile homepage).
 //
-// No separate "Work" link — it pointed to `/`, same as "Barbora"
-// itself, so it was pure redundancy.
+// No separate "Work" link — it pointed to `/`, same as "Home" itself,
+// so it was pure redundancy.
 const NAV_LINKS = [
   { label: 'Code', to: '/code' },
   { label: 'About', to: '/about' },
 ]
 
-export default function Navbar() {
-  const { scrollY } = useScroll()
-  // Lazy initializer reads the real scroll position for the very first
-  // render instead of defaulting to `false` and correcting it a moment
-  // later in an effect — no flash of the "unscrolled" pill state on a
-  // page that's opened already scrolled down, and no separate
-  // mount-time effect needed just to sync one value
-  // `useMotionValueEvent` already keeps current after mount.
-  const [scrolled, setScrolled] = useState(() => window.scrollY > 24)
-  const { pathname } = useLocation()
-  // A light circle on a light page has almost no contrast, so the
-  // back-arrow button flips to dark-on-light on the dark pages
-  // instead of assuming one fixed style works everywhere. Every page is
-  // dark except case studies (`/work/...`), which stayed light on
-  // purpose — checked that way round so the homepage (mobile) and the
-  // 404 page count as dark too.
-  const isDarkPage = !pathname.startsWith('/work/')
+// Same order as the homepage grid.
+const CASE_STUDIES = workItems.filter((item): item is CaseStudyTile => item.kind === 'case-study')
 
-  useMotionValueEvent(scrollY, 'change', (latest) => {
-    setScrolled(latest > 24)
-  })
+export default function Navbar() {
+  const { pathname } = useLocation()
+  // The page the panel was opened on: navigating anywhere closes it,
+  // without an effect resetting state after the route changes.
+  const [openOn, setOpenOn] = useState<string | null>(null)
+  const studiesOpen = openOn === pathname
+  const setStudiesOpen = (open: boolean) => setOpenOn(open ? pathname : null)
+  const studiesRef = useRef<HTMLLIElement>(null)
+
+  // A disclosure, not an ARIA menu: Tab moves through the links as usual.
+  // Closes on navigation (above), Escape (focus back on the button) and any
+  // click outside it.
+  useEffect(() => {
+    if (!studiesOpen) return
+    const onPointer = (e: PointerEvent) => {
+      if (!studiesRef.current?.contains(e.target as Node)) setOpenOn(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpenOn(null)
+      studiesRef.current?.querySelector('button')?.focus()
+    }
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [studiesOpen])
+  const itemClass = (current: boolean) =>
+    `pixel-corners px-2 py-2 transition-colors hover:bg-white/10 sm:px-3 ${current ? 'bg-white/15' : ''}`
+  const linkClass = (current: boolean) => `whitespace-nowrap uppercase tracking-wide ${itemClass(current)} active:translate-y-px`
 
   return (
-    <>
-      {/* Back-to-home affordance for every page that isn't the
-          homepage — fixed top-left corner, independent of the centered
-          nav pill below. Suppressed on `/` itself since "back to home"
-          while already home is a no-op link. Hidden below `sm`: the
-          centered pill (with "Barbora" always visible) gets wide enough
-          at 320–414px to physically overlap this button — measured
-          actual bounding boxes rather than guessing. Below `sm`,
-          "Barbora" itself (at the pill's own left edge, already close
-          to this corner) covers the same affordance anyway. */}
-      {pathname !== '/' && (
-        <motion.div
-          initial={{ y: -40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed top-[52px] left-4 z-50 hidden sm:block"
-        >
-          <Link
-            to="/"
-            aria-label="Back to home"
-            className={`flex h-11 w-11 items-center justify-center rounded-full
-                       shadow-[0_8px_32px_rgba(29,43,43,0.18),0_2px_12px_rgba(225,184,186,0.2)]
-                       backdrop-blur-xl backdrop-saturate-150 transition-transform hover:-translate-x-0.5 ${
-                         isDarkPage
-                           ? 'border border-white/70 bg-white/85 text-ink hover:bg-white'
-                           : 'border border-ink/10 bg-ink/85 text-white hover:bg-ink'
-                       }`}
-          >
-            {/* Same blocky `PixelArrow` used for the bento grid's
-                "open" arrows and the game's pointer, rotated 180° to
-                point back. */}
-            <PixelArrow className="h-4 w-4 rotate-180" />
-          </Link>
-        </motion.div>
-      )}
-
-      <motion.header
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-[52px] left-1/2 z-50 -translate-x-1/2 px-2"
-      >
-        <motion.nav
-          aria-label="Main"
-          animate={{
-            paddingInline: scrolled ? 8 : 14,
-            paddingBlock: scrolled ? 8 : 12,
-          }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          // `bg-white/75` on dark pages: the glassy `bg-white/30` over a
-          // near-black page came out mid-grey, leaving the pill's dark
-          // text at ~2:1 contrast (WCAG AA needs 4.5:1).
-          className={`flex items-center gap-2 rounded-full border border-white/50
-                     ${isDarkPage ? 'bg-white/75' : 'bg-white/30'} shadow-[0_8px_32px_rgba(29,43,43,0.12),0_2px_12px_rgba(225,184,186,0.16)]
-                     backdrop-blur-xl backdrop-saturate-150
-                     before:pointer-events-none before:absolute before:inset-0
-                     before:rounded-full before:bg-gradient-to-r
-                     before:from-accent/40 before:via-white/10 before:to-ink/10
-                     before:opacity-70
-                     relative overflow-hidden sm:gap-6`}
-        >
-          {/* Just "Barbora", not the full "Barbora Gustafsson" — short
-              enough to fit at every width once the pill's own gaps/
-              padding are also tightened below `sm`. */}
+    // Full-width bar right under the StatusBar (h-9), the same dark on
+    // every page, light case studies included, ending in a pixel
+    // dither instead of a hard edge. "Home" on the left doubles as the
+    // back-to-home link on every other page, so there's no separate back
+    // button any more.
+    <m.header
+      initial={{ y: -40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-x-0 top-9 z-50 text-white"
+    >
+      <nav aria-label="Main" className="bg-statusbar/90 backdrop-blur-xl">
+        <div className="font-pixel flex h-14 items-center justify-between gap-1 px-2 text-[11px] sm:gap-4 sm:px-8 sm:text-sm">
           <Link
             to="/"
             // A `Link` to the current URL doesn't trigger navigation (no
@@ -118,29 +82,76 @@ export default function Navbar() {
               }
             }}
             aria-current={pathname === '/' ? 'page' : undefined}
-            className={`font-pixel relative z-10 rounded-full py-1.5 pl-2 pr-1.5 text-xs uppercase tracking-wide transition-colors hover:bg-accent-soft/50 sm:pl-3 sm:pr-3 sm:text-sm ${
-              pathname === '/' ? 'bg-accent-soft/50 font-bold' : 'font-normal'
-            }`}
+            className={`group flex items-center gap-2.5 ${linkClass(pathname === '/')}`}
           >
-            Barbora
+            <PixelHouse className="animate-pixel-hop-on-hover h-[22px] w-[22px]" />
+            {/* Icon only below `sm`, so four items fit on a phone. */}
+            <span className="sr-only sm:not-sr-only">Home</span>
           </Link>
-          <ul className="font-pixel relative z-10 flex items-center gap-1 pr-2 text-xs text-ink sm:gap-5 sm:pr-3 sm:text-sm">
+          <ul className="flex items-center gap-0.5 sm:gap-3">
+            <li ref={studiesRef} className="sm:relative">
+              <button
+                type="button"
+                aria-expanded={studiesOpen}
+                aria-controls="nav-case-studies"
+                onClick={() => setStudiesOpen(!studiesOpen)}
+                className={`flex items-center gap-1.5 sm:gap-2 ${linkClass(pathname.startsWith('/work/'))}`}
+              >
+                {/* "Work" below `sm`, so the game button fits too at 360px. */}
+                <span className="sm:hidden">Work</span>
+                <span className="hidden sm:inline">Case studies</span>
+                <svg aria-hidden="true" viewBox="0 0 5 3" fill="currentColor" shapeRendering="crispEdges" className={`h-1.5 w-2.5 transition-transform ${studiesOpen ? 'rotate-180' : ''}`}>
+                  <rect x="0" y="0" width="5" height="1" />
+                  <rect x="1" y="1" width="3" height="1" />
+                  <rect x="2" y="2" width="1" height="1" />
+                </svg>
+              </button>
+              {/* Phones: full width under the bar (positioned against the
+                  fixed header). From `sm`: under the button. */}
+              <div
+                id="nav-case-studies"
+                hidden={!studiesOpen}
+                className="animate-pixel-drop absolute inset-x-4 top-full mt-1 drop-shadow-[0_12px_24px_rgba(0,0,0,0.25)] sm:inset-x-auto sm:left-0 sm:mt-3 sm:w-64"
+              >
+                <div className="pixel-corners bg-white/20 p-px">
+                  <ul className="pixel-corners bg-statusbar p-1.5 font-sans text-sm font-semibold normal-case text-white">
+                    {CASE_STUDIES.map((study) => {
+                      const to = `/work/${study.slug}`
+                      return (
+                        <li key={study.slug}>
+                          <Link to={to} aria-current={pathname === to ? 'page' : undefined} className={`block ${itemClass(pathname === to)}`}>
+                            {study.title}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </li>
             {NAV_LINKS.map((link) => (
               <li key={link.to}>
-                <Link
-                  to={link.to}
-                  aria-current={pathname === link.to ? 'page' : undefined}
-                  className={`rounded-full px-1.5 py-1.5 uppercase tracking-wide transition-colors hover:bg-accent-soft/50 sm:px-3 ${
-                    pathname === link.to ? 'bg-accent-soft/50 font-bold' : 'font-normal'
-                  }`}
-                >
+                <Link to={link.to} aria-current={pathname === link.to ? 'page' : undefined} className={`block ${linkClass(pathname === link.to)}`}>
                   {link.label}
                 </Link>
               </li>
             ))}
+            {/* The "get to know me" game, as the bar's one highlighted item.
+                Gamepad only below `sm`, so the bar still fits at 360px. */}
+            <li className="ml-1 sm:ml-2">
+              <Link
+                to="/game"
+                aria-current={pathname === '/game' ? 'page' : undefined}
+                className="group pixel-corners flex items-center gap-2 whitespace-nowrap bg-hover-yellow px-2.5 py-2 uppercase tracking-wide text-ink transition-colors hover:bg-white active:translate-y-px sm:px-3"
+              >
+                <PixelGamepad className="animate-pixel-hop-on-hover h-[14px] w-[26px]" />
+                <span className="sr-only sm:not-sr-only">Play a game</span>
+              </Link>
+            </li>
           </ul>
-        </motion.nav>
-      </motion.header>
-    </>
+        </div>
+      </nav>
+      <div aria-hidden="true" className="pixel-dither text-statusbar/90" />
+    </m.header>
   )
 }
