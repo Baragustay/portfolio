@@ -68,11 +68,12 @@ export const impactBySlug: Record<string, Impact> = {
   },
   'memory-game': {
     label: 'Impact',
-    highlight: 'Ages 3–8',
-    summary: 'in one game: 3-year-olds complete easy mode, 8-year-olds find hard mode challenging',
+    highlight: 'Children had fun',
+    summary: 'ages 3–8 played, stayed engaged, and found their way around the game on their own',
     points: [
-      'Rounds kept under ~90 s, the frustration threshold found in testing',
-      'Difficulty levels pace as intended: ~46 s per round on easy vs ~21 s on hard',
+      'Easy to start: children began playing and changed levels without struggling',
+      'Engaged: familiar animal photos kept them interested, and younger children even stopped to explore them',
+      'Each level fit its age: 3-year-olds completed easy mode, 8-year-olds found hard mode challenging',
     ],
     note: 'From informal test sessions with a small group of children.',
   },
