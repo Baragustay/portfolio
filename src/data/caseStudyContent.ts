@@ -318,8 +318,8 @@ export const caseStudies: CaseStudy[] = [
         heading: 'I started with foundations: every color named by its job',
         paragraphs: [
           'One major design constraint I had to take into account was that the logo and its green had to stay. The structure and content of the old site were also working well, so I kept them and focused on the details.',
-          'To begin with, I defined the basic building blocks: typography, colors and corners. Every color got a name that describes its job rather than its look, for example cta, sea or danger. This way a new designer knows where a color may go before using it.',
-          { type: 'image', src: '/work/images/midoma-foundations.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches grouped as brand, one job each (sea for forms, domsys for the app, danger for emergencies only) and grounds and tiles, and corner radii of 12, 20, 32 px and pill' },
+          'I defined the basic building blocks: typography, colors and corners. Every color got one job and a name that says what it is, not how it looks: cta for the main action only, form for every form, emergency for emergencies only and tile-domsys for the DOMSYS tile only. This way a new designer knows where a color may go before using it.',
+          { type: 'image', src: '/work/images/midoma-foundations.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches named by their job and grouped as brand (interactive, label, cta, text), one job each (form, domsys, emergency, text-secondary) and grounds and tiles (page, tile, tile-domsys, tile-emergency), and corner radii of 12, 20, 32 px and pill' },
         ],
       },
       {
@@ -328,6 +328,13 @@ export const caseStudies: CaseStudy[] = [
           'I combined these foundations into components, like buttons, cards and the header, and then into patterns like the bento home page. Every component documents its rules, what a page must provide and what not to do.',
           { type: 'image', src: '/work/images/midoma-strip.webp', alt: 'How the system builds up: tokens, then 11 components, then patterns such as the bento home page, the menu and the page header, then the two websites' },
           { type: 'image', src: '/work/images/midoma-components.webp', alt: 'Live components from both sites: the header with page title, bento tiles, a step list, a notice card, the AskUs box and the orange main button' },
+        ],
+      },
+      {
+        heading: 'The system took many rounds, not one straight pass',
+        paragraphs: [
+          'Getting to these foundations wasn’t straightforward. I went back and forth on the colors, and experimented with the corner radius until each size had a clear use: 12 px for fields, 20 px for cards and tiles, 32 px for panels and pills for buttons.',
+          'The tenant portal alone took about 50 rounds of changes. It had to stay on brand, with the same logo, type and orange call to action, without becoming a copy of midoma.cz, because tenants come with a different job than owners.',
         ],
       },
       {
