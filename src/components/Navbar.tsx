@@ -162,13 +162,15 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-            {/* The "get to know me" game, as the bar's one highlighted item.
+            {/* The "get to know me" game, outlined rather than filled: the
+                filled yellow button is reserved for "Get in touch", the
+                one main call to action (GetInTouch.tsx).
                 Gamepad only below `sm`, so the bar still fits at 360px. */}
             <li className="ml-1 sm:ml-2">
               <Link
                 to="/game"
                 aria-current={pathname === '/game' ? 'page' : undefined}
-                className="group flex items-center gap-2 whitespace-nowrap rounded-full bg-hover-yellow px-3 py-2 text-ink transition-colors hover:bg-hover-yellow/85 active:translate-y-px sm:px-4"
+                className="group flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-hover-yellow ring-1 ring-inset ring-hover-yellow/60 transition-colors hover:bg-hover-yellow/10 active:translate-y-px sm:px-4"
               >
                 <GamepadIcon className="h-5 w-5 transition-transform group-hover:-rotate-6" />
                 <span className="sr-only sm:not-sr-only">Play a game</span>

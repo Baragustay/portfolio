@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { HOME_BACKGROUND, HOME_SKILLS } from '../data/homeSkills'
+import GetInTouch from './GetInTouch'
 
 
 // Mobile-only (`lg:hidden`, rendered from Home.tsx) replacement for the
@@ -22,11 +23,12 @@ export default function MobileHero() {
   return (
     <section className="bg-page-bg px-6 pb-2 pt-[124px] text-center text-white sm:px-8">
       <h1 className="font-display text-3xl leading-tight text-white">
-        <Link to="/">Barbora Gustafsson</Link>
+        <Link to="/about">Barbora Gustafsson</Link>
       </h1>
       <p className="mt-3 text-lg text-white/80">I study people</p>
       <p className="mt-1 text-lg text-white/60">UX &amp; Product design</p>
       <p className="mt-2 text-sm text-white/55">Uppsala/Stockholm, Sweden</p>
+      <GetInTouch className="mx-auto mt-6 max-w-xs" />
     </section>
   )
 }
@@ -34,13 +36,18 @@ export default function MobileHero() {
 export function MobileSkills() {
   return (
     <section aria-labelledby="mobile-skills" className="px-6 pb-4 pt-6 text-center text-white sm:px-8">
-      <h2 id="mobile-skills" className="font-pixel text-sm uppercase tracking-[0.2em] text-white/60">Skills</h2>
+      {/* Leads to the About page, like the name at the top. */}
+      <Link to="/about" aria-label="Skills: learn more about me" className="group block rounded-xl">
+      <h2 id="mobile-skills" className="font-pixel text-sm uppercase tracking-[0.2em] text-white/60 transition-colors group-hover:text-hover-yellow">
+        Skills <span aria-hidden="true">→</span>
+      </h2>
       <ul className="mt-3 flex flex-col items-center gap-1.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6">
         {HOME_SKILLS.map((skill) => (
           <li key={skill} className="text-base font-medium leading-snug text-white/90">{skill}</li>
         ))}
       </ul>
       <p className="mt-4 text-sm text-white/55">{HOME_BACKGROUND}</p>
+      </Link>
     </section>
   )
 }
