@@ -136,6 +136,16 @@ function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyT
     return <p className="text-base leading-relaxed sm:text-lg text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
+    if (block.wideDiagram) {
+      return (
+        <div className={WIDE}>
+          <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
+            <img src={block.src} alt={block.alt ?? studyTitle} loading="lazy" decoding="async" className="mx-auto w-[900px] max-w-none md:w-full md:max-w-[1600px]" />
+          </div>
+          <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">Swipe sideways to see the whole flow</p>
+        </div>
+      )
+    }
     return block.small ? (
       <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={360} />
     ) : (
@@ -686,7 +696,7 @@ export default function CaseStudyPage() {
               {section.carousel && (
                 <>
                   {section.carouselHeading && (
-                    <p className="mt-8 text-sm font-semibold uppercase tracking-wider text-ink/70">
+                    <p className="mt-8 text-center text-sm font-semibold uppercase tracking-wider text-ink/70">
                       {section.carouselHeading}
                     </p>
                   )}

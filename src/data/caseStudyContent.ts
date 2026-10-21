@@ -24,7 +24,10 @@ export type ParagraphBlock =
   | string
   // `small`: kept inside the text column at a modest height, for a
   // supporting image that shouldn't compete with the design work.
-  | { type: 'image'; src: string; alt?: string; small?: boolean }
+  // `wideDiagram`: a detailed diagram that would be unreadably small at
+  // phone width, so below `md` it keeps a readable size and scrolls
+  // sideways instead.
+  | { type: 'image'; src: string; alt?: string; small?: boolean; wideDiagram?: boolean }
   | {
       type: 'video'
       src: string
@@ -214,10 +217,15 @@ export const caseStudies: CaseStudy[] = [
         heading: 'A simple app for the child, with the parent side as a concept',
         paragraphs: [
           'I designed the child’s app: simple and fun. The admin would happen in a sister app on the parent’s phone, which I kept as a concept, outside the scope of the study. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
-          'Fewer options mean no decision fatigue, so the child stays focused on what the app is for: learning to save money, read and count.',
+          'Fewer options mean no decision fatigue, so the child stays focused on what the app is for: learning to save money, read and count. Here is how a child moves through the app, and where the adult-only settings sit:',
+          {
+            type: 'image',
+            src: '/work/images/piggy-bank-flow.webp',
+            wideDiagram: true,
+            alt: 'User flow: 1, log in by picking yourself and entering a passcode, where a wrong passcode says try again and a second one says ask an adult. 2, sort new money: a New money to sort prompt, then dragging the money into a piggy until All done. 3, home with three tabs: Piggy balance, History and Me. From Me, a child can change their avatar or take a photo, or switch user back to log in. Adding a piggy, moving money, editing or deleting a piggy, changing the passcode and sound settings are for adults only, behind the question Are you an adult? 57 minus 7.',
+          },
           { type: 'video', src: '/work/videos/piggy-bank-walkthrough.mp4', heading: 'Full app walkthrough' },
         ],
-        images: ['/work/images/piggy-bank-4.webp'],
       },
       {
         chapter: { title: 'Testing', nav: 'Testing' },
@@ -250,6 +258,7 @@ export const caseStudies: CaseStudy[] = [
           'The biggest lesson was getting comfortable removing features I had already designed. It’s tempting to think a good app has many options. But what 4 to 7 year olds can actually do asks for simplicity. Using that space for larger fonts, bigger tap targets and audio made the app better and more accessible.',
           'I also learned that a child’s app can’t be judged on its own. Designing the parent side would likely have shown missing pieces in the child’s app too.',
         ],
+        images: ['/work/images/piggy-bank-4.webp'],
       },
     ],
   },
