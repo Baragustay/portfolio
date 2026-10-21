@@ -3,6 +3,7 @@ import Footer from '../components/Footer'
 import GridHoverBackground from '../components/GridHoverBackground'
 import PixelReveal from '../components/PixelReveal'
 import PixelWaveDivider from '../components/PixelWaveDivider'
+import { EmailIcon, GitHubIcon, LinkedInIcon } from '../components/ContactStatus'
 import { DEV_SKILL_GROUPS } from '../data/devSkills'
 import { usePageMeta } from '../lib/pageMeta'
 
@@ -110,6 +111,31 @@ export default function AboutPage() {
             About me
           </h1>
 
+          {/* Every way to reach me, right under the headline. The homepage's
+              Get in touch button (GetInTouch.tsx) leads here. The email
+              address is written out, so it can be copied by anyone without
+              a mail app set up. */}
+          <ul aria-label="Contact me" className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <li>
+              <a href="mailto:barbora.gustafsson@gmail.com" className="flex min-h-11 items-center gap-2 rounded-full bg-hover-yellow px-5 py-2.5 font-semibold text-ink transition-colors hover:bg-hover-yellow/90">
+                <EmailIcon />
+                barbora.gustafsson@gmail.com
+              </a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/in/barbora-gustafsson" target="_blank" rel="noreferrer" className="flex min-h-11 items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10">
+                <LinkedInIcon />
+                LinkedIn<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/baragustay" target="_blank" rel="noreferrer" className="flex min-h-11 items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white ring-1 ring-white/30 transition-colors hover:bg-white/10">
+                <GitHubIcon />
+                GitHub<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+          </ul>
+
           <p className="mt-6 text-base leading-relaxed sm:text-lg text-white/70">
             My name is Barbora, and I'm a UX and product designer based in
             Sweden.
@@ -122,9 +148,9 @@ export default function AboutPage() {
           <p className="mt-4 text-base leading-relaxed sm:text-lg text-white/70">
             Before design, I studied physiotherapy at Uppsala University,
             clinical practice included, and wrote a bachelor's thesis on
-            exercise-induced breathing symptoms in teenage athletes. Biggest
-            learning from this, apart from quantitative data analysis, was
-            realising how many people live with real difficulties without
+            exercise-induced breathing symptoms in teenage athletes. My biggest
+            lesson, apart from quantitative data analysis, was realizing how
+            many people live with real difficulties without
             knowing they have a treatable condition.
           </p>
           <p className="mt-4 text-base leading-relaxed sm:text-lg text-white/70">
@@ -134,7 +160,7 @@ export default function AboutPage() {
             personal coaching, and small business sites.
           </p>
           <p className="mt-4 text-base leading-relaxed sm:text-lg text-white/70">
-            I am drawn to ed-tech and health-tech, because here good design
+            I am drawn to ed-tech and health-tech, because there, good design
             has real stakes, especially for kids.
           </p>
 

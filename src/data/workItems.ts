@@ -157,7 +157,7 @@ export const workItems: WorkTile[] = [
       'Touch targets sized for developing motor skills',
       'High-contrast visuals support recognition and engagement',
     ],
-    year: '2025',
+    year: '2023',
     tags: ['JavaScript', 'HTML5', 'CSS3', 'Figma'],
     image: '/work/images/memory-game-thumb.webp',
   },

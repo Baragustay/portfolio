@@ -440,7 +440,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'A company with no brand, no audience and no website',
         paragraphs: [
-          'SolidHomes needed to grow its market presence, but it had no brand identity and no defined audience. Before anything could be designed, someone had to find out who the company was for. The company has since been renamed Midoma, and the [Midoma case study](/work/midoma) shows how I rebuilt it with a design system.',
+          'The company has since been renamed Midoma, and the [Midoma case study](/work/midoma) shows how I rebuilt it with a design system.',
           'I defined the goals I wanted to achieve with the project:',
         ],
         bullets: [
@@ -453,8 +453,8 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Research', nav: 'Research' },
         heading: '“Anybody”: defining the audience was the first design problem',
         paragraphs: [
-          'To begin with, I did secondary market research and a competitor analysis, then interviewed property owners about what they expect. The market had two extremes: polished, sales-driven sites on one end and outdated information dumps on the other. Neither built real trust with the audience SolidHomes needed.',
-          'When I asked the client who they wanted to reach, the answer shaped the whole research phase. Defining the audience wasn’t optional, it was the first design problem to solve. I created a persona for that audience: older adults, families who own buildings and people with limited technical confidence.',
+          'I did secondary market research and a competitor analysis, then interviewed property owners about what they expect. The market had two extremes: polished, sales-driven sites on one end and outdated information dumps on the other. Neither built real trust with the audience SolidHomes needed.',
+          'When I asked the client who they wanted to reach, the answer shaped the whole research phase. I created a persona for the audience SolidHomes actually needed.',
         ],
         quote: {
           text: 'Anybody. I would be happy to sell my services to frogs for all I care.',
@@ -508,10 +508,10 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'Every brand color got one job, chosen for older eyes',
         paragraphs: [
-          'The brand green anchors the identity, but it couldn’t carry everything on its own. The audience includes older people whose eyesight may be declining, so contrast wasn’t optional. Here’s how I divided the work between the colors:',
+          'The brand green anchors the identity, but it couldn’t carry everything on its own. The audience includes older people whose eyesight may be declining, so every color pair needed strong contrast. Here’s how I divided the work between the colors:',
         ],
         bullets: [
-          'Green anchors the brand and sets SolidHomes apart from mostly blue competitors.',
+          'Green anchors the brand.',
           'Purple carries buttons and calls to action, because it contrasts strongly with green without competing with it.',
           'Yellow is for links on dark backgrounds, where green would disappear.',
         ],
@@ -519,24 +519,19 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'A complete brand system the client can build on',
         paragraphs: [
-          'I delivered the main logo, a favicon, a stacked version for email signatures, the full color palette and a typography specification. The brand launched with the company’s bilingual website. When the company later had to change its name, the logo and its green carried over into [Midoma](/work/midoma).',
+          'I delivered the main logo, a favicon, a stacked version for email signatures, the full color palette and a typography specification.',
         ],
       },
       {
         chapter: { title: 'Outcomes', nav: 'Outcomes' },
-        heading: 'Research turned an undefined brief into a clear brand',
-        paragraphs: ['SolidHomes went from no identity to a defined position, a persona for its audience and a complete brand system. Here’s what the research changed:'],
-        bullets: [
-          'The audience went from “anybody” to a persona: older owners, families and people with limited technical confidence.',
-          'A split stakeholder debate was settled by a benchmark instead of taste.',
-          'The logo was chosen by reacting to three concepts, not by writing a brief.',
-        ],
+        heading: 'The brand launched, and carried over into Midoma',
+        paragraphs: ['The brand launched with the company’s bilingual website. When the company later had to change its name, the logo and its green carried over into [Midoma](/work/midoma).'],
       },
       {
         heading: 'A client who can’t say what they want is still telling you something',
         paragraphs: [
           'The most useful thing I did on this project wasn’t design work. It was changing how I worked with the stakeholders. When someone can’t put their audience or brand into words, asking for a clearer brief doesn’t help. Showing three different options and watching which one made them uncomfortable taught me more than any interview question.',
-          'Advocating for the user here meant first defining who that user was. Once the persona existed, the logo, the colors and the tone of the copy all made sense.',
+          'Once the persona existed, the logo, the colors and the tone of the copy all made sense.',
         ],
       },
     ],
@@ -546,7 +541,7 @@ export const caseStudies: CaseStudy[] = [
     title: 'PromptKee',
     tagline: 'Helping teachers actually use the AI tools they already have',
     intro:
-      'Teachers in Uppsala got access to powerful AI tools and a short onboarding session. Most of them stopped using the tools, because the interface assumed knowledge they didn’t have. I designed and built PromptKee to fix that.',
+      'Teachers in Uppsala got access to powerful AI tools and a short onboarding session. Many of them stopped using the tools, because the interface assumed knowledge they didn’t have. I designed and built PromptKee to fix that.',
     year: '2026',
     role: 'Product designer, end-to-end',
     duration: '10 weeks',
@@ -572,8 +567,8 @@ export const caseStudies: CaseStudy[] = [
     sections: [
       {
         chapter: { title: 'The brief', nav: 'Brief' },
-        heading: 'Teachers had AI tools, but most of them stopped using them',
-        paragraphs: ['I worked as the product designer, end to end, for 10 weeks. I defined the goals I wanted to achieve:'],
+        heading: 'Teachers had AI tools, but many of them stopped using them',
+        paragraphs: ['I defined the goals I wanted to achieve:'],
         bullets: [
           'I wanted teachers to write reliable prompts without learning prompt engineering.',
           'I wanted to remove the language uncertainty before they even start.',
@@ -584,7 +579,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Research', nav: 'Research' },
         heading: 'It was a trust problem, not an adoption problem',
         paragraphs: [
-          'To begin with, I interviewed teachers and read what people say openly about AI tools on platforms like Reddit. I used an AI tool to scrape and summarize 42 discussion threads, so I could get through much more material than by hand.',
+          'I interviewed teachers and read what people say openly about AI tools on platforms like Reddit. I used an AI tool to scrape and summarize 42 discussion threads, so I could get through much more material than by hand.',
           'Two things came up again and again. Teachers didn’t know what makes a prompt work or how to reduce the risk of hallucinations. Small changes in wording gave completely different results, so the tool felt unpredictable and they stopped trusting it. Several teachers were also unsure whether to write in Swedish or English, and that alone stopped some of them from starting.',
           'When I sorted the threads by complaint, about two-thirds were about not trusting the output, and a much smaller share about not being interested in AI at all. That’s why built-in accuracy rules became the core of the product.',
         ],
@@ -606,7 +601,7 @@ export const caseStudies: CaseStudy[] = [
       {
         chapter: { title: 'Design', nav: 'Design' },
         heading: 'Of three directions, only pre-filled forms helped during lesson prep',
-        paragraphs: ['I followed the double diamond and explored three directions, then compared them against what teachers need:'],
+        paragraphs: ['I compared three directions against what teachers need during lesson prep:'],
         options: [
           { label: 'A', description: 'A prompting coach. Great for learning, but it didn’t help teachers during actual lesson planning.' },
           { label: 'B', description: 'An AI-powered checker. Accurate, but it used too many tokens to be sustainable.' },
@@ -625,13 +620,13 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Outcomes', nav: 'Outcomes' },
         heading: 'Teachers who had given up on AI wrote a prompt on their first try',
         paragraphs: [
-          '2 out of 2 teachers who had given up on AI completed a structured prompt on their first try, without help. With the interface in Swedish, I saw no language hesitation. All 3 teachers in the wider test group responded positively.',
-          'Testing also showed that the interface still assumed more understanding of AI than most teachers have. They had no mental model of what the tool does behind the scenes. I had underestimated this. The fix would be simpler language and contextual cues that make the process more transparent.',
+          '2 out of 2 teachers who had given up on AI completed a structured prompt on their first try, without help. With the interface in Swedish, I saw no language hesitation.',
+          'Testing also showed that the interface still assumed more understanding of AI than the teachers I tested with had. They had no mental model of what the tool does behind the scenes. I had underestimated this. The fix would be simpler language and contextual cues that make the process more transparent.',
         ],
       },
       {
         heading: 'What the study left unanswered',
-        paragraphs: ['Teachers have no time for onboarding, so the design has to be obvious right away or it won’t be used. A small test couldn’t answer everything:'],
+        paragraphs: ['Teachers have no time for onboarding, so the design has to be obvious right away or it won’t be used. A small test left these open:'],
         bullets: [
           'Are the 10 categories the right ones, or are there gaps that only show up in real use?',
           'Do teachers find AI answers more reliable with the built-in rules?',
@@ -642,7 +637,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'Access to a tool is not the same as being able to use it',
         paragraphs: [
-          'Giving people a tool is not enough. If the interaction is unclear, they stop and blame the tool. The teachers I spoke with were right to be frustrated: the way in just had too much friction.',
+          'If the interaction is unclear, they stop and blame the tool. The teachers I spoke with were right to be frustrated: the way in just had too much friction.',
           'Language also turned out to be a UX problem, not only a content one. For some users, an interface in their own language decides whether they feel confident enough to start at all. That makes it an accessibility question too.',
         ],
       },
@@ -655,7 +650,7 @@ export const caseStudies: CaseStudy[] = [
     tagline: 'What does good UX look like when your user is four years old and losing patience?',
     intro:
       'This started as a JavaScript course project, and I turned it into a UX research problem. Children ages 3 to 8 have very different abilities, attention spans and motor control, so making one game for all of them meant testing with real children.',
-    year: '2025',
+    year: '2023',
     role: 'Designer and developer, end-to-end',
     duration: '4 weeks',
     tools: ['JavaScript', 'HTML5', 'CSS3', 'Figma'],
@@ -680,7 +675,7 @@ export const caseStudies: CaseStudy[] = [
       {
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'One memory game for children ages 3 to 8',
-        paragraphs: ['I designed and built the game end to end, in four weeks. My users couldn’t tell me what was wrong, so I defined the questions the design had to answer:'],
+        paragraphs: ['I defined the questions the design had to answer:'],
         bullets: [
           'How can a game work for a 3-year-old without boring an 8-year-old?',
           'How can touch work for children with limited fine motor control?',
@@ -709,7 +704,7 @@ export const caseStudies: CaseStudy[] = [
       {
         chapter: { title: 'Design', nav: 'Design' },
         heading: 'Three levels, familiar animals and touch targets for small hands',
-        paragraphs: ['Following the double diamond, I turned these findings into design rules. Here’s what I did:'],
+        paragraphs: ['I turned these findings into design rules:'],
         bullets: [
           'I made three difficulty levels mapped to age. Easy mode has fewer cards and more time, hard mode is fast-paced for older children.',
           'I used purple and yellow for strong contrast, and animal photos children recognize right away.',
