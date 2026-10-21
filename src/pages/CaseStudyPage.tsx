@@ -140,7 +140,7 @@ function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyT
       return (
         <div className={WIDE}>
           <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
-            <img src={block.src} alt={block.alt ?? studyTitle} loading="lazy" decoding="async" className="mx-auto w-[900px] max-w-none md:w-full md:max-w-[1600px]" />
+            <img src={block.src} alt={block.alt ?? studyTitle} loading="lazy" decoding="async" className="mx-auto w-[900px] max-w-none md:max-h-[85vh] md:w-auto md:max-w-full" />
           </div>
           <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">Swipe sideways to see the whole flow</p>
         </div>

@@ -149,7 +149,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'Children want to handle money, but parents no longer carry coins',
         paragraphs: [
-          'This was a personal project. I wanted to practice designing for young children and learn what is specific to that kind of work, so I picked a real problem: small children want to handle money, but parents often don’t carry coins on them. I designed the child’s side of a money-saving app, end to end, in four weeks.',
+          'This was a personal design exploration, not an app meant for development. I wanted to practice designing for young children and learn what is specific to that kind of work, so I designed the child’s side of a money-saving app, from research to a tested prototype.',
           'I defined the questions I wanted the design to answer:',
         ],
         bullets: [
@@ -162,7 +162,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Research', nav: 'Research' },
         heading: 'No app on the market was made for the youngest savers',
         paragraphs: [
-          'To begin with, I looked at what was already out there. Bank apps were hard to test without creating an account and paying a subscription, and apps from private developers were often buggy or unfinished. Bomad, for example, is made for older kids and is moving towards real bank accounts. None focused on the youngest age group.',
+          'I looked at what was already out there. Bank apps were hard to test without creating an account and paying a subscription, and apps from private developers were often buggy or unfinished. Bomad, for example, is made for older kids and is moving towards real bank accounts. None focused on the youngest age group.',
           'Then I read App Store reviews of piggy bank apps, Reddit threads and Facebook discussions, and talked informally with 5 parents at a local playground. Here’s what I found:',
         ],
         quote: {
@@ -180,12 +180,12 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Design', nav: 'Design' },
         heading: 'Every screen works without reading',
         paragraphs: [
-          'Children ages 4 to 7 can’t read, or can’t read well, so autonomy and accessibility mattered most. Every text and number had to work without reading. As a bonus, an app that talks lets parents know what the child is doing without watching over their shoulder.',
+          'Children ages 4 to 7 can’t read, or can’t read well, so autonomy and accessibility mattered most. As a bonus, an app that talks would let parents know what the child is doing without watching over their shoulder.',
           'Here are the rules I followed:',
         ],
         bullets: [
-          'All text and numbers are read aloud on tap, so a child never has to read.',
-          'Every button has an icon and its own color, so nothing depends on reading.',
+          'All text and numbers are read aloud on tap. I designed this, but didn’t build it into the prototype, so it is untested.',
+          'Every button has an icon and its own color.',
           'Colors guide the child throughout: green for money in, red for money out.',
           'Large text in a legible font, short words like “Total” instead of “Altogether you have saved”, and repetition to help remember meaning.',
           'High contrast and large tap targets, sized for developing motor skills.',
@@ -201,7 +201,7 @@ export const caseStudies: CaseStudy[] = [
             src: '/work/images/piggy-bank-2.webp',
             alt: 'Piggy Bank history screen showing color-coded transactions, next to an earlier layout of the same screen',
           },
-          'I also kept the app small on purpose. The child can take photos and choose an avatar, count and move coins, and drag and drop (or tap and tap) money into their piggy banks. History shows big colorful numbers and pictures of what they earned or spent money on.',
+          'The child can take photos and choose an avatar, count and move coins, and drag and drop money into their piggy banks. History shows big colorful numbers and pictures of what they earned or spent money on.',
           { type: 'video', src: '/work/videos/piggy-bank-demo.mp4', autoplayLoop: true },
         ],
         carouselHeading: 'Design iterations',
@@ -216,8 +216,8 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'A simple app for the child, with the parent side as a concept',
         paragraphs: [
-          'I designed the child’s app: simple and fun. The admin would happen in a sister app on the parent’s phone, which I kept as a concept, outside the scope of the study. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
-          'Fewer options mean no decision fatigue, so the child stays focused on what the app is for: learning to save money, read and count. Here is how a child moves through the app, and where the adult-only settings sit:',
+          'The admin would happen in a sister app on the parent’s phone, which I kept as a concept, outside the scope of the study. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
+          'Here is how a child moves through the app, and where the adult-only settings sit:',
           {
             type: 'image',
             src: '/work/images/piggy-bank-flow.webp',
@@ -231,7 +231,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'Testing', nav: 'Testing' },
         heading: 'Children lost interest in the prototype, but loved the demo',
         paragraphs: [
-          'I tested the high-fidelity Figma prototype with three children, ages 3, 5 and 8. It didn’t go as expected. The prototype was a bit laggy and not fully working, so the children lost interest quickly. For this age group, a working MVP would give better results than a Figma prototype.',
+          'I tested the high-fidelity Figma prototype with three children, ages 3, 5 and 8. The prototype was a bit laggy and not fully working, so the children lost interest quickly.',
           'So I also walked the children through the intended flow in a guided demo. They were excited about the design, and all three wanted the app for real, to track their own savings.',
         ],
         images: ['/work/images/piggy-bank-3.webp'],
@@ -239,13 +239,13 @@ export const caseStudies: CaseStudy[] = [
       },
       {
         chapter: { title: 'Outcomes', nav: 'Outcomes' },
-        heading: 'A promising concept, and what the study couldn’t prove',
+        heading: 'What the exploration showed, and what it left open',
         paragraphs: [
-          'All three children wanted the app, but only one of them was in the 4–7 target range, and a guided demo isn’t a usability test. So the study ends with a promising concept, not a validated one. Proving it would take:',
+          'Only one of the three children was in the 4–7 target range, and a guided demo isn’t a usability test. So the exploration ends with a promising concept, not a validated one. Taking it further would need:',
         ],
         bullets: [
-          'A working MVP, so testing measures real interaction, not a laggy prototype.',
-          'Testing with more children ages 4–7, including ones who can’t read, to confirm the audio reader removes the reading barrier.',
+          'A working prototype, so testing measures real interaction, not a laggy one.',
+          'Building the audio reader and testing it with more children ages 4–7, including ones who can’t read, to confirm it removes the reading barrier.',
           'A designed and tested parent app, including a check that the math-question lock is easy for parents to use.',
           'Completion rates on logging in, sorting money and checking history. A high drop-off on sorting would mean drag and drop needs a simpler option, like tap to select.',
           'A comparison of how often parents check the parent app with their old method, a Notes app or mental math. That’s the real success metric: does it replace something that wasn’t working?',
@@ -255,7 +255,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'Less is more: removing features made the app better',
         paragraphs: [
-          'The biggest lesson was getting comfortable removing features I had already designed. It’s tempting to think a good app has many options. But what 4 to 7 year olds can actually do asks for simplicity. Using that space for larger fonts, bigger tap targets and audio made the app better and more accessible.',
+          'The biggest lesson was getting comfortable removing features I had already designed. What 4 to 7 year olds can actually do asks for simplicity. Using that space for larger fonts and bigger tap targets made the app better and more accessible.',
           'I also learned that a child’s app can’t be judged on its own. Designing the parent side would likely have shown missing pieces in the child’s app too.',
         ],
         images: ['/work/images/piggy-bank-4.webp'],
@@ -302,13 +302,13 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'A forced name change was the chance to rebuild an outdated website',
         paragraphs: [
-          'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress in 2024, early in my UX journey, which you can read about in the [SolidHomes case study](/work/solidhomes). With the company growing and planning new branches, that website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
-          'I worked completely alone. I didn’t start from zero, though: I reused the user research, competitor research and stakeholder interviews I had done for the original website, and applied them with better design thinking, more refined skills and a much faster tech stack.',
+          'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress in 2024, early in my UX journey, which you can read about in the [SolidHomes case study](/work/solidhomes). That website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
+          'I didn’t start from zero: I reused the user research, competitor research and stakeholder interviews I had done for the original website, and applied them with better design thinking, more refined skills and a much faster tech stack.',
           'The website has two kinds of users. Owners of apartment buildings, often families, are choosing a company to trust with their property. Tenants of those buildings want to report a fault, find a phone number or read a notice, quickly. Many of them are older.',
           'I defined the design and business goals I wanted to achieve with the project:',
         ],
         bullets: [
-          'I wanted one consistent look that every future branch of the company can use, even when new designers join.',
+          'I wanted one consistent look that every future branch of the company can use.',
           'I wanted a modern design that older owners and tenants find easy to use and trustworthy.',
         ],
         images: ['/work/images/midoma-before-after.webp'],
@@ -317,7 +317,6 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The design system', nav: 'Design system' },
         heading: 'I started with foundations: every color named by its job',
         paragraphs: [
-          'Before I get to how the goals were achieved, let’s take a look at the process of making the design system. For inspiration, I looked at Dribbble and image search to understand the current trends.',
           'One major design constraint I had to take into account was that the logo and its green had to stay. The structure and content of the old site were also working well, so I kept them and focused on the details.',
           'To begin with, I defined the basic building blocks: typography, colors and corners. Every color got a name that describes its job rather than its look, for example cta, sea or danger. This way a new designer knows where a color may go before using it.',
           { type: 'image', src: '/work/images/midoma-foundations.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches grouped as brand, one job each (sea for forms, domsys for the app, danger for emergencies only) and grounds and tiles, and corner radii of 12, 20, 32 px and pill' },
@@ -326,7 +325,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'The foundations grew into 11 documented components',
         paragraphs: [
-          'Things got more interesting and tangible when I started combining these foundations into components, like buttons, cards and the header, and then into patterns like the bento home page. Every component documents its rules, what a page must provide and what not to do.',
+          'I combined these foundations into components, like buttons, cards and the header, and then into patterns like the bento home page. Every component documents its rules, what a page must provide and what not to do.',
           { type: 'image', src: '/work/images/midoma-strip.webp', alt: 'How the system builds up: tokens, then 11 components, then patterns such as the bento home page, the menu and the page header, then the two websites' },
           { type: 'image', src: '/work/images/midoma-components.webp', alt: 'Live components from both sites: the header with page title, bento tiles, a step list, a notice card, the AskUs box and the orange main button' },
         ],
@@ -346,12 +345,19 @@ export const caseStudies: CaseStudy[] = [
               { src: '/work/videos/midoma-tenants.mp4', caption: 'Tenant portal: the fastest way to find information' },
             ],
           },
+          'Here is how a tenant with a question finds the answer on the portal. If they still need the office, every page except emergencies nudges them to write first, through a form, e-mail or the DOMSYS app, rather than call, to lower the load on property managers. The phone number is still on every page, so the switch from calling is easier and tenants can choose. In an emergency, calling comes first:',
+          {
+            type: 'image',
+            src: '/work/images/midoma-tenant-flow.webp',
+            wideDiagram: true,
+            alt: 'Tenant flow: a tenant has a question. 1, open the tenant portal, which shows a search box first and one tile per task. 2, search, for example keys, which finds the FAQ. 3, read the answer, We’ve lost our keys – what should we do?, solved without a phone call. Or tap the tile for the task: emergency, call first, 24/7; fault or request, the DOMSYS app, or call; small repair, book online, or call; anything else, write first, or call. Except in emergencies, the portal nudges tenants to write, by form or e-mail, rather than call, to lower the load on property managers. A phone number is always there too.',
+          },
         ],
       },
       {
         heading: 'Goal 2: same colors, new rules, so older users always see the next step',
         paragraphs: [
-          'Color plays a big part in how quickly people understand a page. Earlier, in the old site, I overused green and purple. Green filled backgrounds, blocks and buttons, so nothing stood out. I explored more muted combinations and kept coming back to purple, because it matches the green but feels fresher. Therefore I kept the same colors and changed the rules for using them. Here are the changes I made:',
+          'In the old site, I overused green and purple. Green filled backgrounds, blocks and buttons, so nothing stood out. I explored more muted combinations and kept coming back to purple, because it matches the green but feels fresher. Here are the changes I made:',
           { type: 'image', src: '/work/images/midoma-green.webp', alt: 'Imagery that supports the brand identity: the green Midoma logo next to the site photos, each chosen for its trees, greenery or plants, and the purple and lavender interface colors' },
         ],
         bullets: [
@@ -372,7 +378,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: '1,010 synthetic test scenarios found issues before publishing',
         paragraphs: [
-          'With almost no real traffic yet, I asked Claude to test the sites the way real people do. It ran 1,010 scenarios in four suites: screens (550 combinations of page and screen size, from 320 to 1920 px and at 200% zoom), odd addresses, form fuzzing (filling the forms with nonsense, and worse) and quiz paths. On top of that, it walked five personas through real tasks, among them Jarmila, 72, and Petr, who uses a screen reader.',
+          'With almost no real traffic yet, I asked Claude to test the sites the way real people do. It ran 1,010 scenarios in four suites: screens (550 combinations of page and screen size, from 320 to 1920 px and at 200% zoom), odd addresses, form fuzzing (filling the forms with random and invalid input) and quiz paths. On top of that, it walked five personas through real tasks, among them Jarmila, 72, and Petr, who uses a screen reader.',
           { type: 'image', src: '/work/images/midoma-testing.webp', alt: 'What synthetic testing found: issues across screen sizes, forms, the quiz and five personas' },
           'The AI found the issues, but I decided what to fix:',
         ],
@@ -385,13 +391,10 @@ export const caseStudies: CaseStudy[] = [
       },
       {
         chapter: { title: 'Outcomes', nav: 'Outcomes' },
-        heading: 'The system now works for the company, designers, developers and users',
-        paragraphs: [
-          { type: 'image', small: true, src: '/work/images/midoma-lighthouse.webp', alt: 'Lighthouse scores: midoma.cz performance 97 on mobile and 99 on desktop, the tenant portal 95 and 100; accessibility, best practices and SEO 100 on both sites' },
-        ],
+        heading: 'The system now works for the company, developers and users',
+        paragraphs: [],
         bullets: [
-          'Company: both websites now look consistent, any new branch can build on the same system, and both sites publish a plain-language summary for AI assistants (llms.txt).',
-          'Designers: written rules, components and a changelog, kept in Markdown and as a Claude skill, make it a lot easier for a new designer or a new project to start.',
+          'Company: both sites publish a plain-language summary for AI assistants (llms.txt).',
           'Developers: the system is built from the code, so what is documented is what is live.',
           'Owners and tenants: both sites score 100 for accessibility, SEO and best practices, with performance at 95–100.',
         ],
@@ -400,8 +403,7 @@ export const caseStudies: CaseStudy[] = [
         heading: 'Synthetic users helped, but real users come next',
         paragraphs: [
           'Synthetic testing turned out to be a great tool for issues that could otherwise go unnoticed for a long time, for example the “Tenants” label overflowing the logo when a phone uses large text. But the personas are simulated. They don’t feel the stress of a burst pipe, and they can’t tell me whether they trust what they see.',
-          'Next time, I would make real user testing part of the whole project. This work is clearly missing how actual users experience it. Now that both websites are live, this knowledge will come from real use, and over the next months I will gather feedback through short surveys, in a gentle, non-invasive way.',
-          'Building this design system took a lot of back and forth, especially with the colors. But it was definitely worth the effort.',
+          'Next time, I would make real user testing part of the whole project. Now that both websites are live, this knowledge will come from real use, and over the next months I will gather feedback through short surveys, in a gentle, non-invasive way.',
         ],
       },
     ],

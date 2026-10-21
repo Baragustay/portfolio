@@ -31,7 +31,7 @@ export const impactBySlug: Record<string, Impact> = {
       'More interest in saving: children see each piggy fill up toward their own goals',
       'More responsibility: children decide where their money goes, guided by audio and color instead of text',
     ],
-    note: 'Expected, not measured: the app was never launched. Based on talks with 5 parents and a guided demo where all 3 children wanted the app for real.',
+    note: 'Expected, not measured: this is a design exploration, not a built app. Based on talks with 5 parents and a guided demo where all 3 children wanted the app for real.',
   },
   midoma: {
     label: 'Expected impact',

@@ -86,7 +86,7 @@ export const workItems: WorkTile[] = [
     goal: 'Reducing caregivers\' mental load around tracking pocket money.',
     benefits: [
       'Builds early financial literacy through play',
-      'Strengthens reading skills via on-tap audio',
+      'Designed to support reading with on-tap audio',
       'Develops counting skills with visual, hands-on saving',
     ],
     year: '2026',

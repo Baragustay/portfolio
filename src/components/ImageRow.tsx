@@ -12,6 +12,9 @@ import { useEffect, useRef, useState } from 'react'
 // containerWidth`. CSS alone can't solve that system, so this measures
 // each image's natural size on load and the container's width via
 // `ResizeObserver`, then computes it in JS.
+//
+// An image is never shown taller than its own pixel height, so a small
+// export isn't stretched up and blurred on a big screen.
 const DEFAULT_MAX_HEIGHT = 489
 const GAP = 16
 
@@ -34,6 +37,7 @@ export default function ImageRow({
   const maxHeight = maxHeightProp ?? Math.max(DEFAULT_MAX_HEIGHT, Math.round(window.innerHeight * 0.8))
   const containerRef = useRef<HTMLDivElement>(null)
   const [ratios, setRatios] = useState<number[] | null>(null)
+  const [naturalHeight, setNaturalHeight] = useState(Infinity)
   const [containerWidth, setContainerWidth] = useState(0)
 
   // Keyed on the joined URLs, not `srcs` itself — call sites like
@@ -48,15 +52,17 @@ export default function ImageRow({
     Promise.all(
       srcs.map(
         (src) =>
-          new Promise<number>((resolve) => {
+          new Promise<{ ratio: number; height: number }>((resolve) => {
             const img = new Image()
-            img.onload = () => resolve(img.naturalWidth / img.naturalHeight || 1)
-            img.onerror = () => resolve(1)
+            img.onload = () => resolve({ ratio: img.naturalWidth / img.naturalHeight || 1, height: img.naturalHeight || Infinity })
+            img.onerror = () => resolve({ ratio: 1, height: Infinity })
             img.src = src
           }),
       ),
     ).then((loaded) => {
-      if (!cancelled) setRatios(loaded)
+      if (cancelled) return
+      setRatios(loaded.map((l) => l.ratio))
+      setNaturalHeight(Math.min(...loaded.map((l) => l.height)))
     })
     return () => {
       cancelled = true
@@ -80,7 +86,7 @@ export default function ImageRow({
     const totalGap = GAP * (srcs.length - 1)
     const sumRatios = ratios.reduce((sum, r) => sum + r, 0)
     const fitHeight = (containerWidth - totalGap) / sumRatios
-    height = Math.min(maxHeight, fitHeight)
+    height = Math.min(maxHeight, fitHeight, naturalHeight)
   }
 
   return (
