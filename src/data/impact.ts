@@ -24,8 +24,8 @@ export type Impact = {
 export const impactBySlug: Record<string, Impact> = {
   'piggy-bank': {
     label: 'Expected impact',
-    highlight: 'Less stress for parents',
-    summary: 'and children who save and take responsibility for their own pocket money, before they can read',
+    highlight: 'Children who save',
+    summary: 'and take responsibility for their own pocket money, with less stress for parents',
     points: [
       'Less stress for parents: one shared record replaces the Notes app and mental math',
       'More interest in saving: children see each piggy fill up toward their own goals',

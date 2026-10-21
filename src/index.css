@@ -171,35 +171,6 @@ body {
   animation: pixel-wave 0.7s ease-out both;
 }
 
-/* Stepped "pixel" corners instead of rounded ones: two square steps of
-   `--px` cut from each corner. A clip-path also clips box-shadows and
-   borders, so a pixel outline is a second `.pixel-corners` layer behind
-   (see the chapter menu in CaseStudyPage.tsx). */
-@layer components {
-.pixel-corners {
-  --px: 4px;
-  clip-path: polygon(
-    0 calc(var(--px) * 2), var(--px) calc(var(--px) * 2), var(--px) var(--px),
-    calc(var(--px) * 2) var(--px), calc(var(--px) * 2) 0,
-    calc(100% - var(--px) * 2) 0, calc(100% - var(--px) * 2) var(--px),
-    calc(100% - var(--px)) var(--px), calc(100% - var(--px)) calc(var(--px) * 2),
-    100% calc(var(--px) * 2), 100% calc(100% - var(--px) * 2),
-    calc(100% - var(--px)) calc(100% - var(--px) * 2), calc(100% - var(--px)) calc(100% - var(--px)),
-    calc(100% - var(--px) * 2) calc(100% - var(--px)), calc(100% - var(--px) * 2) 100%,
-    calc(var(--px) * 2) 100%, calc(var(--px) * 2) calc(100% - var(--px)),
-    var(--px) calc(100% - var(--px)), var(--px) calc(100% - var(--px) * 2),
-    0 calc(100% - var(--px) * 2)
-  );
-}
-
-/* `clip-path` cuts off the browser's focus outline, so pixel-cornered
-   controls draw their keyboard focus ring inside the shape instead. */
-.pixel-corners:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 3px currentColor;
-}
-}
-
 /* Case study hero mockup: a slow 6px bob, so the band feels alive. */
 @keyframes float {
   0%, 100% { translate: 0 0; }

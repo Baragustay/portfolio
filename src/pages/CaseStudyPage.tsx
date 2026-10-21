@@ -14,7 +14,11 @@ import { MIDOMA_BG } from '../data/workItems'
 
 // Media break out of the text column on large
 // screens, centred on it, to near the full window width.
-const WIDE = 'xl:relative xl:left-1/2 xl:w-[min(1600px,calc(100vw-6rem))] xl:-translate-x-1/2'
+const WIDE = 'lg:relative lg:left-1/2 lg:w-[min(1600px,calc(100vw-6rem))] lg:-translate-x-1/2'
+// Breaks out of the ~700px text column to a medium width, for blocks that
+// need more room than a line of text but shouldn't go full width: the
+// impact card, the carousel and the options grid.
+const MEDIUM = 'lg:relative lg:left-1/2 lg:w-[min(1024px,calc(100vw-6rem))] lg:-translate-x-1/2'
 
 // Ambient muted/looped preview clip — plays only while on screen, same
 // as the homepage bento grid's video tiles (see `useInViewVideo`).
@@ -129,7 +133,7 @@ function withLinks(text: string) {
 
 function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyTitle: string }) {
   if (typeof block === 'string') {
-    return <p className="text-base leading-relaxed sm:text-xl text-neutral-700">{withLinks(block)}</p>
+    return <p className="text-base leading-relaxed sm:text-lg text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
     return block.small ? (
@@ -152,7 +156,7 @@ function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyT
   return (
     <div className={WIDE}>
       {block.heading && (
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-ink/70">{block.heading}</p>
+        <p className="mb-3 text-center text-sm font-semibold uppercase tracking-wider text-ink/70">{block.heading}</p>
       )}
       {block.frame === 'tablet' ? (
         <TabletVideo src={block.src} caption={block.caption} />
@@ -311,6 +315,29 @@ function SkillsChart({ skills, note }: { skills: NonNullable<CaseStudy['skills']
   )
 }
 
+// Impact points that lead with a rise ("More trust", "Happier tenants")
+// get an up arrow, ones that lead with a drop ("Fewer phone calls") a down
+// arrow, both in the same yellow since either can be the good news. Any
+// other point keeps a plain square. Decorative: the words already say it.
+const RISES = /^(More|Increased|Wider|Happier|Better|Higher)\b/
+const DROPS = /^(Less|Fewer|Lower|Reduced)\b/
+
+const trendOf = (point: string) => (RISES.test(point) ? 'up' : DROPS.test(point) ? 'down' : null)
+// Rises first, drops last, anything else in between, each group in its
+// written order.
+const TREND_ORDER = { up: 0, none: 1, down: 2 }
+const byTrend = (a: string, b: string) => TREND_ORDER[trendOf(a) ?? 'none'] - TREND_ORDER[trendOf(b) ?? 'none']
+
+function TrendMarker({ point }: { point: string }) {
+  const trend = trendOf(point)
+  const arrow = trend === 'up' ? '↑' : trend === 'down' ? '↓' : null
+  return arrow ? (
+    <span aria-hidden="true" className="w-3 shrink-0 font-bold text-hover-yellow">{arrow}</span>
+  ) : (
+    <span aria-hidden="true" className="mx-[3px] mt-2.5 h-1.5 w-1.5 shrink-0 bg-hover-yellow" />
+  )
+}
+
 // Dark card on the light page, echoing the homepage tiles where the same
 // copy appears on hover.
 function ImpactCard({ impact }: { impact: Impact }) {
@@ -320,14 +347,14 @@ function ImpactCard({ impact }: { impact: Impact }) {
     <m.section
       {...REVEAL}
       aria-labelledby="impact-heading"
-      className={`mt-8 rounded-3xl bg-ink p-6 text-white sm:p-8 xl:grid xl:grid-cols-2 xl:gap-12 xl:p-12`}
+      className={`mt-8 rounded-3xl bg-ink p-6 text-white sm:p-8 lg:grid lg:grid-cols-2 lg:gap-12 lg:p-12 ${MEDIUM}`}
     >
       <div>
         <h2 id="impact-heading" className="font-pixel text-xs uppercase tracking-[0.2em] text-hover-yellow">
           {impact.label}
         </h2>
-        <p className="mt-4 text-lg leading-snug text-white/85 sm:text-xl xl:text-2xl">
-          <span className="font-display mb-2 block text-4xl leading-none text-white sm:text-5xl xl:text-6xl">{impact.highlight}</span>
+        <p className="mt-4 text-lg leading-snug text-white/85 sm:text-xl lg:text-2xl">
+          <span className="font-display mb-2 block text-4xl leading-none text-white sm:text-5xl lg:text-6xl">{impact.highlight}</span>
           {impact.summary}
         </p>
       </div>
@@ -337,16 +364,16 @@ function ImpactCard({ impact }: { impact: Impact }) {
           initial="hidden"
           whileInView="shown"
           viewport={{ once: true }}
-          className="mt-5 space-y-2 border-t border-white/15 pt-5 xl:mt-0 xl:border-l xl:border-t-0 xl:pl-12 xl:pt-0"
+          className="mt-5 space-y-2 border-t border-white/15 pt-5 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0"
         >
-          {impact.points.map((point) => (
-            <m.li variants={RISE} key={point} className="flex gap-2.5 text-base text-white/80 xl:text-lg">
-              <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 bg-hover-yellow" />
+          {[...impact.points].sort(byTrend).map((point) => (
+            <m.li variants={RISE} key={point} className="flex gap-2.5 text-base text-white/80 lg:text-lg">
+              <TrendMarker point={point} />
               <span>{point}</span>
             </m.li>
           ))}
         </m.ul>
-        {impact.note && <p className="mt-4 text-sm text-white/55 xl:pl-12">{impact.note}</p>}
+        {impact.note && <p className="mt-4 text-sm text-white/55 lg:pl-12">{impact.note}</p>}
       </div>
     </m.section>
   )
@@ -494,8 +521,10 @@ function ChapterNav({ sections }: { sections: Section[] }) {
               href={`#${c.id}`}
               onClick={(e) => jump(e, c.id)}
               aria-current={active === c.id ? 'location' : undefined}
-              className={`pixel-corners block min-h-11 whitespace-nowrap px-3 py-3 text-sm font-semibold leading-5 [--px:3px] transition-[color,background-color,transform] active:translate-y-px sm:px-5 ${
-                active === c.id ? 'bg-ink text-white' : 'text-ink hover:bg-ink/5'
+              // Current chapter: full ink with a thick underline; the rest
+              // muted until hovered.
+              className={`block min-h-11 whitespace-nowrap rounded-md px-3 py-3 text-sm font-semibold leading-5 underline-offset-[10px] transition-colors sm:px-5 ${
+                active === c.id ? 'text-ink underline decoration-2' : 'text-ink/60 hover:text-ink'
               }`}
             >
               {c.nav}
@@ -551,7 +580,7 @@ export default function CaseStudyPage() {
             />
           )}
           <div
-            className={`mx-auto max-w-5xl px-6 pb-24 md:px-10 ${
+            className={`mx-auto max-w-[720px] px-6 pb-24 md:px-10 ${
               study.hero ? 'pt-6' : hasChapters ? 'pt-[210px] lg:pt-[174px]' : 'pt-[164px] lg:pt-[128px]'
             }`}
           >
@@ -599,7 +628,7 @@ export default function CaseStudyPage() {
 
           {/* With a hero, its headline already says what the tagline would. */}
           {!study.hero && <h2 className="font-display mt-10 text-4xl text-ink">{study.tagline}</h2>}
-          {study.intro && <p className="mt-4 text-base leading-relaxed sm:text-xl text-neutral-600">{study.intro}</p>}
+          {study.intro && <p className="mt-4 text-base leading-relaxed sm:text-lg text-neutral-600">{study.intro}</p>}
 
           {!study.hero && <ImageRow srcs={[study.heroImage]} alt={study.title} className={WIDE} />}
 
@@ -626,7 +655,7 @@ export default function CaseStudyPage() {
               </div>
               {section.quote && (
                 <blockquote
-                  className={`mt-6 rounded-2xl p-5 text-base leading-relaxed sm:text-xl text-neutral-700 italic ${
+                  className={`mt-6 rounded-2xl p-5 text-base leading-relaxed sm:text-lg text-neutral-700 italic ${
                     section.quote.bg ? '' : 'bg-accent-soft'
                   }`}
                   style={section.quote.bg ? { backgroundColor: section.quote.bg } : undefined}
@@ -639,7 +668,7 @@ export default function CaseStudyPage() {
               )}
               {section.persona && <PersonaCard persona={section.persona} />}
               {section.bullets && (
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-base sm:text-xl text-neutral-700">
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed sm:text-lg text-neutral-700">
                   {section.bullets.map((b, i) => (
                     <li key={i}>{b}</li>
                   ))}
@@ -661,7 +690,9 @@ export default function CaseStudyPage() {
                       {section.carouselHeading}
                     </p>
                   )}
-                  <Carousel items={section.carousel} />
+                  <div className={MEDIUM}>
+                    <Carousel items={section.carousel} />
+                  </div>
                 </>
               )}
               {section.video && section.video.autoplayLoop && (
