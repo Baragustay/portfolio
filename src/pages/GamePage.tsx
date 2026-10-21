@@ -33,12 +33,12 @@ export default function GamePage() {
 
   return (
     // Normal document scroll with a `fixed` sidebar — see Home.tsx.
-    <div style={{ backgroundColor: GAME_BG }} className="lg:pt-[100px]">
+    <div style={{ backgroundColor: GAME_BG }} className="lg:pt-16">
       <Navbar />
       <Sidebar />
       {/* Footer lives inside `main` (sharing its `lg:ml-*` offset), not
           as a sibling after it — the fixed, full-height `Sidebar`
-          (`lg:top-[100px] lg:bottom-0`) would otherwise cover a full-width
+          (`lg:top-16 lg:bottom-0`) would otherwise cover a full-width
           footer's left 280/320px on desktop, same reasoning as
           Home.tsx's identical nesting. */}
       {/* No `pb-*` here — `Footer` (last child) already carries its own

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 
-// Fixed bar above everything else on every page (rendered once from
-// App.tsx, not per-page) — GitHub/LinkedIn/email, always reachable, plus
-// a status dot right next to them. Real LinkedIn presence isn't
+// GitHub/LinkedIn/email, always reachable from the Navbar on every page,
+// plus a status dot right next to them. Real LinkedIn presence isn't
 // available to third-party sites (no public API exposes it, and
 // scraping it would violate their ToS and break constantly), so this is
 // a schedule-based stand-in instead — green from 06:00 to 22:59, red
@@ -46,7 +45,7 @@ function LinkedInIcon() {
   )
 }
 
-export default function StatusBar() {
+export default function ContactStatus() {
   const [online, setOnline] = useState(isOnlineNow)
 
   // Re-checks every minute so the dot flips on its own right at 06:00/
@@ -57,25 +56,22 @@ export default function StatusBar() {
   }, [])
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[70] flex h-9 items-center gap-3 overflow-hidden whitespace-nowrap bg-statusbar px-4 text-xs text-white shadow-[0_4px_10px_rgba(23,23,22,0.6)] sm:px-6">
-      {/* Status + Email + LinkedIn + GitHub, all grouped on the left as
-          one unit — GitHub used to sit alone on the far right, where it
-          read as disconnected from the other icons. */}
-      <span className="flex min-w-0 items-center gap-3">
+    // Status + Email + LinkedIn + GitHub, grouped as one unit.
+    <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-xs font-normal text-white/80">
         <span className="flex items-center gap-1.5 font-medium">
           <span
             className={`h-2 w-2 shrink-0 rounded-full ${online ? 'bg-emerald-400' : 'bg-rose-400'}`}
             aria-hidden="true"
           />
-          <span className="sm:hidden">{online ? 'Say hi' : 'Night in Sweden'}</span>
-          <span className="hidden truncate sm:inline">
+          <span className="xl:hidden">{online ? 'Say hi' : 'Night in Sweden'}</span>
+          <span className="hidden truncate xl:inline">
             {online ? 'Daytime in Sweden - say hi' : "Night in Sweden - I'll reply in the morning"}
           </span>
         </span>
         <span className="text-white/30" aria-hidden="true">
           ·
         </span>
-        <a href="mailto:barbora.gustafsson@gmail.com" aria-label="Email" className="shrink-0 hover:text-white/70">
+        <a href="mailto:barbora.gustafsson@gmail.com" aria-label="Email" className="flex h-6 w-6 shrink-0 items-center justify-center hover:text-white">
           <EmailIcon />
         </a>
         <a
@@ -83,7 +79,7 @@ export default function StatusBar() {
           target="_blank"
           rel="noreferrer"
           aria-label="LinkedIn (opens in a new tab)"
-          className="shrink-0 hover:text-white/70"
+          className="flex h-6 w-6 shrink-0 items-center justify-center hover:text-white"
         >
           <LinkedInIcon />
         </a>
@@ -92,11 +88,10 @@ export default function StatusBar() {
           target="_blank"
           rel="noreferrer"
           aria-label="GitHub (opens in a new tab)"
-          className="shrink-0 hover:text-white/70"
+          className="flex h-6 w-6 shrink-0 items-center justify-center hover:text-white"
         >
           <GitHubIcon />
         </a>
-      </span>
     </div>
   )
 }

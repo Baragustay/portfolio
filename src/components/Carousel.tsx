@@ -81,7 +81,7 @@ export default function Carousel({ items }: { items: { src: string; caption?: st
           >
             <span aria-hidden="true">→</span>
           </button>
-          <div className="mt-3 flex items-center justify-center gap-2">
+          <div className="mt-2 flex items-center justify-center">
             {items.map((item, i) => (
               <button
                 key={item.src}
@@ -89,10 +89,11 @@ export default function Carousel({ items }: { items: { src: string; caption?: st
                 aria-label={`Go to image ${i + 1}`}
                 aria-current={i === index ? 'true' : undefined}
                 onClick={() => scrollToIndex(i)}
-                className={`h-2 rounded-full transition-all ${
-                  i === index ? 'w-6 bg-ink' : 'w-2 bg-ink/20'
-                }`}
-              />
+                // 24px tap target around the small visible dot.
+                className="flex h-6 min-w-6 items-center justify-center"
+              >
+                <span aria-hidden="true" className={`h-2 rounded-full transition-all ${i === index ? 'w-6 bg-ink' : 'w-2 bg-ink/20'}`} />
+              </button>
             ))}
           </div>
         </>

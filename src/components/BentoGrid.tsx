@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { Fragment, useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { workItems, type AppTile, type CaseStudyTile as CaseStudyItem, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
@@ -10,7 +10,7 @@ import { impactBySlug, type Impact } from '../data/impact'
 // Homepage bento grid — emulates danielamuntyan.com's project layout.
 //
 // Case studies and apps are image tiles (`ImageTile`): the project image
-// with its impact, and the goal and details on hover. The featured
+// with its title and goal underneath, and the impact on hover. The featured
 // studies span both columns.
 //
 // Motion-graphics pieces have no case study to pair with (just the film
@@ -61,23 +61,19 @@ function ImpactDescription({ impact, id }: { impact: Impact; id: string }) {
   )
 }
 
-// Small pill beside a tile's title saying what kind of project it is
-// ("Case study", "Live RAG app"), so visitors know before clicking
-// whether they're opening a write-up or a working product.
-function KindBadge({ label, id }: { label: string; id?: string }) {
-  return (
-    <span id={id} className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/80 ring-1 ring-white/15">
-      {label}
-    </span>
-  )
-}
-
-// A bento tile is just the project image at rest. On hover, or while
-// keyboard focus is on it, a dark panel slides in with the title, goal,
-// impact and meta, so the grid reads as a gallery first and a list of
-// facts second. `wide` tiles (the featured studies) span both columns
-// from 690px, and their panel covers only the right half, sliding in from
-// the side; square tiles' panel rises over the whole tile.
+// Two layouts:
+//
+// - `wide` tiles (the two key studies) span both columns from 690px: the
+//   image on the left half, and a dark panel on the right with the
+//   headline, impact and meta, always visible. Below 690px the panel
+//   stacks under the image, so phones (which never hover) see it too.
+// - Square tiles are the image with a short caption under it (title and
+//   goal): no text over the image at rest, so screenshots with words in
+//   them don't compete with the caption. On hover, or while keyboard focus
+//   is on it, the same dark panel rises over the image.
+//
+// Every image zooms in slightly on hover (`scale-105`, clipped by the
+// frame), the same for thumbnails and device mockups.
 //
 // `col-span-2` is scoped to `min-[690px]:`, not applied unconditionally.
 // Real bug otherwise: a bare `col-span-2` on an item inside a
@@ -90,24 +86,14 @@ function KindBadge({ label, id }: { label: string; id?: string }) {
 // `getComputedStyle(grid).gridTemplateColumns`, which showed `343px 0px`).
 // Same fix applied to `GameCell` below, the only other `col-span-2` user.
 //
-// `min-h-[420px]` rather than `aspect-square` — aspect-square tracked
+// `min-h-[340px]` rather than `aspect-square` — aspect-square tracked
 // column width, which made tiles taller than intended on typical desktop
 // widths. A minimum, not a fixed height: with enlarged text (browser zoom
-// / 200% text size) the tile grows instead of clipping.
-//
-// The thumbnail starts zoomed in (`scale-125`) and zooms back out to
-// exactly fill the frame on hover, never below `scale-100`, which would
-// uncover the page behind the rounded corners.
-//
-// The impact sits on the image from the start, under a gradient, so the
-// "so what" is visible without hovering; the hover panel covers it. Tiles
-// without an impact (apps) show only their title there, and only on touch
-// screens, which never hover and so never see the panel.
+// / 200% text size) the tile grows instead of clipping its panel.
 function ImageTile({
   title,
   kind,
   goal,
-  benefits,
   meta,
   image,
   to,
@@ -116,21 +102,23 @@ function ImageTile({
   imageOrigin = '',
   impact,
   priority = false,
+  mockupBackground,
 }: {
   title: string
   kind: string
   goal: string
-  benefits?: string[]
   meta: string
   image: string
   to?: string
   href?: string
   wide?: boolean
-  // Per-image zoom origin, for thumbnails whose subject sits off-centre
-  // and would otherwise get cropped by the resting `scale-125`.
+  // Per-image zoom origin, for thumbnails whose subject sits off-centre.
   imageOrigin?: string
   impact?: Impact
   priority?: boolean
+  // Set when `image` is a transparent device mockup: shown whole on this
+  // background instead of cropped to fill.
+  mockupBackground?: string
 }) {
   // Link is named by just its title + kind ("Piggy Bank, Case study")
   // and described by its goal and impact, instead of its entire text
@@ -138,18 +126,15 @@ function ImageTile({
   const id = useId()
   const a11y = {
     'aria-labelledby': `${id}-title ${id}-kind${href ? ` ${id}-newtab` : ''}`,
-    'aria-describedby': `${id}-goal${impact ? ` ${id}-impact` : ''}`,
+    'aria-describedby': [wide ? '' : `${id}-goal`, impact ? `${id}-impact` : ''].filter(Boolean).join(' ') || undefined,
   }
-  const shown = 'group-hover/card:translate-x-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-x-0 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100'
-  const className = `group/card relative block min-h-[420px] overflow-hidden rounded-3xl bg-textbox text-left ring-1 ring-ink/5 ${
-    wide ? 'min-[690px]:col-span-2' : ''
-  }`
-  const content = (
-    <>
-      <img
+  const className = `group/card flex flex-col rounded-3xl text-left ${wide ? 'min-[690px]:col-span-2' : ''}`
+
+  const picture = (
+    <img
         src={image}
-        srcSet={thumbSrcSet(image)}
-        sizes={wide ? '(min-width: 690px) 1100px, 90vw' : SQUARE_THUMB_SIZES}
+        srcSet={mockupBackground ? undefined : thumbSrcSet(image)}
+        sizes={mockupBackground ? undefined : wide ? '(min-width: 690px) 560px, 90vw' : SQUARE_THUMB_SIZES}
         // Empty alt: the title is already this link's name.
         alt=""
         // The first tile is the largest above-the-fold image on the
@@ -158,62 +143,61 @@ function ImageTile({
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : undefined}
-        className={`absolute inset-0 h-full w-full scale-125 object-cover transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-100 ${imageOrigin}`}
-      />
-      {/* Warm-brown tint to soften bright screenshots against the dark
-          page; fades out on hover so the image reads more vivid. */}
-      <div className="pointer-events-none absolute inset-0 bg-[#4a2e14]/20 transition-opacity duration-[1100ms] ease-in-out group-hover/card:opacity-0" />
+        className={`absolute inset-0 h-full w-full transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-105 ${
+          mockupBackground ? 'object-contain p-6 sm:p-8' : `object-cover ${imageOrigin}`
+        }`}
+    />
+  )
+  const background = mockupBackground ? { background: mockupBackground } : undefined
 
-      <div
-        className={`absolute z-10 flex flex-col justify-end bg-[#1c1a17]/92 p-6 opacity-0 backdrop-blur-sm transition-all duration-500 ease-out sm:p-8 [@media(hover:none)]:hidden ${
-          wide
-            ? 'inset-0 translate-y-6 min-[690px]:left-1/2 min-[690px]:translate-x-8 min-[690px]:translate-y-0 min-[690px]:justify-center'
-            : 'inset-0 translate-y-6'
-        } ${shown}`}
-      >
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pr-14">
-          <h3 id={`${id}-title`} className="font-display text-2xl leading-tight text-hover-yellow">{title}</h3>
-          <KindBadge id={`${id}-kind`} label={kind} />
-        </div>
-        <p className="mt-3 text-sm font-semibold uppercase tracking-[0.15em] text-white/60">Goal</p>
-        <p id={`${id}-goal`} className="mt-1 text-base text-white/85 sm:text-lg">{goal}</p>
-        {benefits && (
-          <ul className="mt-3 space-y-1">
-            {benefits.slice(0, 3).map((benefit) => (
-              <li key={benefit} className="flex gap-1.5 text-base text-white/70">
-                <span aria-hidden="true" className="text-white/40">·</span>
-                <span>{benefit}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="mt-4 text-sm font-medium text-white/60">{meta}</p>
-      </div>
-
-      {impact ? (
-        <div aria-hidden="true" className={`pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent p-5 pt-20 sm:p-6 sm:pt-24 ${wide ? '' : 'pr-16'}`}>
-          <p className="font-pixel text-[10px] uppercase tracking-[0.2em] text-hover-yellow">
-            {title} · {impact.label}
-          </p>
-          <p className="mt-2 max-w-xl text-base leading-snug text-white/85">
-            <span className="font-display mb-1.5 block text-3xl leading-none text-white">{impact.highlight}</span>
-            {impact.summary}
-          </p>
-        </div>
-      ) : (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black/75 to-transparent p-5 pt-16 [@media(hover:none)]:block">
-          <p className="font-display text-xl leading-tight text-white">{title}</p>
-          <p className="mt-1 text-sm text-white/75">{kind}</p>
-        </div>
+  // Wide tiles' panel holds the tile's heading; square tiles' heading is
+  // the caption under the image, so their panel repeats the title as text.
+  const Headline = wide ? 'h3' : 'p'
+  const panel = (
+    <>
+      <Headline className="font-display pr-14 text-2xl leading-tight text-white">
+        <span id={`${id}-kind`}>{kind}</span>: {wide ? <span id={`${id}-title`}>{title}</span> : title}
+      </Headline>
+      {impact && (
+        <p className="mt-4 text-base leading-snug text-white/80 sm:text-lg">
+          <span className="font-display mb-2 block text-3xl leading-none text-hover-yellow">{impact.highlight}</span>
+          {impact.summary}
+        </p>
       )}
+      <p className="mt-4 text-sm font-medium text-white/60">{meta}</p>
+    </>
+  )
+
+  const content = wide ? (
+    <div className="relative overflow-hidden rounded-3xl bg-[#1c1a17] ring-1 ring-white/15 min-[690px]:grid min-[690px]:min-h-[340px] min-[690px]:grid-cols-2">
+      <div className="relative h-[280px] overflow-hidden bg-textbox min-[690px]:h-auto" style={background}>
+        {picture}
+      </div>
+      <div className="flex flex-col justify-center p-6 sm:p-8">{panel}</div>
       <OpenArrow />
-      {impact && <ImpactDescription impact={impact} id={`${id}-impact`} />}
+    </div>
+  ) : (
+    <>
+      <div className="relative min-h-[340px] overflow-hidden rounded-3xl bg-textbox ring-1 ring-white/15" style={background}>
+        {picture}
+        <div
+          className="absolute inset-0 z-10 flex translate-y-6 flex-col justify-end bg-[#1c1a17]/92 p-6 opacity-0 backdrop-blur-sm transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100 sm:p-8 [@media(hover:none)]:hidden"
+        >
+          {panel}
+        </div>
+        <OpenArrow />
+      </div>
+      <div className="px-1 pt-4">
+        <h3 id={`${id}-title`} className="font-display text-2xl leading-tight text-white">{title}</h3>
+        <p id={`${id}-goal`} className="mt-1 max-w-xl text-base leading-snug text-white/60">{goal}</p>
+      </div>
     </>
   )
 
   return href ? (
     <a href={href} target="_blank" rel="noopener noreferrer" {...a11y} className={className}>
       {content}
+      {impact && <ImpactDescription impact={impact} id={`${id}-impact`} />}
       <span id={`${id}-newtab`} className="sr-only">
         (opens in a new tab)
       </span>
@@ -221,6 +205,7 @@ function ImageTile({
   ) : (
     <Link to={to ?? '/'} {...a11y} className={className}>
       {content}
+      {impact && <ImpactDescription impact={impact} id={`${id}-impact`} />}
     </Link>
   )
 }
@@ -231,12 +216,12 @@ function CaseStudyTile({ item, wide = false, priority = false }: { item: CaseStu
       title={item.title}
       kind="Case study"
       goal={item.goal}
-      benefits={wide ? item.benefits : undefined}
       meta={`${item.tags[0]} · ${item.year}`}
       image={item.image}
       to={`/work/${item.slug}`}
       wide={wide}
       impact={impactBySlug[item.slug]}
+      mockupBackground={item.mockupBackground}
       priority={priority}
     />
   )
@@ -270,14 +255,14 @@ function VideoSquare({
       onClick={() => onPlay(item)}
       onMouseEnter={play}
       onFocus={play}
-      className={`group relative h-[420px] overflow-hidden rounded-3xl text-left ring-1 ring-ink/5 ${bg}`}
+      className="group flex flex-col rounded-3xl text-left"
     >
+      <div className={`relative h-[340px] w-full overflow-hidden rounded-3xl ring-1 ring-white/15 ${bg}`}>
       <div className="absolute inset-0 z-0 flex flex-col justify-start p-6">
         {/* text-ink, not text-white — this tile's `bg` is still a light
             pastel (rotates through TEXT_BG), unlike the image tiles' dark
-            panel. */}
-        <h3 className="font-display text-2xl leading-tight text-ink">{item.title}</h3>
-        <p className="mt-2 text-base sm:text-xl text-ink/70 line-clamp-3">{item.description}</p>
+            panel. The title is in the caption below. */}
+        <p className="text-base text-ink/75 line-clamp-3 sm:text-lg">{item.description}</p>
       </div>
       {/* Rounded corners on the video itself (not just the tile) — once
           it slides down on hover, its top edge separates from the
@@ -296,16 +281,13 @@ function VideoSquare({
         playsInline
         preload="none"
       />
-      {/* Touch screens never hover, so the text panel above stays hidden
-          behind the video there — show the title over the video instead. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden rounded-b-2xl bg-gradient-to-t from-black/70 to-transparent p-5 pr-28 pt-16 [@media(hover:none)]:block">
-        <p className="font-display text-xl leading-tight text-white">{item.title}</p>
-      </div>
       <span className="pointer-events-none absolute bottom-4 right-4 z-20 flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1.5 text-ink shadow transition-transform duration-300 group-hover:scale-110">
         <PixelPlay className="h-3.5 w-3.5" />
         <span className="font-pixel text-xs uppercase tracking-widest">Play</span>
         <span className="sr-only"> with sound</span>
       </span>
+      </div>
+      <h3 className="font-display px-1 pt-4 text-2xl leading-tight text-white">{item.title}</h3>
     </button>
   )
 }
@@ -340,7 +322,7 @@ function GameCell() {
       aria-labelledby={`${id}-eyebrow ${id}-title ${id}-newtab`}
       onMouseEnter={play}
       onFocus={play}
-      className="group min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark xl:flex-row xl:items-center"
+      className="group min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark ring-1 ring-white/15 xl:flex-row xl:items-center"
     >
       {/* Centered at every breakpoint now, not just below `xl` — this
           used to switch to left-aligned once the row layout kicked in,
@@ -457,18 +439,15 @@ export default function BentoGrid() {
   let textBgIndex = 0
   const nextBg = () => TEXT_BG[textBgIndex++ % TEXT_BG.length]
 
-  return (
-    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 p-6 min-[690px]:grid-cols-2 md:gap-6 md:p-10">
-      {/* Screen-reader-only section heading so the tile titles (h3) sit
-          under an h2 instead of jumping straight from the page's h1.
-          `sr-only` is absolutely positioned, so it takes no grid cell. */}
-      <h2 className="sr-only">Projects</h2>
-      {/* The two key studies lead as full-width tiles, with room for their
-          goal and benefits; everything else follows as squares, two to a
-          row, with the game in between. */}
-      {FEATURED.map((slug, i) => (
-        <CaseStudyTile key={slug} item={bySlug(slug)} wide priority={i === 0} />
-      ))}
+  const squareStudies = caseStudies.filter((item) => !FEATURED.includes(item.slug) && item.slug !== 'promptkee')
+
+  // One full-width band per row, alternating between the page colour and
+  // a slightly lighter one, so each project (or pair) sits on its own
+  // ground. The two key studies lead as full-width tiles; everything else
+  // follows as squares, two to a row, with the game in between.
+  const rows = [
+    ...FEATURED.map((slug, i) => <CaseStudyTile key={slug} item={bySlug(slug)} wide priority={i === 0} />),
+    <Fragment key="promptkee-apps">
       <CaseStudyTile item={bySlug('promptkee')} />
       {apps.map((item) => (
         <ImageTile
@@ -484,19 +463,32 @@ export default function BentoGrid() {
           imageOrigin="origin-[25%_50%]"
         />
       ))}
-
-      <GameCell />
-
-      {caseStudies
-        .filter((item) => !FEATURED.includes(item.slug) && item.slug !== 'promptkee')
-        .map((item) => (
-          <CaseStudyTile key={item.id} item={item} />
-        ))}
-
+    </Fragment>,
+    <GameCell key="game" />,
+    <Fragment key="studies">
+      {squareStudies.map((item) => (
+        <CaseStudyTile key={item.id} item={item} />
+      ))}
+    </Fragment>,
+    <Fragment key="videos">
       {videoItems.map((item) => (
         <VideoSquare key={item.id} item={item} onPlay={setPlaying} bg={nextBg()} />
       ))}
+    </Fragment>,
+  ]
 
+  return (
+    <div>
+      {/* Screen-reader-only section heading so the tile titles (h3) sit
+          under an h2 instead of jumping straight from the page's h1. */}
+      <h2 className="sr-only">Projects</h2>
+      {rows.map((row, i) => (
+        <div key={i} className={i % 2 ? 'bg-band' : ''}>
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-14 px-6 py-10 min-[690px]:grid-cols-2 md:gap-x-10 md:px-10 md:py-14">
+            {row}
+          </div>
+        </div>
+      ))}
       {playing && <VideoLightbox item={playing} onClose={() => setPlaying(null)} />}
     </div>
   )

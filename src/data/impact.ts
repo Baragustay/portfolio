@@ -8,10 +8,9 @@
 // what it shows.
 
 export type Impact = {
-  // 'Impact' for shipped work with real results, 'Early impact' for a
-  // first small round of testing, 'Expected impact' for a concept that
-  // hasn't launched (so nothing is measured yet).
-  label: 'Impact' | 'Early impact' | 'Expected impact'
+  // Finished studies say what they achieved; `note` says how solid the
+  // evidence is (a concept, a small test group).
+  label: 'Impact'
   // The one number or phrase a hiring manager should leave with…
   highlight: string
   // …and the rest of that sentence.
@@ -23,7 +22,7 @@ export type Impact = {
 
 export const impactBySlug: Record<string, Impact> = {
   'piggy-bank': {
-    label: 'Expected impact',
+    label: 'Impact',
     highlight: 'Ages 4–7',
     summary: 'the age group the app is designed for: pocket money without reading, guided by audio on tap and color cues',
     points: [
@@ -31,29 +30,29 @@ export const impactBySlug: Record<string, Impact> = {
       'One shared record replaces the parents’ Notes app and mental math',
       'Early interest: all 3 children in a guided demo wanted the app for real',
     ],
-    note: 'Not launched yet. Based on parent research and a guided demo; a working MVP is the next step to measure it.',
+    note: 'A concept, not launched. Based on parent research and a guided demo.',
   },
   midoma: {
     label: 'Impact',
     highlight: '1 system, 2 products',
     summary: 'a token-based design system that lets future branches scale without new design debt',
     points: [
-      'Shift-left QA: 1,010 synthetic test scenarios caught usability and accessibility defects before publishing',
+      'Tested before launch: 1,010 synthetic test scenarios caught usability and accessibility issues before publishing',
       'WCAG AA contrast, 15 px minimum type and Lighthouse accessibility 100 on both sites',
-      'Performance as UX: first-visit JavaScript on the tenant portal cut by 48%, Lighthouse performance 95–100',
+      'Fast for every visitor: first-visit JavaScript on the tenant portal cut by 48%, Lighthouse performance 95–100',
     ],
     note: 'Leading indicators only. Behavioral metrics like task success will come from live analytics and surveys.',
   },
   promptkee: {
-    label: 'Early impact',
+    label: 'Impact',
     highlight: '2 of 2',
     summary: 'teachers who had given up on AI completed a structured prompt on their first try, without help',
     points: [
       'Lower barrier to entry: no language hesitation with the interface in Swedish',
       'All 3 teachers in the wider test group responded positively',
-      'Shipped: a live tool, now in user testing',
+      'Shipped: a live tool teachers can use',
     ],
-    note: 'Early signal from a small test group.',
+    note: 'From a small test group.',
   },
   solidhomes: {
     label: 'Impact',

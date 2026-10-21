@@ -203,7 +203,7 @@ export default function CodePage() {
     <div id="top" className="bg-page-bg">
       <Navbar />
 
-      <main id="main" className="px-6 py-24 pt-[164px] md:px-12">
+      <main id="main" className="px-6 py-24 pt-[164px] lg:pt-[128px] md:px-12">
         <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-white/55">
           Dev Projects
         </p>
@@ -230,7 +230,7 @@ export default function CodePage() {
           ))}
         </div>
 
-        {/* Same GitHub profile URL used site-wide (StatusBar, Footer). */}
+        {/* Same GitHub profile URL used site-wide (Navbar, Footer). */}
         <p className="mx-auto mt-6 mb-10 max-w-2xl text-center text-base leading-relaxed text-white/70 sm:text-lg">
           Here are some of the projects I've built. Check out more on{' '}
           <a

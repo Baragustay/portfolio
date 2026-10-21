@@ -43,10 +43,12 @@ const EDUCATION = [
 const PHOTO_SIZE = 'h-[155px] w-24 sm:h-[259px] sm:w-40'
 const PHOTO_TREATMENTS = [
   // Outermost two (most transparent, least visually load-bearing) are
-  // hidden below `sm` instead of just shrunk further — even at a
+  // hidden below `lg` instead of just shrunk further — even at a
   // smaller size, fitting all 5 on a narrow phone screen meant sizing
   // them small enough to lose the effect entirely. Three (still
   // showing the full fade-in composition) fit comfortably instead.
+  // Not `sm`: five at the `sm` size need about 830px, so windows from
+  // 640px to that scrolled sideways.
   { opacity: 'opacity-20', grayscale: true, hiddenOnMobile: true },
   { opacity: 'opacity-55', grayscale: true, hiddenOnMobile: false },
   { opacity: 'opacity-100', grayscale: false, hiddenOnMobile: false },
@@ -82,7 +84,7 @@ export default function AboutPage() {
           src="/about/headshot.webp"
           alt={i === 2 ? 'Barbora Gustafsson' : ''}
           aria-hidden={i === 2 ? undefined : true}
-          className={`${PHOTO_SIZE} ${photo.opacity} ${photo.grayscale ? 'grayscale' : ''} ${photo.hiddenOnMobile ? 'hidden sm:block' : ''} shrink-0 rounded-2xl object-cover object-top ring-1 ring-white/10 transition-all`}
+          className={`${PHOTO_SIZE} ${photo.opacity} ${photo.grayscale ? 'grayscale' : ''} ${photo.hiddenOnMobile ? 'hidden lg:block' : ''} shrink-0 rounded-2xl object-cover object-top ring-1 ring-white/10 transition-all`}
         />
       ))}
     </div>
@@ -93,7 +95,7 @@ export default function AboutPage() {
       <GridHoverBackground />
       <Navbar />
 
-      <main id="main" className="relative z-10 px-6 pb-16 pt-[164px] md:px-12">
+      <main id="main" className="relative z-10 px-6 pb-16 pt-[164px] lg:pt-[128px] md:px-12">
         <div className="mx-auto max-w-4xl">
           {/* Pixel-dissolve entrance, echoing the homepage's.
               `revealFrom="center"` (rather than the homepage's fully

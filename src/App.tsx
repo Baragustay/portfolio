@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { LazyMotion, MotionConfig } from 'framer-motion'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import StatusBar from './components/StatusBar'
 import CookieBanner from './components/CookieBanner'
 import Home from './pages/Home'
 
@@ -57,11 +56,6 @@ function App() {
           Skip to main content
         </a>
         <ScrollToTop />
-        {/* Rendered once, above every route — see StatusBar.tsx. Every
-            other fixed-position element (the Navbar bar, the homepage
-            Sidebar) and every page's top padding is offset by its
-            36px (`h-9`) height. */}
-        <StatusBar />
         {/* Also rendered once, above every route — see CookieBanner.tsx.
             Shows itself on first visit; reopenable later via the footer's
             "Cookie preferences" link or the privacy policy page. */}

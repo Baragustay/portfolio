@@ -10,6 +10,7 @@ import { getCaseStudy, type CaseStudy, type Option, type ParagraphBlock, type Pe
 import { posterFor, useInViewVideo } from '../lib/video'
 import { impactBySlug, type Impact } from '../data/impact'
 import { useBodyBackground, usePageMeta } from '../lib/pageMeta'
+import { MIDOMA_BG } from '../data/workItems'
 
 // Media break out of the text column on large
 // screens, centred on it, to near the full window width.
@@ -358,9 +359,6 @@ const MIDOMA_GLOW = `radial-gradient(55% 75% at 6% 0%, rgb(121 115 211 / 0.16), 
   radial-gradient(50% 70% at 100% 100%, rgb(131 198 233 / 0.22), transparent 70%), ${MIDOMA_PAPER}`
 
 // Midoma's `gradient-dark`: slate into indigo with a purple and a sky glow.
-const MIDOMA_DARK = `radial-gradient(55% 80% at 0% 0%, rgb(121 115 211 / 0.3), transparent 70%),
-  radial-gradient(45% 70% at 100% 100%, rgb(131 198 233 / 0.18), transparent 70%),
-  linear-gradient(135deg, #2e4b61 0%, #2a3a64 100%)`
 
 // Opening band for a study with `hero`: logo (or the name as a wordmark),
 // headline, what was made, who for and with what, beside the mockup. Holds
@@ -369,20 +367,32 @@ const MIDOMA_DARK = `radial-gradient(55% 80% at 0% 0%, rgb(121 115 211 / 0.3), t
 function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; headline: string }) {
   const hero = study.hero!
   return (
-    <div className="overflow-hidden pb-14 pt-[200px] text-white sm:pb-20" style={{ background: hero.background ?? MIDOMA_DARK }}>
+    <div className="overflow-hidden pb-14 pt-[200px] text-white sm:pb-20 lg:pt-[164px]" style={{ background: hero.background ?? MIDOMA_BG }}>
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
         <m.div variants={STAGGER} initial="hidden" animate="shown">
-          <m.div variants={RISE}>
-            {hero.logo ? (
-              <img src={hero.logo} alt="" width={500} height={204} className="h-12 w-auto sm:h-20" />
-            ) : (
-              <p aria-hidden="true" className="font-display text-4xl sm:text-6xl">{name}</p>
-            )}
-          </m.div>
-          <m.h1 variants={RISE} className="font-display mt-5 text-3xl leading-tight sm:text-4xl md:text-5xl">
-            <span className="sr-only">{name}: </span>
-            {headline}
-          </m.h1>
+          {/* With a logo: the logo, then the headline as the h1. Without
+              one: "Name:" as the h1, with the headline as a smaller
+              subheading under it. */}
+          {hero.logo ? (
+            <>
+              <m.div variants={RISE}>
+                <img src={hero.logo} alt="" width={500} height={204} className="h-12 w-auto sm:h-20" />
+              </m.div>
+              <m.h1 variants={RISE} className="font-display mt-5 text-3xl leading-tight sm:text-4xl md:text-5xl">
+                <span className="sr-only">{name}: </span>
+                {headline}
+              </m.h1>
+            </>
+          ) : (
+            <>
+              <m.h1 variants={RISE} className="font-display text-4xl leading-tight md:text-5xl">
+                {name}:
+              </m.h1>
+              <m.p variants={RISE} className="mt-4 max-w-xl text-xl leading-snug text-white/85 sm:text-2xl">
+                {headline}
+              </m.p>
+            </>
+          )}
           <m.ul variants={RISE} className="mt-6 flex flex-wrap gap-2" aria-label="What I made">
             {hero.deliverables.map((d) => (
               <li key={d} className="rounded-full bg-white/12 px-4 py-2 text-sm font-semibold ring-1 ring-white/20">
@@ -423,10 +433,12 @@ function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; 
 
 const chapterId = (title: string) => 'chapter-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
-// Floating chapter menu, fixed right under the Navbar bar so the
-// study's structure is visible from the first screen. Marks the chapter
-// being read (`aria-current`) and moves focus to the chapter title it
-// jumps to.
+// Chapter menu: a full-width band fixed right under the Navbar bar, so the
+// study's structure is visible from the first screen. A floating pill used
+// to sit over the text column and cover headlines; the band is opaque, so
+// text scrolls cleanly under it. It stays put the whole way down. Marks the
+// chapter being read (`aria-current`) and moves focus to the chapter title
+// it jumps to.
 function ChapterNav({ sections }: { sections: Section[] }) {
   const chapters = sections.flatMap((s) => (s.chapter ? [{ id: chapterId(s.chapter.title), nav: s.chapter.nav }] : []))
   const [active, setActive] = useState<string | null>(null)
@@ -473,11 +485,9 @@ function ChapterNav({ sections }: { sections: Section[] }) {
   return (
     <nav
       aria-label="Chapters"
-      className="fixed top-[102px] left-1/2 z-40 w-max max-w-[calc(100vw-1rem)] -translate-x-1/2 drop-shadow-[0_8px_16px_rgba(31,35,51,0.16)]"
+      className="fixed inset-x-0 top-[100px] z-40 lg:top-16 border-b border-ink/10 bg-white/95 shadow-[0_8px_16px_rgba(31,35,51,0.08)] backdrop-blur-md"
     >
-      {/* Pixel outline: an ink layer behind, with the white menu inset 1px. */}
-      <div className="pixel-corners bg-ink/25 p-px">
-      <ol className="pixel-corners flex items-center gap-1 bg-white p-1">
+      <ol className="mx-auto flex w-max max-w-full items-center gap-1 overflow-x-auto px-2 py-1">
         {chapters.map((c) => (
           <li key={c.id}>
             <a
@@ -493,7 +503,6 @@ function ChapterNav({ sections }: { sections: Section[] }) {
           </li>
         ))}
       </ol>
-      </div>
     </nav>
   )
 }
@@ -543,7 +552,7 @@ export default function CaseStudyPage() {
           )}
           <div
             className={`mx-auto max-w-5xl px-6 pb-24 md:px-10 ${
-              study.hero ? 'pt-6' : hasChapters ? 'pt-[210px]' : 'pt-[164px]'
+              study.hero ? 'pt-6' : hasChapters ? 'pt-[210px] lg:pt-[174px]' : 'pt-[164px] lg:pt-[128px]'
             }`}
           >
           {!study.hero && (

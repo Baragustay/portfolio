@@ -71,8 +71,14 @@
      the open-arrow circle, the game embed's own white background) that
      would otherwise turn near-black too. */
   --color-page-bg: #171716;
+  /* Desktop Sidebar: one step lighter than the page, so the side column
+     and the project grid read as two areas. */
+  --color-sidebar: #201f1d;
+  /* Every other homepage project row: a shade off the page, so each
+     project sits on its own ground without boxing it in. */
+  --color-band: #1d1c1a;
 
-  /* Global top StatusBar background — its own token rather than
+  /* Navbar background (it used to be the StatusBar's) — its own token rather than
      reusing `--color-page-bg` or `--color-ink`, since it's a distinct
      dark brown/charcoal, not quite either. */
   --color-statusbar: #292622;
@@ -186,12 +192,11 @@ body {
   );
 }
 
-/* Two-row checkerboard of 4px squares: the Navbar bar's bottom edge
-   dissolving into the page like an 8-bit dither. Its colour comes from
-   `color` (currentColor). */
-.pixel-dither {
-  height: 8px;
-  background: repeating-conic-gradient(currentColor 0 25%, transparent 0 50%) 0 0 / 8px 8px;
+/* `clip-path` cuts off the browser's focus outline, so pixel-cornered
+   controls draw their keyboard focus ring inside the shape instead. */
+.pixel-corners:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px currentColor;
 }
 }
 
@@ -202,23 +207,6 @@ body {
 }
 .animate-float {
   animation: float 6s ease-in-out 1.2s infinite;
-}
-
-/* Navbar microinteractions, in hard 8-bit steps rather than smooth eases:
-   the house hops on hover, and the Case studies panel drops open. */
-@keyframes pixel-hop {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-.group:hover .animate-pixel-hop-on-hover {
-  animation: pixel-hop 0.4s steps(2) 1;
-}
-@keyframes pixel-drop {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-pixel-drop {
-  animation: pixel-drop 0.2s steps(4) both;
 }
 
 /* Hides the native scrollbar on the case study horizontal scroll strip

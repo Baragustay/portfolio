@@ -21,7 +21,17 @@ export type CaseStudyTile = BaseTile & {
   year: string
   tags: string[]
   image: string
+  // Set when `image` is a transparent device mockup rather than a
+  // full-bleed thumbnail: the homepage tile shows it whole, on this
+  // CSS background, instead of cropping it to fill.
+  mockupBackground?: string
 }
+
+// Midoma's navy brand ground, behind its device mockup on the homepage
+// tile and its case study hero.
+export const MIDOMA_BG = `radial-gradient(55% 80% at 0% 0%, rgb(121 115 211 / 0.3), transparent 70%),
+  radial-gradient(45% 70% at 100% 100%, rgb(131 198 233 / 0.18), transparent 70%),
+  linear-gradient(135deg, #2e4b61 0%, #2a3a64 100%)`
 
 export type VideoTile = BaseTile & {
   kind: 'video'
@@ -48,6 +58,26 @@ export type WorkTile = CaseStudyTile | VideoTile | AppTile
 
 export const workItems: WorkTile[] = [
   {
+    id: 'midoma',
+    kind: 'case-study',
+    slug: 'midoma',
+    title: 'Midoma',
+    tagline: 'A design system for a growing company, across two websites.',
+    goal: 'One design system that keeps a growing brand consistent, for owners and tenants alike.',
+    benefits: [
+      'Two sites that are instantly told apart, but clearly one family',
+      '1,010 synthetic test scenarios run with Claude',
+      'Accessibility and SEO scored 100 on both live sites',
+    ],
+    year: '2026',
+    tags: ['Design System', 'UX Audit', 'Synthetic Testing', 'Claude Code', 'Accessibility'],
+    // Laptop and phone mockup (the website and the tenant portal) instead
+    // of a full-screen screenshot, whose big headline text competed with
+    // the tile's own caption.
+    image: '/work/images/midoma-devices.webp',
+    mockupBackground: MIDOMA_BG,
+  },
+  {
     id: 'piggy-bank',
     kind: 'case-study',
     slug: 'piggy-bank',
@@ -73,22 +103,6 @@ export const workItems: WorkTile[] = [
     tags: ['Design & Build', 'RAG', 'AI', 'React', 'Accessibility'],
     image: '/work/images/squinty-thumb.webp',
     url: 'https://squinty.barboragustafsson.com/',
-  },
-  {
-    id: 'midoma',
-    kind: 'case-study',
-    slug: 'midoma',
-    title: 'Midoma',
-    tagline: 'A design system for a growing company, across two websites.',
-    goal: 'One design system that keeps a growing brand consistent, for owners and tenants alike.',
-    benefits: [
-      'Two sites that are instantly told apart, but clearly one family',
-      '1,010 synthetic test scenarios run with Claude',
-      'Accessibility and SEO scored 100 on both live sites',
-    ],
-    year: '2026',
-    tags: ['Design System', 'UX Audit', 'Synthetic Testing', 'Claude Code', 'Accessibility'],
-    image: '/work/images/midoma-thumb.webp',
   },
   {
     id: 'promptkee',

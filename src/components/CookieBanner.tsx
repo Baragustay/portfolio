@@ -10,7 +10,7 @@ import { disableGoogleAnalytics, loadGoogleAnalytics } from '../lib/analytics'
 import PixelCookie from './PixelCookie'
 
 // Rendered once from App.tsx, above every route (same pattern as
-// StatusBar). Shows on first visit (no stored choice yet), and can be
+// Navbar). Shows on first visit (no stored choice yet), and can be
 // reopened any time via `reopenCookiePreferences()` — the Footer's
 // "Cookie preferences" link and the privacy policy page both call that,
 // so "change your mind later" doesn't need its own separate settings

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import MobileHero from '../components/MobileHero'
+import MobileHero, { MobileSkills } from '../components/MobileHero'
 import Sidebar from '../components/Sidebar'
 import BentoGrid from '../components/BentoGrid'
 import Footer from '../components/Footer'
@@ -24,10 +24,9 @@ const INTRO_SEEN_KEY = 'home-intro-seen'
 // sidebar, and let absolutely positioned descendants stretch the document
 // past the container so the light body background showed underneath.
 //
-// `lg:pt-[100px]` clears the global `StatusBar` (36px, App.tsx) plus the
-// full-width `Navbar` bar under it (64px with its pixel dither), which
+// `lg:pt-16` clears the full-width `Navbar` bar (64px from `lg`), which
 // the homepage shows at every width like every other page; `Sidebar`'s
-// own `lg:top-[100px]` matches it independently since it's `fixed`.
+// own `lg:top-16` matches it independently since it's `fixed`.
 //
 // The pinned two-column layout is `lg:`-only —
 // a fixed 280px sidebar ate ~75% of a 375px phone screen. Below `lg`,
@@ -54,7 +53,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="bg-page-bg lg:pt-[100px]">
+    <div className="bg-page-bg lg:pt-16">
       <Navbar />
       <div className="lg:hidden">
         <MobileHero />
@@ -72,8 +71,11 @@ export default function Home() {
         <PixelReveal delay={0.7} label="Loading case studies..." skip={skipIntro}>
           <BentoGrid />
         </PixelReveal>
+        <div className="lg:hidden">
+          <MobileSkills />
+        </div>
         {/* Same Email/GitHub/LinkedIn already in the sidebar/mobile hero
-            and the global StatusBar, repeated in a footer at the bottom
+            and the Navbar, repeated in a footer at the bottom
             of every page. */}
         <Footer dark />
       </main>

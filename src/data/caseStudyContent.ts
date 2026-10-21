@@ -117,7 +117,7 @@ export const caseStudies: CaseStudy[] = [
   {
     slug: 'piggy-bank',
     title: 'Piggy Bank App',
-    tagline: 'A pocket money app that children ages 4–7 can use before they can read',
+    tagline: 'Teaching young children financial responsibility, even before they can count and read',
     intro:
       'Small children want to handle their own money, but in a cash-free world parents rarely carry coins. I designed the child-facing part of a money-saving app, for children who can’t read yet.',
     year: '2026',
@@ -211,9 +211,9 @@ export const caseStudies: CaseStudy[] = [
         ],
       },
       {
-        heading: 'A simple app for the child, with a parent app planned for the admin',
+        heading: 'A simple app for the child, with the parent side as a concept',
         paragraphs: [
-          'I designed the child’s app: simple and fun. The admin would happen in a sister app on the parent’s phone, which is a concept for now and out of scope for this phase. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
+          'I designed the child’s app: simple and fun. The admin would happen in a sister app on the parent’s phone, which I kept as a concept, outside the scope of the study. A few adult settings can be reached inside the child’s app, so nobody has to switch devices. They are hidden behind a math question only adults can answer.',
           'Fewer options mean no decision fatigue, so the child stays focused on what the app is for: learning to save money, read and count.',
           { type: 'video', src: '/work/videos/piggy-bank-walkthrough.mp4', heading: 'Full app walkthrough' },
         ],
@@ -231,24 +231,24 @@ export const caseStudies: CaseStudy[] = [
       },
       {
         chapter: { title: 'Outcomes', nav: 'Outcomes' },
-        heading: 'A promising concept, and how I would prove it',
+        heading: 'A promising concept, and what the study couldn’t prove',
         paragraphs: [
-          'All three children wanted the app, but only one of them was in the 4–7 target range, and a guided demo isn’t a usability test. So this is a promising concept, not a validated one. The app hasn’t launched, so there is no usage data yet. Here’s what comes next, and what I would measure:',
+          'All three children wanted the app, but only one of them was in the 4–7 target range, and a guided demo isn’t a usability test. So the study ends with a promising concept, not a validated one. Proving it would take:',
         ],
         bullets: [
-          'Build a working MVP, so testing measures real interaction, not a laggy prototype.',
-          'Test with more children ages 4–7, including ones who can’t read, to confirm the audio reader removes the reading barrier.',
-          'Design and test the parent app, and check that the math-question lock is easy for parents to use.',
-          'Track completion rate on logging in, sorting money and checking history. A high drop-off on sorting would mean drag and drop needs a simpler option, like tap to select.',
-          'Compare how often parents check the parent app with their old method, a Notes app or mental math. That’s the real success metric: did it replace something that wasn’t working?',
-          'Test the same children again after a few weeks, because an app looks different on day one than once the novelty wears off.',
+          'A working MVP, so testing measures real interaction, not a laggy prototype.',
+          'Testing with more children ages 4–7, including ones who can’t read, to confirm the audio reader removes the reading barrier.',
+          'A designed and tested parent app, including a check that the math-question lock is easy for parents to use.',
+          'Completion rates on logging in, sorting money and checking history. A high drop-off on sorting would mean drag and drop needs a simpler option, like tap to select.',
+          'A comparison of how often parents check the parent app with their old method, a Notes app or mental math. That’s the real success metric: does it replace something that wasn’t working?',
+          'Repeat tests with the same children after a few weeks, because an app looks different on day one than once the novelty wears off.',
         ],
       },
       {
         heading: 'Less is more: removing features made the app better',
         paragraphs: [
           'The biggest lesson was getting comfortable removing features I had already designed. It’s tempting to think a good app has many options. But what 4 to 7 year olds can actually do asks for simplicity. Using that space for larger fonts, bigger tap targets and audio made the app better and more accessible.',
-          'Next, the parent app needs to be designed too. That will likely show missing pieces in the child’s app and help improve it as well.',
+          'I also learned that a child’s app can’t be judged on its own. Designing the parent side would likely have shown missing pieces in the child’s app too.',
         ],
       },
     ],
@@ -615,12 +615,12 @@ export const caseStudies: CaseStudy[] = [
         heading: 'Teachers who had given up on AI wrote a prompt on their first try',
         paragraphs: [
           '2 out of 2 teachers who had given up on AI completed a structured prompt on their first try, without help. With the interface in Swedish, I saw no language hesitation. All 3 teachers in the wider test group responded positively.',
-          'Testing also showed that the interface still assumed more understanding of AI than most teachers have. They had no mental model of what the tool does behind the scenes. I had underestimated this, and it shaped the next iteration: simpler language and contextual cues that make the process more transparent.',
+          'Testing also showed that the interface still assumed more understanding of AI than most teachers have. They had no mental model of what the tool does behind the scenes. I had underestimated this. The fix would be simpler language and contextual cues that make the process more transparent.',
         ],
       },
       {
-        heading: 'Open questions for the next round of testing',
-        paragraphs: ['Teachers have no time for onboarding, so the design has to be obvious right away or it won’t be used. Here’s what I still want to find out:'],
+        heading: 'What the study left unanswered',
+        paragraphs: ['Teachers have no time for onboarding, so the design has to be obvious right away or it won’t be used. A small test couldn’t answer everything:'],
         bullets: [
           'Are the 10 categories the right ones, or are there gaps that only show up in real use?',
           'Do teachers find AI answers more reliable with the built-in rules?',
@@ -712,12 +712,12 @@ export const caseStudies: CaseStudy[] = [
         heading: 'Each level reached the age it was made for',
         paragraphs: [
           'In testing, 3-year-olds completed easy mode, and 8-year-olds found hard mode challenging. The most unexpected finding was that younger children sometimes stopped playing to explore the visuals, and ran out of time. That’s a problem, but it also means the visuals were doing their job.',
-          'Here’s what I would improve next:',
+          'Looking back, here’s what the game still lacks:',
         ],
         bullets: [
-          'Touch handling for children under 5, because taps still drop occasionally.',
+          'Reliable touch handling for children under 5: taps still drop occasionally.',
           'Difficulty that adapts in real time to how the child plays, so nobody has to choose a level.',
-          'More structured usability testing with a larger group, to confirm the findings hold.',
+          'Structured usability testing with a larger group, to confirm the findings hold.',
           'Completion rate and round time per level from real usage data, instead of a stopwatch in a few sessions.',
         ],
       },

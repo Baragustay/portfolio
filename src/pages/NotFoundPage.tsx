@@ -6,7 +6,7 @@ import { usePageMeta } from '../lib/pageMeta'
 
 // Catch-all for any URL that doesn't match a real route (App.tsx's `*`
 // route) — without this, an unmatched path just rendered a blank page
-// below the fixed StatusBar, since react-router-dom has no built-in
+// below the fixed Navbar, since react-router-dom has no built-in
 // fallback UI. Dark `bg-page-bg` + the pixel-dissolve entrance, matching
 // the homepage/About/Code — this page shouldn't look like a bare error
 // screen bolted onto an otherwise pixel-art-themed site.

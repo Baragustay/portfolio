@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
       <GridHoverBackground />
       <Navbar />
 
-      <main id="main" className="relative z-10 mx-auto max-w-2xl px-6 pb-24 pt-[164px] md:px-0">
+      <main id="main" className="relative z-10 mx-auto max-w-2xl px-6 pb-24 pt-[164px] lg:pt-[128px] md:px-0">
         <p className="text-sm font-semibold uppercase tracking-wider text-white/55">Legal</p>
         <h1 className="font-display mt-2 text-4xl leading-tight text-white md:text-5xl">Privacy Policy</h1>
         <p className="mt-4 text-base text-white/55">Last updated: 2026</p>

@@ -3,7 +3,7 @@ import { reopenCookiePreferences } from '../lib/cookieConsent'
 
 // Email/GitHub/LinkedIn, repeated at the bottom of every page (including
 // the homepage). These same three links already live in the global
-// `StatusBar` (icons, top of every page) and in `Sidebar`/`MobileHero`
+// `Navbar` (icons, top of every page) and in `Sidebar`/`MobileHero`
 // (homepage only) — this isn't replacing those, just adding the
 // familiar "end of the page" spot people expect contact links to also
 // be in. Privacy Policy + "Cookie preferences" (reopens `CookieBanner`)

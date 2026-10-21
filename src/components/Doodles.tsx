@@ -12,55 +12,6 @@
 
 type DoodleProps = { className?: string }
 
-// Blocky house (roof, chimney, door and window cut out) for the Navbar's
-// "Home" link. 11x11 cells, so render it at a multiple of 11px (e.g. 22px)
-// for crisp 2px pixels.
-const HOUSE_ROWS = [
-  '.....#.....',
-  '....###.#..',
-  '...######..',
-  '..#######..',
-  '.#########.',
-  '###########',
-  '..#######..',
-  '..####..#..',
-  '..#..#..#..',
-  '..#..####..',
-  '..#..####..',
-]
-
-export function PixelHouse({ className }: DoodleProps) {
-  return (
-    <svg aria-hidden="true" focusable="false" viewBox="0 0 11 11" fill="currentColor" shapeRendering="crispEdges" className={className}>
-      {HOUSE_ROWS.flatMap((row, y) =>
-        [...row].map((cell, x) => (cell === '#' ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} /> : null)),
-      )}
-    </svg>
-  )
-}
-
-// Blocky gamepad (d-pad and two buttons cut out) for the Navbar's game
-// link. 13x7 cells.
-const GAMEPAD_ROWS = [
-  '..#########..',
-  '.###########.',
-  '###.######.##',
-  '##...####.###',
-  '###.#########',
-  '#############',
-  '####.....####',
-]
-
-export function PixelGamepad({ className }: DoodleProps) {
-  return (
-    <svg aria-hidden="true" focusable="false" viewBox="0 0 13 7" fill="currentColor" shapeRendering="crispEdges" className={className}>
-      {GAMEPAD_ROWS.flatMap((row, y) =>
-        [...row].map((cell, x) => (cell === '#' ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} /> : null)),
-      )}
-    </svg>
-  )
-}
-
 // Points right by default; rotate via `className` (e.g. `-rotate-45`,
 // `rotate-180`) for other directions. Used for the game's pointer, the
 // bento grid's "open" arrows and the Code page's "View live/code" arrows.
