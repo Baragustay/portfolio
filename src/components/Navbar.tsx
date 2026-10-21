@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { m } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { workItems, type CaseStudyTile } from '../data/workItems'
 import ContactStatus from './ContactStatus'
@@ -82,10 +81,8 @@ export default function Navbar() {
     // (the `100px` offsets). "Home" on the left doubles as the
     // back-to-home link on every other page, so there's no separate back
     // button any more.
-    <m.header
-      initial={{ y: -40, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+    // No entrance animation: the bar is simply there on every page load.
+    <header
       className="fixed inset-x-0 top-0 z-50 bg-statusbar text-white shadow-[0_6px_16px_rgba(0,0,0,0.35)]"
     >
       <div className="flex h-9 items-center border-b border-white/10 px-4 sm:px-8 lg:hidden">
@@ -179,6 +176,6 @@ export default function Navbar() {
           </ul>
         </div>
       </nav>
-    </m.header>
+    </header>
   )
 }

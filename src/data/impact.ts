@@ -4,13 +4,14 @@
 // doesn't pull the full write-ups into its bundle.
 //
 // Every figure here comes from that study's own research and Outcomes
-// sections — update both together. At most three points, each led by
+// sections — update both together. At most four points, each led by
 // what it shows.
 
 export type Impact = {
-  // Finished studies say what they achieved; `note` says how solid the
-  // evidence is (a concept, a small test group).
-  label: 'Impact'
+  // Finished studies say what they achieved; a concept that was never
+  // launched says what it is expected to achieve, without invented
+  // numbers. `note` says how solid the evidence is.
+  label: 'Impact' | 'Expected impact'
   // The one number or phrase a hiring manager should leave with…
   highlight: string
   // …and the rest of that sentence.
@@ -22,37 +23,37 @@ export type Impact = {
 
 export const impactBySlug: Record<string, Impact> = {
   'piggy-bank': {
-    label: 'Impact',
-    highlight: 'Ages 4–7',
-    summary: 'the age group the app is designed for: pocket money without reading, guided by audio on tap and color cues',
+    label: 'Expected impact',
+    highlight: 'Less stress for parents',
+    summary: 'and children who save and take responsibility for their own pocket money, before they can read',
     points: [
-      'Reading-free by design: audio on tap, icons and color cues on every screen',
-      'One shared record replaces the parents’ Notes app and mental math',
-      'Early interest: all 3 children in a guided demo wanted the app for real',
+      'Less stress for parents: one shared record replaces the Notes app and mental math',
+      'More interest in saving: children see each piggy fill up toward their own goals',
+      'More responsibility: children decide where their money goes, guided by audio and color instead of text',
     ],
-    note: 'A concept, not launched. Based on parent research and a guided demo.',
+    note: 'Expected, not measured: the app was never launched. Based on talks with 5 parents and a guided demo where all 3 children wanted the app for real.',
   },
   midoma: {
-    label: 'Impact',
-    highlight: '1 system, 2 products',
-    summary: 'a token-based design system that lets future branches scale without new design debt',
+    label: 'Expected impact',
+    highlight: '~30% fewer calls',
+    summary: 'expected at first, as tenants find answers themselves, and a company new clients can find on Google and in AI search',
     points: [
-      'Tested before launch: 1,010 synthetic test scenarios caught usability and accessibility issues before publishing',
-      'WCAG AA contrast, 15 px minimum type and Lighthouse accessibility 100 on both sites',
-      'Fast for every visitor: first-visit JavaScript on the tenant portal cut by 48%, Lighthouse performance 95–100',
+      'Happier tenants: what they need to know is on their phone, any time',
+      'Fewer phone calls: an estimated 30% fewer at first about things tenants can look up themselves, like what’s in their contracts',
+      'More new clients: visible on Google and in AI search, where property owners look for management',
+      'More time for property managers: less of the day spent answering the same tenant questions',
     ],
-    note: 'Leading indicators only. Behavioral metrics like task success will come from live analytics and surveys.',
   },
   promptkee: {
-    label: 'Impact',
-    highlight: '2 of 2',
-    summary: 'teachers who had given up on AI completed a structured prompt on their first try, without help',
+    label: 'Expected impact',
+    highlight: 'More teachers using AI',
+    summary: 'with more trust in the tools they already have and a clearer idea of what AI can do',
     points: [
-      'Lower barrier to entry: no language hesitation with the interface in Swedish',
-      'All 3 teachers in the wider test group responded positively',
-      'Shipped: a live tool teachers can use',
+      'Wider adoption: teachers who had given up on AI start using it again',
+      'More trust: structured prompts give answers teachers can rely on',
+      'Better understanding: building a prompt step by step shows what AI can and can’t do',
+      'Early sign: 2 of 2 teachers who had given up on AI completed a prompt on their first try, without help',
     ],
-    note: 'From a small test group.',
   },
   solidhomes: {
     label: 'Impact',
