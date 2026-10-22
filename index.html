@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="Y115cW2_CPOof6qJBeFgobm_zPU4KICzuXiY_rGe1ig" />
+    <title>Barbora Gustafsson - UX &amp; Product Designer</title>
+    <meta
+      name="description"
+      content="Barbora Gustafsson — UX & Product Designer based in Uppsala/Stockholm, Sweden. I study people. Case studies, code projects, and more."
+    />
+    <link rel="canonical" href="https://barboragustafsson.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://barboragustafsson.com/" />
+    <meta property="og:title" content="Barbora Gustafsson - UX & Product Designer" />
+    <meta
+      property="og:description"
+      content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
+    />
+    <!-- Not the same file the About page uses (`headshot.webp`) — that's
+         a full-body 576x1024 portrait, and social platforms crop
+         og:image into a landscape thumbnail with no smart/face-aware
+         cropping, so it centered on the torso instead of the face.
+         `headshot-social.webp` is a pre-cropped head/shoulders version
+         of the same photo, made specifically for this. -->
+    <meta property="og:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Barbora Gustafsson - UX & Product Designer" />
+    <meta
+      name="twitter:description"
+      content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
+    />
+    <meta name="twitter:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
+
+    <!-- The homepage's first case study tile (Piggy Bank) is the LCP
+         candidate on wide viewports. This is a client-rendered app, so
+         without this hint the browser can't discover/start fetching it
+         until React actually renders — this lets it start immediately
+         from the raw HTML instead. Keep this in sync with
+         `workItems.ts`'s first case study's `image` field (and with
+         BentoGrid.tsx's `thumbSrcSet`/`SQUARE_THUMB_SIZES` when that is a
+         thumbnail rather than a single-file device mockup). -->
+    <link
+      rel="preload"
+      as="image"
+      href="/work/images/midoma-devices.webp"
+      fetchpriority="high"
+    />
+    <script type="module" crossorigin src="/assets/index-BVWD4eT6.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-yIOJJ3r4.js">
+    <link rel="modulepreload" crossorigin href="/assets/pageMeta-Df1EmnlU.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-ST6NgmKT.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
