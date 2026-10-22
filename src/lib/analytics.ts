@@ -34,8 +34,10 @@ export function loadGoogleAnalytics() {
   document.head.appendChild(script)
 
   window.dataLayer = window.dataLayer || []
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args)
+  // Must push the `arguments` object, not a rest-args array — gtag.js
+  // silently ignores plain arrays, so nothing would ever be sent.
+  window.gtag = function gtag() {
+    window.dataLayer!.push(arguments)
   }
   window.gtag('js', new Date())
   window.gtag('config', GA_MEASUREMENT_ID)
