@@ -319,7 +319,7 @@ export const caseStudies: CaseStudy[] = [
         paragraphs: [
           'One major design constraint I had to take into account was that the logo and its green had to stay. The structure and content of the old site were also working well, so I kept them and focused on the details.',
           'I defined the basic building blocks: typography, colors and corners. Every color got one job and a name that says what it is, not how it looks: cta for the main action only, form for every form, emergency for emergencies only and tile-domsys for the DOMSYS tile only. This way a new designer knows where a color may go before using it.',
-          { type: 'image', src: '/work/images/midoma-foundations.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches named by their job and grouped as brand (interactive, label, cta, text), one job each (form, domsys, emergency, text-secondary) and grounds and tiles (page, tile, tile-domsys, tile-emergency), and corner radii of 12, 20, 32 px and pill' },
+          { type: 'image', src: '/work/images/midoma-foundations-v2.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches named by their job and grouped as brand (interactive, label, cta, text), one job each (form, domsys, emergency, text-secondary) and grounds and tiles (page, tile, tile-domsys, tile-emergency), and corner radii of 12, 20, 32 px and pill' },
         ],
       },
       {
