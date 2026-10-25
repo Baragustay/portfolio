@@ -1,3 +1,5 @@
+import type { Impact } from './impact'
+
 // Full case study detail content, pulled from barboragustafsson.com
 // (2026-09-18). Rendered by CaseStudyPage.tsx at /work/:slug.
 
@@ -76,6 +78,15 @@ export type Section = {
   // meant for a longer walkthrough someone would actually want to seek
   // around in.
   video?: { src: string; caption?: string; autoplayLoop?: boolean }
+  // Text beside its images instead of above them, wider than the text
+  // column, so a study with many screens stays short. Names the side the
+  // images go on; alternate it between sections. String paragraphs and
+  // bullets go on one side, image blocks in `paragraphs` on the other.
+  split?: 'left' | 'right'
+  // An impact box beside the text of a `split` section, in place of images.
+  impact?: Impact
+  // Small heading and text, for sources and other fine print.
+  smallPrint?: boolean
 }
 
 export type CaseStudy = {
@@ -105,6 +116,9 @@ export type CaseStudy = {
     builtWithLogo?: string
     imageAlt: string
     background?: string
+    // Also holds the intro, role, year and duration, instead of a row of
+    // details under the band. `builtWith` stands in for the tools.
+    allDetails?: boolean
   }
   // UX skills used in the project, shown as a small pie chart at the top of
   // the study. `share` is that skill's percentage of the work; they add up
@@ -114,6 +128,13 @@ export type CaseStudy = {
   skillsNote?: string
   // 'midoma': the client's lavender page gradient behind the study.
   theme?: 'midoma'
+  // Page color behind the text, in the project's own colors.
+  pageBackground?: string
+  // 'sv': a study written in Swedish; the page's own labels follow.
+  lang?: 'sv'
+  // Reached by its link only: left out of workItems.ts (so not on the
+  // homepage or in the menu) and the sitemap, and marked noindex.
+  unlisted?: boolean
 }
 
 export const caseStudies: CaseStudy[] = [
@@ -411,6 +432,138 @@ export const caseStudies: CaseStudy[] = [
         paragraphs: [
           'Synthetic testing turned out to be a great tool for issues that could otherwise go unnoticed for a long time, for example the “Tenants” label overflowing the logo when a phone uses large text. But the personas are simulated. They don’t feel the stress of a burst pipe, and they can’t tell me whether they trust what they see.',
           'Next time, I would make real user testing part of the whole project. Now that both websites are live, this knowledge will come from real use, and over the next months I will gather feedback through short surveys, in a gentle, non-invasive way.',
+        ],
+      },
+    ],
+  },
+  {
+    // Sent with a job application, by link only.
+    slug: 'euro-accident-koncept',
+    title: 'Söka vård med AI-assistent',
+    tagline: 'En idé till en funktion i Euro Accidents app, ett inofficiellt koncept',
+    intro: '',
+    year: '2026',
+    role: 'Ensam: UX, UI och designsystem',
+    duration: '2 dagar',
+    tools: ['Figma', 'Claude'],
+    heroImage: '/work/images/ea-hero.webp',
+    hero: {
+      client: 'Euro Accident',
+      deliverables: ['Funktionskoncept', 'Skärmflöde', 'Designsystem i Figma'],
+      builtWith: 'Figma och Claude',
+      imageAlt: 'En hand håller en mobil med samtalet: Du pratar med AI-assistenten, 00:43, med knappar för mikrofon, avsluta samtalet och högtalare',
+      background: '#375D6F',
+      allDetails: true,
+    },
+    pageBackground: '#FCF4F9',
+    lang: 'sv',
+    unlisted: true,
+    sections: [
+      {
+        chapter: { title: 'Problemet', nav: 'Problemet' },
+        heading: 'Ett formulär står mellan patienten och vården',
+        paragraphs: [
+          'För att göra detta koncept utgick jag från offentligt tillgänglig information om Euro Accident. Jag har aldrig sett eller använt själva appen, förutom skärmbilderna som finns på App Store. Jag vet inte heller hur flödena i appen fungerar, eller om en sådan funktion redan används, antingen direkt i appen eller via Doktor24.',
+          'För att få en vårdbiljett fyller man i ett formulär, även när frågorna känns oklara och besvären inte passar i någon ruta. Enligt App Store-omdömena känner sig vissa ohörda, och en del vill hellre byta försäkringsbolag.',
+          { type: 'image', src: '/work/images/ea-overview.webp', alt: 'Översikt i appen: Vad vill du göra idag? med kort för bland annat Betala självrisk, Signera dokument och Sök och boka vård' },
+        ],
+        split: 'right',
+      },
+      {
+        chapter: { title: 'Insikter', nav: 'Insikter' },
+        heading: 'Folk vill prata med en människa, men alternativet i appen är ett formulär',
+        paragraphs: ['Några snabba samtal med kompisar och forskningen pekade åt olika håll:'],
+        bullets: [
+          'Jag frågade fyra kompisar, helt enkelt och kort. Alla föredrog en människa, och en skulle säga upp försäkringen om hen fick prata med en robot.',
+          'Var fjärde vuxen i USA har använt AI för hälsofrågor den senaste månaden (Gallup, 2026).',
+          'En AI tränad för medicinska samtal bedömdes som bättre än allmänläkare av simulerade patienter (Nature, 2025).',
+          'Med egna AI-chattbotar fattade folk inte bättre beslut, mest för att de inte visste vad AI:n behövde veta (Nature Medicine, 2026).',
+        ],
+        impact: {
+          label: 'Förväntad effekt',
+          highlight: 'Fler som känner sig hörda',
+          summary: 'och får rätt vård, utan att behöva passa in i ett formulär',
+          points: [
+            'Bättre tillgänglighet för den som har svårt att skriva eller har en kognitiv nedsättning',
+            'Mer trygghet: patienten berättar med egna ord och kan fråga när något är otydligt',
+          ],
+        },
+        split: 'left',
+      },
+      {
+        chapter: { title: 'Lösningen', nav: 'Lösning' },
+        heading: 'Prata i stället för att fylla i, om man vill',
+        paragraphs: [
+          'Användaren väljer: samtala med AI-assistenten eller fyll i formuläret som vanligt. Assistenten är ett alternativ till formuläret, inte till vårdpersonalen. De tre stegen och cirka fem minuter visar vad som väntar.',
+          { type: 'image', src: '/work/images/ea-choice.webp', alt: 'Två skärmar: de tre stegen (berätta om dina besvär, cirka 5 minuter, kontrollera sammanfattningen, få en biljett) och valet mellan Prata med AI-assistenten och frågeformuläret' },
+        ],
+        split: 'right',
+      },
+      {
+        heading: 'Användaren ringer upp AI-assistenten, som sedan leder samtalet',
+        paragraphs: [
+          'Ett tryck på knappen, och samtalet fungerar som ett vanligt telefonsamtal: mikrofon, högtalare och en knapp för att lägga på. Assistenten tar en kort anamnes.',
+          { type: 'image', src: '/work/images/ea-call.webp', alt: 'Två skärmar: knappen Ring upp AI-assistenten, och samtalet som kopplas upp, med mikrofon, avsluta samtalet och högtalare' },
+        ],
+        bullets: [
+          'Användaren kan fråga om allt den inte förstår.',
+          'Assistenten är inställd på att hålla sig till ämnet.',
+          'Den ställer ingen diagnos och ger inga råd.',
+          'Den samlar bara in patientens berättelse.',
+        ],
+        split: 'left',
+      },
+      {
+        heading: 'Följdfrågor, så patienten inte behöver veta vad som är viktigt',
+        paragraphs: [
+          'Allt som sägs går att läsa i text medan samtalet pågår.',
+          { type: 'image', src: '/work/images/ea-transcript.webp', alt: 'Samtalet visat som text: patienten berättar att det knäckte till i höger knä under löprundan, och assistenten frågar om det har hänt förut' },
+        ],
+        split: 'right',
+      },
+      {
+        heading: 'Patienten rättar sammanfattningen, sedan kommer biljetten',
+        paragraphs: [
+          'Svaren från samtalet fyller i formuläret. Patienten ändrar det som blev fel och skickar. Assistenten föreslår nästa steg efter samma regler som formuläret: vårdbiljett, 1177 eller akut vård.',
+          'Jag vet inte hur beslutet om en vårdbiljett fattas i dag, så detta är mitt antagande.',
+          { type: 'image', src: '/work/images/ea-summary.webp', alt: 'Två skärmar: Din sammanfattning, där varje svar kan ändras innan man trycker på Skicka, och Du har fått en biljett till fysioterapeut' },
+        ],
+        split: 'left',
+      },
+      {
+        heading: 'Hela flödet',
+        paragraphs: [
+          'Skärmarna bygger på ett designsystem som jag satte upp i Figma med Claude, utifrån Euro Accidents webbplats: färger, typografi, avstånd och komponenter. Jag lade till det som saknades, som samtalsknappar, ett nytt listkort och egna ikoner.',
+          {
+            type: 'image',
+            src: '/work/images/ea-flow.webp',
+            wideDiagram: true,
+            alt: 'Hela flödet i åtta skärmar: Översikt, de tre stegen, valet mellan AI-assistenten och formuläret, Ring upp AI-assistenten, Ringer upp, Du pratar med AI-assistenten, Din sammanfattning med svar som kan ändras, och Du har fått en biljett till fysioterapeut',
+          },
+        ],
+      },
+      {
+        chapter: { title: 'Nästa steg', nav: 'Nästa steg' },
+        heading: 'Lättare för den som har svårt med ett stelt formulär, om AI:n är rätt inställd',
+        paragraphs: [
+          'Samtalet kan hjälpa den som har svårt att skriva eller har en kognitiv nedsättning. Men en fel inställd AI-modell förstör upplevelsen, hur bra appen än är.',
+          'Den stora frågan är ändå om användarna verkligen skulle uppskatta det här. Det måste testas.',
+          'Nästa steg:',
+        ],
+        bullets: [
+          'Testa flödet och texterna med användare.',
+          'Designa flödet för akuta symptom, och för den som hellre vill prata med en person.',
+          'Stämma av frågorna med vårdpersonal.',
+        ],
+      },
+      {
+        heading: 'Källor',
+        smallPrint: true,
+        paragraphs: [],
+        bullets: [
+          'Gallup via AP, AI use for health advice, 2026',
+          'Tu m.fl., Towards conversational diagnostic artificial intelligence, Nature, 2025',
+          'Bean m.fl., Reliability of LLMs as medical assistants for the general public, Nature Medicine, 2026',
         ],
       },
     ],

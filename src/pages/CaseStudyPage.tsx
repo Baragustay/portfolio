@@ -9,7 +9,7 @@ import PixelWaveDivider from '../components/PixelWaveDivider'
 import { getCaseStudy, type CaseStudy, type Option, type ParagraphBlock, type Persona, type Section } from '../data/caseStudyContent'
 import { posterFor, useInViewVideo } from '../lib/video'
 import { impactBySlug, type Impact } from '../data/impact'
-import { useBodyBackground, usePageMeta } from '../lib/pageMeta'
+import { useBodyBackground, useNoIndex, usePageMeta } from '../lib/pageMeta'
 import { MIDOMA_BG } from '../data/workItems'
 
 // Media break out of the text column on large
@@ -19,6 +19,35 @@ const WIDE = 'lg:relative lg:left-1/2 lg:w-[min(1600px,calc(100vw-6rem))] lg:-tr
 // need more room than a line of text but shouldn't go full width: the
 // impact card, the carousel and the options grid.
 const MEDIUM = 'lg:relative lg:left-1/2 lg:w-[min(1024px,calc(100vw-6rem))] lg:-translate-x-1/2'
+
+// The page's own labels, in the study's language (`lang`).
+const UI_TEXT = {
+  en: {
+    pageTitle: (title: string) => `${title} case study`,
+    chapters: 'Chapters',
+    whatIMade: 'What I made',
+    for: 'For',
+    builtWith: 'Built with',
+    role: 'My role',
+    year: 'Year',
+    duration: 'Duration',
+    tools: 'Tools',
+    swipe: 'Swipe sideways to see the whole flow',
+  },
+  sv: {
+    pageTitle: (title: string) => `${title}, fallstudie`,
+    chapters: 'Kapitel',
+    whatIMade: 'Vad jag gjorde',
+    for: 'För',
+    builtWith: 'Gjort med',
+    role: 'Min roll',
+    year: 'År',
+    duration: 'Tid',
+    tools: 'Verktyg',
+    swipe: 'Svep i sidled för att se hela flödet',
+  },
+}
+type UiText = (typeof UI_TEXT)['en']
 
 // Ambient muted/looped preview clip — plays only while on screen, same
 // as the homepage bento grid's video tiles (see `useInViewVideo`).
@@ -131,7 +160,7 @@ function withLinks(text: string) {
   return parts
 }
 
-function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyTitle: string }) {
+function ParagraphContent({ block, studyTitle, ui }: { block: ParagraphBlock; studyTitle: string; ui: UiText }) {
   if (typeof block === 'string') {
     return <p className="text-base leading-relaxed sm:text-lg text-neutral-700">{withLinks(block)}</p>
   }
@@ -142,7 +171,7 @@ function ParagraphContent({ block, studyTitle }: { block: ParagraphBlock; studyT
           <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
             <img src={block.src} alt={block.alt ?? studyTitle} loading="lazy" decoding="async" className="mx-auto w-[900px] max-w-none md:max-h-[85vh] md:w-auto md:max-w-full" />
           </div>
-          <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">Swipe sideways to see the whole flow</p>
+          <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">{ui.swipe}</p>
         </div>
       )
     }
@@ -327,10 +356,11 @@ function SkillsChart({ skills, note }: { skills: NonNullable<CaseStudy['skills']
 
 // Impact points that lead with a rise ("More trust", "Happier tenants")
 // get an up arrow, ones that lead with a drop ("Fewer phone calls") a down
-// arrow, both in the same yellow since either can be the good news. Any
+// arrow, both in the same color since either can be the good news. Any
 // other point keeps a plain square. Decorative: the words already say it.
-const RISES = /^(More|Increased|Wider|Happier|Better|Higher)\b/
-const DROPS = /^(Less|Fewer|Lower|Reduced)\b/
+// Swedish words too, for a study with `lang: 'sv'`.
+const RISES = /^(More|Increased|Wider|Happier|Better|Higher|Mer|Fler|Bättre|Ökad|Högre)(?![\p{L}])/u
+const DROPS = /^(Less|Fewer|Lower|Reduced|Mindre|Färre|Lägre)(?![\p{L}])/u
 
 const trendOf = (point: string) => (RISES.test(point) ? 'up' : DROPS.test(point) ? 'down' : null)
 // Rises first, drops last, anything else in between, each group in its
@@ -342,29 +372,31 @@ function TrendMarker({ point }: { point: string }) {
   const trend = trendOf(point)
   const arrow = trend === 'up' ? '↑' : trend === 'down' ? '↓' : null
   return arrow ? (
-    <span aria-hidden="true" className="w-3 shrink-0 font-bold text-hover-yellow">{arrow}</span>
+    <span aria-hidden="true" className="w-3 shrink-0 font-bold text-white">{arrow}</span>
   ) : (
-    <span aria-hidden="true" className="mx-[3px] mt-2.5 h-1.5 w-1.5 shrink-0 bg-hover-yellow" />
+    <span aria-hidden="true" className="mx-[3px] mt-2.5 h-1.5 w-1.5 shrink-0 bg-white" />
   )
 }
 
-// Dark card on the light page, echoing the homepage tiles where the same
-// copy appears on hover.
-function ImpactCard({ impact }: { impact: Impact }) {
+// Dark card so it stands out on the light page, in the page's own type,
+// on the same ground as the study's hero band (`background`).
+// `compact`: one column, for the side of a `split` section.
+function ImpactCard({ impact, background, compact = false }: { impact: Impact; background: string; compact?: boolean }) {
   return (
     // Full width; on `xl`, as wide as the media below it, with the headline
     // on the left and the points on the right so lines stay readable.
     <m.section
       {...REVEAL}
       aria-labelledby="impact-heading"
-      className={`mt-8 rounded-3xl bg-ink p-6 text-white sm:p-8 lg:grid lg:grid-cols-2 lg:gap-12 lg:p-12 ${MEDIUM}`}
+      style={{ background }}
+      className={`mt-8 rounded-3xl p-6 text-white sm:p-8 ${compact ? 'lg:mt-0 lg:p-10' : `lg:grid lg:grid-cols-2 lg:gap-12 lg:p-12 ${MEDIUM}`}`}
     >
       <div>
-        <h2 id="impact-heading" className="font-pixel text-xs uppercase tracking-[0.2em] text-hover-yellow">
+        <h2 id="impact-heading" className="text-sm font-semibold uppercase tracking-wider text-white/70">
           {impact.label}
         </h2>
-        <p className="mt-4 text-lg leading-snug text-white/85 sm:text-xl lg:text-2xl">
-          <span className="font-display mb-2 block text-4xl leading-none text-white sm:text-5xl lg:text-6xl">{impact.highlight}</span>
+        <p className="mt-3 text-base leading-snug text-white/85 sm:text-lg">
+          <span className="font-display mb-1 block text-2xl leading-tight text-white sm:text-3xl">{impact.highlight}</span>
           {impact.summary}
         </p>
       </div>
@@ -374,16 +406,16 @@ function ImpactCard({ impact }: { impact: Impact }) {
           initial="hidden"
           whileInView="shown"
           viewport={{ once: true }}
-          className="mt-5 space-y-2 border-t border-white/15 pt-5 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0"
+          className={`mt-5 space-y-2 ${compact ? '' : 'lg:mt-0'}`}
         >
           {[...impact.points].sort(byTrend).map((point) => (
-            <m.li variants={RISE} key={point} className="flex gap-2.5 text-base text-white/80 lg:text-lg">
+            <m.li variants={RISE} key={point} className="flex gap-2.5 text-base text-white/85 lg:text-lg">
               <TrendMarker point={point} />
               <span>{point}</span>
             </m.li>
           ))}
         </m.ul>
-        {impact.note && <p className="mt-4 text-sm text-white/55 lg:pl-12">{impact.note}</p>}
+        {impact.note && <p className="mt-4 text-sm text-white/65">{impact.note}</p>}
       </div>
     </m.section>
   )
@@ -401,7 +433,7 @@ const MIDOMA_GLOW = `radial-gradient(55% 75% at 6% 0%, rgb(121 115 211 / 0.16), 
 // headline, what was made, who for and with what, beside the mockup. Holds
 // the page's h1; the logo stands in for the name, which is repeated for
 // screen readers.
-function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; headline: string }) {
+function StudyHero({ study, name, headline, ui }: { study: CaseStudy; name: string; headline: string; ui: UiText }) {
   const hero = study.hero!
   return (
     <div className="overflow-hidden pb-14 pt-[200px] text-white sm:pb-20 lg:pt-[164px]" style={{ background: hero.background ?? MIDOMA_BG }}>
@@ -423,14 +455,21 @@ function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; 
           ) : (
             <>
               <m.h1 variants={RISE} className="font-display text-4xl leading-tight md:text-5xl">
-                {name}:
+                {name}{headline && ':'}
               </m.h1>
-              <m.p variants={RISE} className="mt-4 max-w-xl text-xl leading-snug text-white/85 sm:text-2xl">
-                {headline}
-              </m.p>
+              {headline && (
+                <m.p variants={RISE} className="mt-4 max-w-xl text-xl leading-snug text-white/85 sm:text-2xl">
+                  {headline}
+                </m.p>
+              )}
             </>
           )}
-          <m.ul variants={RISE} className="mt-6 flex flex-wrap gap-2" aria-label="What I made">
+          {hero.allDetails && study.intro && (
+            <m.p variants={RISE} className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
+              {study.intro}
+            </m.p>
+          )}
+          <m.ul variants={RISE} className="mt-6 flex flex-wrap gap-2" aria-label={ui.whatIMade}>
             {hero.deliverables.map((d) => (
               <li key={d} className="rounded-full bg-white/12 px-4 py-2 text-sm font-semibold ring-1 ring-white/20">
                 {d}
@@ -439,11 +478,11 @@ function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; 
           </m.ul>
           <m.dl variants={RISE} className="mt-8 grid gap-4 text-base sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">For</dt>
+              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">{ui.for}</dt>
               <dd className="mt-1">{hero.client}</dd>
             </div>
             <div>
-              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">Built with</dt>
+              <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">{ui.builtWith}</dt>
               <dd className="mt-1 flex items-center gap-2">
                 {hero.builtWithLogo && (
                   <img src={hero.builtWithLogo} alt="" width={24} height={24} className="h-6 w-6" />
@@ -451,6 +490,17 @@ function StudyHero({ study, name, headline }: { study: CaseStudy; name: string; 
                 {hero.builtWith}
               </dd>
             </div>
+            {hero.allDetails &&
+              [
+                [ui.role, study.role],
+                [ui.year, study.year],
+                [ui.duration, study.duration],
+              ].map(([term, value]) => (
+                <div key={term}>
+                  <dt className="text-sm font-semibold uppercase tracking-wider text-white/75">{term}</dt>
+                  <dd className="mt-1">{value}</dd>
+                </div>
+              ))}
           </m.dl>
         </m.div>
         <m.img
@@ -476,7 +526,7 @@ const chapterId = (title: string) => 'chapter-' + title.toLowerCase().replace(/[
 // text scrolls cleanly under it. It stays put the whole way down. Marks the
 // chapter being read (`aria-current`) and moves focus to the chapter title
 // it jumps to.
-function ChapterNav({ sections }: { sections: Section[] }) {
+function ChapterNav({ sections, label }: { sections: Section[]; label: string }) {
   const chapters = sections.flatMap((s) => (s.chapter ? [{ id: chapterId(s.chapter.title), nav: s.chapter.nav }] : []))
   const [active, setActive] = useState<string | null>(null)
 
@@ -521,7 +571,7 @@ function ChapterNav({ sections }: { sections: Section[] }) {
   if (chapters.length < 2) return null
   return (
     <nav
-      aria-label="Chapters"
+      aria-label={label}
       className="fixed inset-x-0 top-[100px] z-40 lg:top-16 border-b border-ink/10 bg-white/95 shadow-[0_8px_16px_rgba(31,35,51,0.08)] backdrop-blur-md"
     >
       <ol className="mx-auto flex w-max max-w-full items-center gap-1 overflow-x-auto px-2 py-1">
@@ -546,10 +596,59 @@ function ChapterNav({ sections }: { sections: Section[] }) {
   )
 }
 
+// A section with `split`: heading, text and bullets on one side, its image
+// blocks (with their own alt text) stacked on the other, at a width between the text column and WIDE.
+// Stacks below `lg`, text first.
+const SPLIT = 'lg:relative lg:left-1/2 lg:w-[min(1200px,calc(100vw-6rem))] lg:-translate-x-1/2'
+
+function SplitSection({ section, studyTitle, heroBackground }: { section: Section; studyTitle: string; heroBackground: string }) {
+  return (
+    <m.section {...REVEAL} className={`mt-20 ${SPLIT}`}>
+      <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+        <div className={section.split === 'left' ? 'lg:order-2' : undefined}>
+          <h2
+            id={section.chapter ? chapterId(section.chapter.title) : undefined}
+            tabIndex={section.chapter ? -1 : undefined}
+            className="font-display scroll-mt-56 text-4xl text-ink outline-none"
+          >
+            {section.heading}
+          </h2>
+          <div className="mt-4 space-y-6">
+            {section.paragraphs.map((block, i) =>
+              typeof block === 'string' ? (
+                <p key={i} className="text-base leading-relaxed sm:text-lg text-neutral-700">
+                  {withLinks(block)}
+                </p>
+              ) : null,
+            )}
+          </div>
+          {section.bullets && (
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed sm:text-lg text-neutral-700">
+              {section.bullets.map((b, i) => (
+                <li key={i}>{b}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div>
+          {section.impact && <ImpactCard impact={section.impact} background={heroBackground} compact />}
+          {section.paragraphs.map((block) =>
+            typeof block !== 'string' && block.type === 'image' ? (
+              <ImageRow key={block.src} srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={section.imagesMaxHeight ?? 560} />
+            ) : null,
+          )}
+        </div>
+      </div>
+    </m.section>
+  )
+}
+
 export default function CaseStudyPage() {
   const { slug } = useParams<{ slug: string }>()
   const study = slug ? getCaseStudy(slug) : undefined
-  usePageMeta(study ? `${study.title} case study` : 'Case study not found', `/work/${slug ?? ''}`)
+  const ui = UI_TEXT[study?.lang ?? 'en']
+  usePageMeta(study ? ui.pageTitle(study.title) : 'Case study not found', `/work/${slug ?? ''}`)
+  useNoIndex(!!study?.unlisted)
   // The only light page — keep overscroll/short-page gaps light too
   // (the body default is the dark `--color-page-bg`, see index.css).
   const midoma = study?.theme === 'midoma'
@@ -558,7 +657,9 @@ export default function CaseStudyPage() {
       ? study.title.slice(study.title.indexOf(': ') + 2).replace(/^./, (c) => c.toUpperCase())
       : null
   const hasChapters = !!study?.sections.some((s) => s.chapter)
-  useBodyBackground(midoma ? MIDOMA_PAPER : 'var(--color-white)')
+  // The hero band's ground, reused by the impact box. Same fallback as StudyHero.
+  const heroBackground = study?.hero?.background ?? MIDOMA_BG
+  useBodyBackground(study?.pageBackground ?? (midoma ? MIDOMA_PAPER : 'var(--color-white)'))
 
   if (!study) {
     return (
@@ -581,12 +682,13 @@ export default function CaseStudyPage() {
       {/* No "← Back to work" text link here — the Navbar's Home link and
           Case studies menu already cover going back. */}
       <main id="main">
-        <article>
+        <article lang={study.lang}>
           {study.hero && (
             <StudyHero
               study={study}
               name={subtitle ? study.title.slice(0, study.title.indexOf(': ')) : study.title}
               headline={subtitle ?? study.tagline}
+              ui={ui}
             />
           )}
           <div
@@ -608,25 +710,29 @@ export default function CaseStudyPage() {
           )}
           {/* Tools gets the widest column — it's the longest list and
               wrapped to five lines in an equal quarter-width column. */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-6 sm:grid-cols-[1.2fr_0.6fr_0.8fr_2fr]">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">My role</p>
-              <p className="mt-1 text-base text-neutral-700">{study.role}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">Year</p>
-              <p className="mt-1 text-base text-neutral-700">{study.year}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">Duration</p>
-              <p className="mt-1 text-base text-neutral-700">{study.duration}</p>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">Tools</p>
-              <p className="mt-1 text-base text-neutral-700">{study.tools.join(', ')}</p>
-            </div>
-          </div>
-          <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
+          {!study.hero?.allDetails && (
+            <>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-6 sm:grid-cols-[1.2fr_0.6fr_0.8fr_2fr]">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">{ui.role}</p>
+                  <p className="mt-1 text-base text-neutral-700">{study.role}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">{ui.year}</p>
+                  <p className="mt-1 text-base text-neutral-700">{study.year}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">{ui.duration}</p>
+                  <p className="mt-1 text-base text-neutral-700">{study.duration}</p>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="text-sm font-semibold uppercase tracking-wider text-ink/70">{ui.tools}</p>
+                  <p className="mt-1 text-base text-neutral-700">{study.tools.join(', ')}</p>
+                </div>
+              </div>
+              <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
+            </>
+          )}
 
           {study.skills && (
             <>
@@ -634,15 +740,17 @@ export default function CaseStudyPage() {
               <PixelWaveDivider particleClassName="bg-ink/15" animated={false} />
             </>
           )}
-          {slug && impactBySlug[slug] && <ImpactCard impact={impactBySlug[slug]} />}
+          {slug && impactBySlug[slug] && <ImpactCard impact={impactBySlug[slug]} background={heroBackground} />}
 
           {/* With a hero, its headline already says what the tagline would. */}
           {!study.hero && <h2 className="font-display mt-10 text-4xl text-ink">{study.tagline}</h2>}
-          {study.intro && <p className="mt-4 text-base leading-relaxed sm:text-lg text-neutral-600">{study.intro}</p>}
+          {study.intro && !study.hero?.allDetails && <p className="mt-4 text-base leading-relaxed sm:text-lg text-neutral-600">{study.intro}</p>}
 
           {!study.hero && <ImageRow srcs={[study.heroImage]} alt={study.title} className={WIDE} />}
 
-          {study.sections.map((section, i) => (
+          {study.sections.map((section, i) => section.split ? (
+            <SplitSection key={section.heading || i} section={section} studyTitle={study.title} heroBackground={heroBackground} />
+          ) : (
             // An empty `heading` continues the text above without a
             // headline of its own.
             <m.section {...REVEAL} key={section.heading || i} className="mt-16">
@@ -653,14 +761,14 @@ export default function CaseStudyPage() {
                 <h2
                   id={section.chapter ? chapterId(section.chapter.title) : undefined}
                   tabIndex={section.chapter ? -1 : undefined}
-                  className="font-display scroll-mt-56 text-4xl text-ink outline-none"
+                  className={`font-display scroll-mt-56 text-ink outline-none ${section.smallPrint ? 'text-xl' : 'text-4xl'}`}
                 >
                   {section.heading}
                 </h2>
               )}
               <div className="mt-4 space-y-6">
                 {section.paragraphs.map((block, i) => (
-                  <ParagraphContent key={i} block={block} studyTitle={study.title} />
+                  <ParagraphContent key={i} block={block} studyTitle={study.title} ui={ui} />
                 ))}
               </div>
               {section.quote && (
@@ -678,7 +786,7 @@ export default function CaseStudyPage() {
               )}
               {section.persona && <PersonaCard persona={section.persona} />}
               {section.bullets && (
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed sm:text-lg text-neutral-700">
+                <ul className={`mt-4 list-disc pl-5 leading-relaxed ${section.smallPrint ? 'space-y-1 text-sm text-neutral-600' : 'space-y-2 text-base sm:text-lg text-neutral-700'}`}>
                   {section.bullets.map((b, i) => (
                     <li key={i}>{b}</li>
                   ))}
@@ -770,7 +878,7 @@ export default function CaseStudyPage() {
       </main>
 
       <Footer />
-      {hasChapters && <ChapterNav sections={study.sections} />}
+      {hasChapters && <ChapterNav sections={study.sections} label={ui.chapters} />}
     </div>
   )
 }

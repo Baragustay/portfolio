@@ -11,7 +11,7 @@ export type Impact = {
   // Finished studies say what they achieved; a concept that was never
   // launched says what it is expected to achieve, without invented
   // numbers. `note` says how solid the evidence is.
-  label: 'Impact' | 'Expected impact'
+  label: 'Impact' | 'Expected impact' | 'Förväntad effekt'
   // The one number or phrase a hiring manager should leave with…
   highlight: string
   // …and the rest of that sentence.

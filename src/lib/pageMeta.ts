@@ -24,6 +24,19 @@ export function usePageMeta(title: string | null, path: string) {
   }, [title, path])
 }
 
+// Keeps a page out of search results while it's mounted, for a page that's
+// only meant to be reached by its link.
+export function useNoIndex(active: boolean) {
+  useEffect(() => {
+    if (!active) return
+    const meta = document.createElement('meta')
+    meta.name = 'robots'
+    meta.content = 'noindex, nofollow'
+    document.head.appendChild(meta)
+    return () => meta.remove()
+  }, [active])
+}
+
 // The body background shows through anywhere a page doesn't paint (below a
 // short page, during overscroll). It defaults to the dark `--color-page-bg`
 // (index.css); pages with their own background color set it while mounted.
