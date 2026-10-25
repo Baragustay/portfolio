@@ -22,14 +22,15 @@ export type Option = {
 // `images`/`video` below still do, for content that doesn't need that
 // precision).
 export type ParagraphBlock =
-  // `[text](/work/slug)` inside the string renders as a link.
+  // `[text](/work/slug)` or `[text](https://…)` inside the string renders as a link.
   | string
   // `small`: kept inside the text column at a modest height, for a
   // supporting image that shouldn't compete with the design work.
   // `wideDiagram`: a detailed diagram that would be unreadably small at
   // phone width, so below `md` it keeps a readable size and scrolls
   // sideways instead.
-  | { type: 'image'; src: string; alt?: string; small?: boolean; wideDiagram?: boolean }
+  // `caption`: a line under the image, shown in `split` sections.
+  | { type: 'image'; src: string; alt?: string; small?: boolean; wideDiagram?: boolean; caption?: string }
   | {
       type: 'video'
       src: string
@@ -439,7 +440,7 @@ export const caseStudies: CaseStudy[] = [
   {
     // Sent with a job application, by link only.
     slug: 'euro-accident-koncept',
-    title: 'Söka vård med AI-assistent',
+    title: 'AI-assistent för första bedömning',
     tagline: 'En idé till en funktion i Euro Accidents app, ett inofficiellt koncept',
     intro: '',
     year: '2026',
@@ -465,7 +466,7 @@ export const caseStudies: CaseStudy[] = [
         paragraphs: [
           'För att göra detta koncept utgick jag från offentligt tillgänglig information om Euro Accident. Jag har aldrig sett eller använt själva appen, förutom skärmbilderna som finns på App Store. Jag vet inte heller hur flödena i appen fungerar, eller om en sådan funktion redan används, antingen direkt i appen eller via Doktor24.',
           'För att få en vårdbiljett fyller man i ett formulär, även när frågorna känns oklara och besvären inte passar i någon ruta. Enligt App Store-omdömena känner sig vissa ohörda, och en del vill hellre byta försäkringsbolag.',
-          { type: 'image', src: '/work/images/ea-overview.webp', alt: 'Översikt i appen: Vad vill du göra idag? med kort för bland annat Betala självrisk, Signera dokument och Sök och boka vård' },
+          { type: 'image', src: '/work/images/ea-overview.webp', alt: 'Översikt i appen: Vad vill du göra idag? med kort för bland annat Betala självrisk, Signera dokument och Sök och boka vård', caption: 'Befintlig startsida, återskapad från App Store' },
         ],
         split: 'right',
       },
@@ -475,7 +476,7 @@ export const caseStudies: CaseStudy[] = [
         paragraphs: ['Några snabba samtal med kompisar och forskningen pekade åt olika håll:'],
         bullets: [
           'Jag frågade fyra kompisar, helt enkelt och kort. Alla föredrog en människa, och en skulle säga upp försäkringen om hen fick prata med en robot.',
-          'Var fjärde vuxen i USA har använt AI för hälsofrågor den senaste månaden (Gallup, 2026).',
+          'Ungefär var fjärde vuxen i USA har använt AI för hälsofrågor den senaste månaden (Gallup, 2026).',
           'En AI tränad för medicinska samtal bedömdes som bättre än allmänläkare av simulerade patienter (Nature, 2025).',
           'Med egna AI-chattbotar fattade folk inte bättre beslut, mest för att de inte visste vad AI:n behövde veta (Nature Medicine, 2026).',
         ],
@@ -508,7 +509,7 @@ export const caseStudies: CaseStudy[] = [
         bullets: [
           'Användaren kan fråga om allt den inte förstår.',
           'Assistenten är inställd på att hålla sig till ämnet.',
-          'Den ställer ingen diagnos och ger inga råd.',
+          'Den ställer ingen diagnos och ger inga medicinska råd.',
           'Den samlar bara in patientens berättelse.',
         ],
         split: 'left',
@@ -516,7 +517,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'Följdfrågor, så patienten inte behöver veta vad som är viktigt',
         paragraphs: [
-          'Allt som sägs går att läsa i text medan samtalet pågår.',
+          'Allt som sägs går att läsa i text medan samtalet pågår, om man vill.',
           { type: 'image', src: '/work/images/ea-transcript.webp', alt: 'Samtalet visat som text: patienten berättar att det knäckte till i höger knä under löprundan, och assistenten frågar om det har hänt förut' },
         ],
         split: 'right',
@@ -561,9 +562,9 @@ export const caseStudies: CaseStudy[] = [
         smallPrint: true,
         paragraphs: [],
         bullets: [
-          'Gallup via AP, AI use for health advice, 2026',
-          'Tu m.fl., Towards conversational diagnostic artificial intelligence, Nature, 2025',
-          'Bean m.fl., Reliability of LLMs as medical assistants for the general public, Nature Medicine, 2026',
+          '[West Health-Gallup, Americans turning to AI to supplement healthcare visits, 2026](https://news.gallup.com/poll/707789/americans-turning-supplement-healthcare-visits.aspx)',
+          '[Tu m.fl., Towards conversational diagnostic artificial intelligence, Nature, 2025](https://doi.org/10.1038/s41586-025-08866-7)',
+          '[Bean m.fl., Reliability of LLMs as medical assistants for the general public, Nature Medicine, 2026](https://doi.org/10.1038/s41591-025-04074-y)',
         ],
       },
     ],

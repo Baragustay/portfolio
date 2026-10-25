@@ -140,19 +140,28 @@ function TabletVideo({ src, caption }: { src: string; caption?: string }) {
 // A paragraph slot is either plain text or an inline image/video —
 // lets media sit exactly between two specific paragraphs instead of
 // only ever at the end of a whole section.
-// `[text](/path)` inside a paragraph string becomes a site link, e.g. one
-// case study pointing to another. Internal paths only.
-const INLINE_LINK = /\[([^\]]+)\]\((\/[^)\s]*)\)/g
+// `[text](/path)` inside a paragraph or bullet becomes a site link, e.g. one
+// case study pointing to another. `[text](https://…)` links out, in a new
+// tab, e.g. a source.
+const INLINE_LINK = /\[([^\]]+)\]\(((?:\/|https:\/\/)[^)\s]*)\)/g
 
 function withLinks(text: string) {
   const parts: React.ReactNode[] = []
   let last = 0
   for (const match of text.matchAll(INLINE_LINK)) {
     parts.push(text.slice(last, match.index))
+    const linkClass = 'font-semibold text-ink underline decoration-2 underline-offset-4 hover:decoration-ink/40'
     parts.push(
-      <Link key={match.index} to={match[2]} className="font-semibold text-ink underline decoration-2 underline-offset-4 hover:decoration-ink/40">
-        {match[1]}
-      </Link>,
+      match[2].startsWith('/') ? (
+        <Link key={match.index} to={match[2]} className={linkClass}>
+          {match[1]}
+        </Link>
+      ) : (
+        <a key={match.index} href={match[2]} target="_blank" rel="noreferrer" className={linkClass}>
+          {match[1]}
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      ),
     )
     last = match.index + match[0].length
   }
@@ -625,7 +634,7 @@ function SplitSection({ section, studyTitle, heroBackground }: { section: Sectio
           {section.bullets && (
             <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed sm:text-lg text-neutral-700">
               {section.bullets.map((b, i) => (
-                <li key={i}>{b}</li>
+                <li key={i}>{withLinks(b)}</li>
               ))}
             </ul>
           )}
@@ -634,7 +643,10 @@ function SplitSection({ section, studyTitle, heroBackground }: { section: Sectio
           {section.impact && <ImpactCard impact={section.impact} background={heroBackground} compact />}
           {section.paragraphs.map((block) =>
             typeof block !== 'string' && block.type === 'image' ? (
-              <ImageRow key={block.src} srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={section.imagesMaxHeight ?? 560} />
+              <figure key={block.src}>
+                <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={section.imagesMaxHeight ?? 560} />
+                {block.caption && <figcaption className="mt-3 text-center text-sm text-neutral-500">{block.caption}</figcaption>}
+              </figure>
             ) : null,
           )}
         </div>
@@ -788,7 +800,7 @@ export default function CaseStudyPage() {
               {section.bullets && (
                 <ul className={`mt-4 list-disc pl-5 leading-relaxed ${section.smallPrint ? 'space-y-1 text-sm text-neutral-600' : 'space-y-2 text-base sm:text-lg text-neutral-700'}`}>
                   {section.bullets.map((b, i) => (
-                    <li key={i}>{b}</li>
+                    <li key={i}>{withLinks(b)}</li>
                   ))}
                 </ul>
               )}
