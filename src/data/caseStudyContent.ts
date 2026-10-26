@@ -534,6 +534,7 @@ export const caseStudies: CaseStudy[] = [
       {
         heading: 'Hela flödet',
         paragraphs: [
+          'Flödet visar det lyckade scenariot, där allt fungerar och användaren inte stöter på några problem. Vad som händer när något går fel, till exempel när AI:n missförstår användaren eller samtalet bryts, ingick inte i konceptet.',
           'Skärmarna bygger på ett designsystem som jag satte upp i Figma med Claude, utifrån Euro Accidents webbplats: färger, typografi, avstånd och komponenter. Jag lade till det som saknades, som samtalsknappar, ett nytt listkort och egna ikoner.',
           {
             type: 'image',
