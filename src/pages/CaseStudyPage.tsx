@@ -33,6 +33,10 @@ const UI_TEXT = {
     duration: 'Duration',
     tools: 'Tools',
     swipe: 'Swipe sideways to see the whole flow',
+    prev: 'Previous screen',
+    next: 'Next screen',
+    restart: 'Start over',
+    step: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   sv: {
     pageTitle: (title: string) => `${title}, fallstudie`,
@@ -45,6 +49,10 @@ const UI_TEXT = {
     duration: 'Tid',
     tools: 'Verktyg',
     swipe: 'Svep i sidled för att se hela flödet',
+    prev: 'Föregående skärm',
+    next: 'Nästa skärm',
+    restart: 'Börja om',
+    step: (n: number, total: number) => `Steg ${n} av ${total}`,
   },
 }
 type UiText = (typeof UI_TEXT)['en']
@@ -126,7 +134,7 @@ function TabletVideo({ src, caption }: { src: string; caption?: string }) {
         </div>
       </div>
       {caption && (
-        <figcaption className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-base text-neutral-700 sm:text-lg">
+        <figcaption className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center text-base text-neutral-700">
           <span className="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-ink/75">
             Screen recording
           </span>
@@ -169,9 +177,197 @@ function withLinks(text: string) {
   return parts
 }
 
+// A clickable prototype from still screens: the same buttons as the Figma
+// prototype take you to the same screens, with a short ease-out crossfade
+// like Figma's Smart animate between near-identical screens. The text for
+// the current screen sits beside it and changes with every step. Clicking
+// the screen anywhere else briefly outlines what can be clicked, as Figma
+// does. Back/next buttons step through `order` for anyone who doesn't click
+// inside the phone; a screen not in `order` (an open panel) counts as the
+// step it was opened from.
+function ClickThrough({ block, ui }: { block: Extract<ParagraphBlock, { type: 'clickThrough' }>; ui: UiText }) {
+  const { screens, order } = block
+  const [current, setCurrent] = useState(order[0])
+  const [hint, setHint] = useState(false)
+  const screen = screens[current]
+  const stepOf = (i: number) => {
+    const at = order.indexOf(i)
+    return at >= 0 ? at : order.indexOf(screens[i].stepOf ?? order[0])
+  }
+  const step = stepOf(current)
+  const go = (i: number) => {
+    setHint(false)
+    setCurrent(i)
+  }
+
+  // A screen that moves on by itself, like a call connecting.
+  useEffect(() => {
+    if (!screen.autoNext) return
+    const timer = window.setTimeout(() => go(screen.autoNext!.to), screen.autoNext.ms)
+    return () => window.clearTimeout(timer)
+  }, [current]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!hint) return
+    const timer = window.setTimeout(() => setHint(false), 900)
+    return () => window.clearTimeout(timer)
+  }, [hint])
+
+  // Back/next beside the phone; on the last step, next starts over.
+  const last = step === order.length - 1
+  const arrow = (dir: 'prev' | 'next') => (
+    <button
+      type="button"
+      onClick={() => go(dir === 'prev' ? order[Math.max(0, step - 1)] : order[last ? 0 : step + 1])}
+      disabled={dir === 'prev' && step === 0}
+      aria-label={dir === 'prev' ? ui.prev : last ? ui.restart : ui.next}
+      className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-lg text-white transition-opacity hover:opacity-85 disabled:opacity-25 sm:flex"
+    >
+      <span aria-hidden="true">{dir === 'prev' ? '←' : last ? '↺' : '→'}</span>
+    </button>
+  )
+
+  return (
+    <div className="mx-auto grid max-w-[1024px] items-center gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16">
+      <div>
+        <div className="flex items-center justify-center gap-3 sm:gap-5">
+        {arrow('prev')}
+        {/* Sized so the phone and the step bar under it fit on one screen,
+            below the fixed bars: at most 380px wide, no wider than the
+            window leaves (beside the arrows, from sm up), and no taller than the window
+            minus ~9.5rem (0.492 is the screen images' width/height). */}
+        {/* A size container, so hotspot corners (`radius`) scale with it. */}
+        <div
+          className="relative aspect-[720/1463] w-[min(calc(100vw_-_3rem),380px,calc((100svh_-_9.5rem)_*_0.492))] sm:w-[min(calc(100vw_-_11rem),380px,calc((100svh_-_9.5rem)_*_0.492))] shrink-0 [container-type:inline-size]"
+          onClick={() => setHint(true)}
+        >
+          {screens.map((sc, i) => (
+            <div
+              key={sc.src}
+              aria-hidden={i !== current}
+              className={`absolute inset-0 transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+                i === current ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img src={sc.src} alt={i === current ? sc.alt : ''} decoding="async" className="h-full w-full" />
+              {/* Motion the still screens lack: a part of the screen, cut out
+                  on its own flat background, moving on top of itself, or
+                  three loading dots. Decorative. */}
+              {sc.overlays?.map((o) =>
+                o.cover ? (
+                  <span
+                    key={`cover-${o.x}-${o.y}`}
+                    aria-hidden="true"
+                    style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%`, background: o.cover }}
+                    className="absolute"
+                  />
+                ) : o.src ? (
+                  <img
+                    key={o.src}
+                    src={o.src}
+                    alt=""
+                    aria-hidden="true"
+                    style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%` }}
+                    className={`absolute ${o.motion === 'wave' ? 'animate-proto-wave' : 'animate-proto-breathe'}`}
+                  />
+                ) : (
+                  <span
+                    key="dots"
+                    aria-hidden="true"
+                    style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%` }}
+                    className="absolute flex -translate-x-1/2 -translate-y-1/2 justify-between"
+                  >
+                    {[0, 1, 2].map((n) => (
+                      <span
+                        key={n}
+                        style={{ animationDelay: `${n * 0.2}s`, background: o.color }}
+                        className="aspect-square w-[21%] animate-proto-dot rounded-full"
+                      />
+                    ))}
+                  </span>
+                ),
+              )}
+            </div>
+          ))}
+          {screen.hotspots?.map((spot) => (
+            <button
+              key={spot.label}
+              type="button"
+              aria-label={spot.label}
+              onClick={(e) => {
+                e.stopPropagation()
+                go(spot.to)
+              }}
+              style={{
+                left: `${spot.x}%`,
+                top: `${spot.y}%`,
+                width: `${spot.w}%`,
+                height: `${spot.h}%`,
+                // px of the 720px-wide image, as a share of the phone's width
+                borderRadius: spot.radius ? `${spot.radius / 7.2}cqw` : undefined,
+              }}
+              className={`absolute transition-shadow duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                spot.round ? 'rounded-full' : 'rounded-xl'
+              } ${hint ? 'shadow-[0_0_0_3px_rgb(59_130_246_/_0.8)] bg-blue-500/15' : ''}`}
+            >
+              {/* `guide`: a soft glow on the click the happy path wants next. */}
+              {spot.guide && (
+                <span
+                  aria-hidden="true"
+                  // Teal around pink things; pink around things on the teal bar.
+                  style={{ '--proto-glow': spot.glow === 'pink' ? '#FF6EC7' : '#375D6E' } as React.CSSProperties}
+                  className="absolute inset-0 animate-proto-glow rounded-[inherit] motion-reduce:animate-none"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+        {arrow('next')}
+        </div>
+        {/* Step bar: one segment per step, filled up to the current one;
+            each segment jumps to its step. */}
+        <ol className="mx-auto mt-4 flex w-full max-w-[380px] gap-1.5">
+          {order.map((screenIndex, n) => (
+            <li key={screenIndex} className="flex-1">
+              <button
+                type="button"
+                onClick={() => go(screenIndex)}
+                aria-label={ui.step(n + 1, order.length)}
+                aria-current={n === step ? 'step' : undefined}
+                className="group block w-full py-2"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-colors duration-300 ${
+                    n <= step ? 'bg-ink' : 'bg-ink/15 group-hover:bg-ink/30'
+                  }`}
+                />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div>
+        {block.heading && <h2 className="font-display text-[1.75rem] leading-tight text-ink">{block.heading}</h2>}
+        {block.intro && <p className="mt-3 text-base leading-relaxed text-neutral-700">{block.intro}</p>}
+        <div aria-live="polite" className="mt-6 min-h-48">
+          <m.div key={current} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
+            <h3 className="font-display text-xl text-ink sm:text-[1.375rem]">{screen.title}</h3>
+            <p className="mt-3 text-base leading-relaxed text-neutral-700">{withLinks(screen.text)}</p>
+          </m.div>
+        </div>
+        {block.link && (
+          <p className="mt-8 text-sm text-neutral-600">
+            {withLinks(block.link)}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ParagraphContent({ block, studyTitle, ui }: { block: ParagraphBlock; studyTitle: string; ui: UiText }) {
   if (typeof block === 'string') {
-    return <p className="text-base leading-relaxed sm:text-lg text-neutral-700">{withLinks(block)}</p>
+    return <p className="text-base leading-relaxed text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
     if (block.wideDiagram) {
@@ -190,6 +386,7 @@ function ParagraphContent({ block, studyTitle, ui }: { block: ParagraphBlock; st
       <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} />
     )
   }
+  if (block.type === 'clickThrough') return <ClickThrough block={block} ui={ui} />
   if (block.type === 'videoPair') {
     // `lg:`: breaks out of the 768px text column (centred on it), so each
     // tablet stays large enough to read side by side.
@@ -235,7 +432,7 @@ function PersonaCard({ persona }: { persona: Persona }) {
       />
       <div>
         <p className="font-display text-xl text-ink">{persona.name}</p>
-        <ul className="mt-2 space-y-1.5 text-base sm:text-lg text-neutral-600">
+        <ul className="mt-2 space-y-1.5 text-base text-neutral-600">
           {persona.bio.map((line, i) => (
             <li key={i}>{line}</li>
           ))}
@@ -280,7 +477,7 @@ function OptionsGrid({ options }: { options: Option[] }) {
               />
             </div>
           )}
-          <p className="mt-3 text-base sm:text-lg text-neutral-600">{option.description}</p>
+          <p className="mt-3 text-base text-neutral-600">{option.description}</p>
         </div>
       ))}
     </div>
@@ -404,7 +601,7 @@ function ImpactCard({ impact, background, compact = false }: { impact: Impact; b
         <h2 id="impact-heading" className="text-sm font-semibold uppercase tracking-wider text-white/70">
           {impact.label}
         </h2>
-        <p className="mt-3 text-base leading-snug text-white/85 sm:text-lg">
+        <p className="mt-3 text-base leading-snug text-white/85">
           <span className="font-display mb-1 block text-2xl leading-tight text-white sm:text-3xl">{impact.highlight}</span>
           {impact.summary}
         </p>
@@ -618,21 +815,21 @@ function SplitSection({ section, studyTitle, heroBackground }: { section: Sectio
           <h2
             id={section.chapter ? chapterId(section.chapter.title) : undefined}
             tabIndex={section.chapter ? -1 : undefined}
-            className="font-display scroll-mt-56 text-4xl text-ink outline-none"
+            className="font-display scroll-mt-56 text-[1.75rem] leading-tight text-ink outline-none"
           >
             {section.heading}
           </h2>
           <div className="mt-4 space-y-6">
             {section.paragraphs.map((block, i) =>
               typeof block === 'string' ? (
-                <p key={i} className="text-base leading-relaxed sm:text-lg text-neutral-700">
+                <p key={i} className="text-base leading-relaxed text-neutral-700">
                   {withLinks(block)}
                 </p>
               ) : null,
             )}
           </div>
           {section.bullets && (
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed sm:text-lg text-neutral-700">
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-neutral-700">
               {section.bullets.map((b, i) => (
                 <li key={i}>{withLinks(b)}</li>
               ))}
@@ -694,7 +891,8 @@ export default function CaseStudyPage() {
       {/* No "← Back to work" text link here — the Navbar's Home link and
           Case studies menu already cover going back. */}
       <main id="main">
-        <article lang={study.lang}>
+        {/* overflow-x-clip: a full-width `band` mustn't add sideways scroll. */}
+        <article lang={study.lang} className="overflow-x-clip">
           {study.hero && (
             <StudyHero
               study={study}
@@ -705,7 +903,8 @@ export default function CaseStudyPage() {
           )}
           <div
             className={`mx-auto max-w-[720px] px-6 pb-24 md:px-10 ${
-              study.hero ? 'pt-6' : hasChapters ? 'pt-[210px] lg:pt-[174px]' : 'pt-[164px] lg:pt-[128px]'
+              // A `band` first in the study sits right against the hero.
+              study.hero ? (study.sections[0]?.band ? 'pt-0' : 'pt-6') : hasChapters ? 'pt-[210px] lg:pt-[174px]' : 'pt-[164px] lg:pt-[128px]'
             }`}
           >
           {!study.hero && (
@@ -756,7 +955,7 @@ export default function CaseStudyPage() {
 
           {/* With a hero, its headline already says what the tagline would. */}
           {!study.hero && <h2 className="font-display mt-10 text-4xl text-ink">{study.tagline}</h2>}
-          {study.intro && !study.hero?.allDetails && <p className="mt-4 text-base leading-relaxed sm:text-lg text-neutral-600">{study.intro}</p>}
+          {study.intro && !study.hero?.allDetails && <p className="mt-4 text-base leading-relaxed text-neutral-600">{study.intro}</p>}
 
           {!study.hero && <ImageRow srcs={[study.heroImage]} alt={study.title} className={WIDE} />}
 
@@ -765,7 +964,16 @@ export default function CaseStudyPage() {
           ) : (
             // An empty `heading` continues the text above without a
             // headline of its own.
-            <m.section {...REVEAL} key={section.heading || i} className="mt-16">
+            <m.section
+              {...REVEAL}
+              key={section.heading || i}
+              // A chapter without a headline jumps to the section itself.
+              id={section.chapter && !section.heading ? chapterId(section.chapter.title) : undefined}
+              tabIndex={section.chapter && !section.heading ? -1 : undefined}
+              // `band`: full window width on its own color, to stand out.
+              className={`scroll-mt-40 outline-none ${section.band ? `relative left-1/2 w-screen -translate-x-1/2 px-6 py-10 md:px-10 ${i === 0 ? '' : 'mt-10'}` : 'mt-16'}`}
+              style={section.band ? { background: section.band } : undefined}
+            >
               {section.heading && (
                 // A section that starts a chapter is the chapter menu's
                 // jump target: scroll-mt clears the fixed Navbar and
@@ -773,7 +981,7 @@ export default function CaseStudyPage() {
                 <h2
                   id={section.chapter ? chapterId(section.chapter.title) : undefined}
                   tabIndex={section.chapter ? -1 : undefined}
-                  className={`font-display scroll-mt-56 text-ink outline-none ${section.smallPrint ? 'text-xl' : 'text-4xl'}`}
+                  className={`font-display scroll-mt-56 text-ink outline-none ${section.smallPrint ? 'text-xl' : 'text-[1.75rem] leading-tight'}`}
                 >
                   {section.heading}
                 </h2>
@@ -785,7 +993,7 @@ export default function CaseStudyPage() {
               </div>
               {section.quote && (
                 <blockquote
-                  className={`mt-6 rounded-2xl p-5 text-base leading-relaxed sm:text-lg text-neutral-700 italic ${
+                  className={`mt-6 rounded-2xl p-5 text-base leading-relaxed text-neutral-700 italic ${
                     section.quote.bg ? '' : 'bg-accent-soft'
                   }`}
                   style={section.quote.bg ? { backgroundColor: section.quote.bg } : undefined}
@@ -798,7 +1006,7 @@ export default function CaseStudyPage() {
               )}
               {section.persona && <PersonaCard persona={section.persona} />}
               {section.bullets && (
-                <ul className={`mt-4 list-disc pl-5 leading-relaxed ${section.smallPrint ? 'space-y-1 text-sm text-neutral-600' : 'space-y-2 text-base sm:text-lg text-neutral-700'}`}>
+                <ul className={`mt-4 list-disc pl-5 leading-relaxed ${section.smallPrint ? 'space-y-1 text-sm text-neutral-600' : 'space-y-2 text-base text-neutral-700'}`}>
                   {section.bullets.map((b, i) => (
                     <li key={i}>{withLinks(b)}</li>
                   ))}

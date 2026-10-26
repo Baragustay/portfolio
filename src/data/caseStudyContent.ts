@@ -41,6 +41,49 @@ export type ParagraphBlock =
       frame?: 'tablet'
       caption?: string
     }
+  // A clickable prototype from still screens, with each screen's text
+  // beside it. `hotspots` are in % of the screen image and go to a screen
+  // by index; `order` is the back/next path. `stepOf` places a screen that
+  // isn't in `order` (an open panel) at the step it opens from.
+  | {
+      type: 'clickThrough'
+      // Headline above the screen texts, for a section without one, and a
+      // line of context under it.
+      heading?: string
+      intro?: string
+      // Line under the texts; `[text](https://…)` makes a link.
+      link?: string
+      order: number[]
+      screens: {
+        src: string
+        alt: string
+        title: string
+        text: string
+        // `round`: a pill or circle; `radius`: corner radius in px of the
+        // 720px-wide screen image. `guide`: glow softly, as the click the
+        // happy path wants next, in teal (for pink things) or `glow: 'pink'`
+        // (for things on the teal bar).
+        hotspots?: {
+          x: number
+          y: number
+          w: number
+          h: number
+          to: number
+          label: string
+          round?: boolean
+          radius?: number
+          guide?: boolean
+          glow?: 'teal' | 'pink'
+        }[]
+        autoNext?: { to: number; ms: number }
+        stepOf?: number
+        // Motion on top of the still screen, in % of it: a cut-out `src`
+        // that breathes or waves; a `cover` rectangle in that color, to hide
+        // something still before redrawing it moving; or three pulsing
+        // loading dots centred on x, y, `w` wide, in `color`.
+        overlays?: { src?: string; cover?: string; x: number; y: number; w?: number; h?: number; motion?: 'breathe' | 'wave'; color?: string }[]
+      }[]
+    }
   // Two tablet screen recordings side by side on desktop (stacked on
   // phones), wider than the text column, to compare two products.
   | { type: 'videoPair'; videos: { src: string; caption: string }[] }
@@ -88,6 +131,8 @@ export type Section = {
   impact?: Impact
   // Small heading and text, for sources and other fine print.
   smallPrint?: boolean
+  // A full-width band on this color behind the section, to make it stand out.
+  band?: string
 }
 
 export type CaseStudy = {
@@ -461,6 +506,110 @@ export const caseStudies: CaseStudy[] = [
     unlisted: true,
     sections: [
       {
+        // The prototype first, in its own white band: no headline, its texts
+        // beside it.
+        chapter: { title: 'Prototyp', nav: 'Prototyp' },
+        heading: '',
+        band: '#FFFFFF',
+        paragraphs: [
+          {
+            type: 'clickThrough',
+            heading: 'Prototyp: testa det lyckade flödet när användaren pratar med AI-assistenten för att få en vårdbiljett',
+            intro: 'Ett formulär står mellan patienten och vården. Det här är min idé om ett alternativ.',
+            link: '[Se den riktiga prototypen i Figma](https://www.figma.com/proto/e1I5lDUVmdXjPz86wMjRBn/EA-Design-System-Study?node-id=9-4). Den här versionen är byggd av skärmbilderna, men fungerar likadant.',
+            order: [0, 1, 2, 3, 4, 5, 6, 7],
+            screens: [
+              {
+                src: '/work/images/ea-screen-1.webp',
+                alt: 'Översikt: Vad vill du göra idag? med kort för bland annat Betala självrisk, Signera dokument och Sök och boka vård',
+                title: 'Startsidan',
+                text: 'Jag har tagit fram ett koncept för en funktion i Euro Accidents app, baserat på offentlig information som finns på nätet. Momentet jag har tittat på är när någon har ont och behöver få en vårdbiljett.',
+                hotspots: [{ x: 11.1, y: 55.7, w: 77.4, h: 11.1, to: 1, label: 'Sök och boka vård', radius: 12, guide: true }],
+              },
+              {
+                src: '/work/images/ea-screen-2.webp',
+                alt: 'Sök och boka vård: berätta om dina besvär (cirka 5 minuter), kontrollera sammanfattningen, få en biljett, och knappen Påbörja nytt ärende',
+                title: 'Tre steg',
+                text: 'I appens omdömen är de flesta nöjda, men vissa skriver att de inte fick berätta med egna ord, att alternativen inte passade, och att de inte kände sig hörda. Det ville jag lösa.',
+                hotspots: [{ x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' }, { x: 20.8, y: 75.1, w: 58.2, h: 7.1, to: 2, label: 'Påbörja nytt ärende', round: true, guide: true }],
+              },
+              {
+                src: '/work/images/ea-screen-3.webp',
+                alt: 'Vad behöver du hjälp med? Knappen Prata med AI-assistenten, eller fyll i frågeformuläret och välj från listan',
+                title: 'Prata eller skriv',
+                text: 'Här kan man välja. Antingen ringer man och berättar för en AI-assistent, eller så fyller man i formuläret som vanligt. Mina korta samtal med kompisar visade att många hellre pratar med en människa än med en AI, så assistenten är frivillig. Formuläret finns kvar för den som hellre vill skriva.',
+                hotspots: [{ x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' }, { x: 11.9, y: 37.2, w: 76, h: 7.5, to: 3, label: 'Prata med AI-assistenten', round: true, guide: true }],
+              },
+              {
+                src: '/work/images/ea-screen-4.webp',
+                alt: 'Samma tre steg med AI-assistenten, och knappen Ring upp AI-assistenten',
+                title: 'Ring upp',
+                text: 'Innan samtalet står det tydligt att det är en AI, hur lång tid det tar och vad som händer sen.',
+                hotspots: [{ x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' }, { x: 11.9, y: 73, w: 76.5, h: 7.5, to: 4, label: 'Ring upp AI-assistenten', round: true, guide: true }],
+              },
+              {
+                src: '/work/images/ea-screen-5.webp',
+                alt: 'Ringer upp AI-assistent, 00:00, med mikrofon, avsluta samtalet och högtalare',
+                title: 'Samtalet kopplas upp',
+                text: 'Under samtalet behöver man inte titta på telefonen.',
+                overlays: [
+                  { src: '/work/images/ea-wave.webp', x: 12.5, y: 53.14, w: 75, h: 10.04, motion: 'wave' },
+                  // The design's own three dots, covered and redrawn pulsing.
+                  { cover: '#E2EDF0', x: 46.4, y: 52, w: 7.8, h: 1.3 },
+                  { x: 50.3, y: 52.6, w: 6.5, color: '#C50182' },
+                ],
+                autoNext: { to: 5, ms: 2000 },
+                hotspots: [
+                  { x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' },
+                  { x: 45.5, y: 85, w: 14.3, h: 7.6, to: 2, label: 'Avsluta samtalet', round: true },
+                ],
+              },
+              {
+                src: '/work/images/ea-screen-6.webp',
+                alt: 'Du pratar med AI-assistenten, 00:43, med Se samtalet och knapparna mikrofon, avsluta samtalet och högtalare',
+                title: 'Assistenten leder samtalet',
+                text: 'Assistenten leder med följdfrågor, så man behöver inte veta vad som är viktigt att säga. När den har fått sina svar avslutar den samtalet själv. Klicka på den rosa cirkeln för att gå vidare. Lägger man på kommer man tillbaka till valet.',
+                overlays: [{ src: '/work/images/ea-blob.webp', x: 23.61, y: 48.19, w: 52.78, h: 25.97 }],
+                hotspots: [
+                  { x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' },
+                  { x: 6, y: 76.9, w: 88, h: 5, to: 8, label: 'Se samtalet' },
+                  { x: 45.3, y: 85, w: 14.3, h: 7.6, to: 2, label: 'Avsluta samtalet', round: true },
+                  { x: 27.1, y: 49.9, w: 45.8, h: 22.5, to: 6, label: 'Låt assistenten avsluta samtalet', round: true, guide: true },
+                ],
+              },
+              {
+                src: '/work/images/ea-screen-7.webp',
+                alt: 'Din sammanfattning: söker vård för ont i knä, höger knä, började för 1–7 dagar sedan, svullnad, varje svar kan ändras, och knappen Skicka',
+                title: 'Sammanfattningen',
+                text: 'Efter samtalet får man en sammanfattning. Man kan rätta allt som blev fel innan man skickar in. AI:n samlar bara in berättelsen.',
+                hotspots: [{ x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' }, { x: 26.1, y: 87, w: 48.1, h: 5.3, to: 7, label: 'Skicka', round: true, guide: true, glow: 'pink' }],
+              },
+              {
+                src: '/work/images/ea-screen-8.webp',
+                alt: 'Du har fått en biljett till fysioterapeut, med knappen Använd min biljett och en påminnelse om att ringa 1177 om det blir mycket värre',
+                title: 'Biljetten',
+                text: 'Till sist får man biljetten och en förklaring till varför, med det man själv berättade.',
+                hotspots: [{ x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' }, { x: 26.1, y: 70.8, w: 47.9, h: 5.3, to: 0, label: 'Använd min biljett, börja om', round: true, guide: true }],
+              },
+              {
+                src: '/work/images/ea-screen-9.webp',
+                alt: 'Samtalet visat som text: patienten berättar att det knäckte till i höger knä under löprundan, och assistenten frågar om det har hänt förut',
+                title: 'Samtalet i text',
+                text: 'Vill man se vad AI:n har uppfattat kan man öppna samtalet. Det är dolt från början, och det är något jag skulle vilja testa. Klicka på den rosa cirkeln för att gå vidare.',
+                overlays: [{ src: '/work/images/ea-blob-small.webp', x: 34.72, y: 35.27, w: 30.56, h: 15.04 }],
+                stepOf: 5,
+                hotspots: [
+                  { x: 84.5, y: 14.3, w: 9, h: 4.6, to: 0, label: 'Stäng' },
+                  { x: 6, y: 52.2, w: 88, h: 4.1, to: 5, label: 'Dölj samtalet' },
+                  { x: 42.4, y: 86, w: 14.5, h: 7.6, to: 2, label: 'Avsluta samtalet', round: true },
+                  { x: 37.8, y: 36.7, w: 24.4, h: 12, to: 6, label: 'Låt assistenten avsluta samtalet', round: true, guide: true },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
         chapter: { title: 'Problemet', nav: 'Problemet' },
         heading: 'Ett formulär står mellan patienten och vården',
         paragraphs: [
@@ -492,44 +641,29 @@ export const caseStudies: CaseStudy[] = [
         split: 'left',
       },
       {
-        chapter: { title: 'Lösningen', nav: 'Lösning' },
-        heading: 'Prata i stället för att fylla i, om man vill',
-        paragraphs: [
-          'Användaren väljer: samtala med AI-assistenten eller fyll i formuläret som vanligt. Assistenten är ett alternativ till formuläret, inte till vårdpersonalen. De tre stegen och cirka fem minuter visar vad som väntar.',
-          { type: 'image', src: '/work/images/ea-choice.webp', alt: 'Två skärmar: de tre stegen (berätta om dina besvär, cirka 5 minuter, kontrollera sammanfattningen, få en biljett) och valet mellan Prata med AI-assistenten och frågeformuläret' },
-        ],
-        split: 'right',
-      },
-      {
-        heading: 'Användaren ringer upp AI-assistenten, som sedan leder samtalet',
-        paragraphs: [
-          'Ett tryck på knappen, och samtalet fungerar som ett vanligt telefonsamtal: mikrofon, högtalare och en knapp för att lägga på. Assistenten tar en kort anamnes.',
-          { type: 'image', src: '/work/images/ea-call.webp', alt: 'Två skärmar: knappen Ring upp AI-assistenten, och samtalet som kopplas upp, med mikrofon, avsluta samtalet och högtalare' },
-        ],
+        heading: 'Vad AI-assistenten gör, och inte gör',
+        paragraphs: ['Assistenten är ett alternativ till formuläret, inte till vårdpersonalen. Svaren från samtalet fyller i formuläret, och nästa steg föreslås efter samma regler som i dag: vårdbiljett, 1177 eller akut vård. Jag vet inte hur beslutet fattas i dag, så detta är mitt antagande.'],
         bullets: [
           'Användaren kan fråga om allt den inte förstår.',
           'Assistenten är inställd på att hålla sig till ämnet.',
           'Den ställer ingen diagnos och ger inga medicinska råd.',
           'Den samlar bara in patientens berättelse.',
         ],
-        split: 'left',
       },
       {
-        heading: 'Följdfrågor, så patienten inte behöver veta vad som är viktigt',
-        paragraphs: [
-          'Allt som sägs går att läsa i text medan samtalet pågår, om man vill.',
-          { type: 'image', src: '/work/images/ea-transcript.webp', alt: 'Samtalet visat som text: patienten berättar att det knäckte till i höger knä under löprundan, och assistenten frågar om det har hänt förut' },
+        chapter: { title: 'Designbeslut', nav: 'Designbeslut' },
+        heading: 'Designbeslut bakom flödet',
+        paragraphs: ['Varje val ska göra det lätt för den som har ont och kanske inte orkar läsa mycket:'],
+        bullets: [
+          'Låg kognitiv belastning: korta ord och två tydliga val.',
+          'Visuell hierarki: färgen leder till nästa steg, med en tydlig huvudknapp per skärm.',
+          'Igenkänning: samtalet ser ut som ett vanligt telefonsamtal, så inget nytt behöver läras in.',
+          'Tydlig status: animationen visar vem som pratar, utan ord.',
+          'Information före handling: knappen för att ringa ligger under instruktionerna, så man vet att det är en AI innan man ringer.',
+          'Användarkontroll: man kan alltid avsluta samtalet eller välja formuläret i stället.',
+          'Progressiv exponering: texten från samtalet är dold tills man vill se den.',
+          'Tillgänglighet: formuläret finns kvar för den som inte kan eller vill prata i telefon.',
         ],
-        split: 'right',
-      },
-      {
-        heading: 'Patienten rättar sammanfattningen, sedan kommer biljetten',
-        paragraphs: [
-          'Svaren från samtalet fyller i formuläret. Patienten ändrar det som blev fel och skickar. Assistenten föreslår nästa steg efter samma regler som formuläret: vårdbiljett, 1177 eller akut vård.',
-          'Jag vet inte hur beslutet om en vårdbiljett fattas i dag, så detta är mitt antagande.',
-          { type: 'image', src: '/work/images/ea-summary.webp', alt: 'Två skärmar: Din sammanfattning, där varje svar kan ändras innan man trycker på Skicka, och Du har fått en biljett till fysioterapeut' },
-        ],
-        split: 'left',
       },
       {
         heading: 'Hela flödet',
