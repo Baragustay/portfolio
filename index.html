@@ -19,13 +19,16 @@
       property="og:description"
       content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
     />
-    <!-- Not the same file the About page uses (`headshot.webp`) — that's
-         a full-body 576x1024 portrait, and social platforms crop
-         og:image into a landscape thumbnail with no smart/face-aware
-         cropping, so it centered on the torso instead of the face.
-         `headshot-social.webp` is a pre-cropped head/shoulders version
-         of the same photo, made specifically for this. -->
-    <meta property="og:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
+    <!-- The link preview (LinkedIn, Slack, Messages): a 1200x630 card in the
+         site's own look (sidebar panel, name, yellow "Get in touch" pill,
+         and a bento of real project tiles), so it reads as a portfolio
+         rather than a cropped photo. JPEG, as some platforms still skip
+         WebP previews. -->
+    <meta property="og:image" content="https://barboragustafsson.com/social-preview.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Barbora Gustafsson, UX &amp; Product Designer, with tiles from her projects Midoma, Piggy Bank, PromptKee and Squinty." />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Barbora Gustafsson - UX & Product Designer" />
@@ -33,7 +36,7 @@
       name="twitter:description"
       content="I study people. UX & Product Designer based in Uppsala/Stockholm, Sweden — case studies, code projects, and more."
     />
-    <meta name="twitter:image" content="https://barboragustafsson.com/about/headshot-social.webp" />
+    <meta name="twitter:image" content="https://barboragustafsson.com/social-preview.jpg" />
 
     <!-- The homepage's first case study tile (Piggy Bank) is the LCP
          candidate on wide viewports. This is a client-rendered app, so
