@@ -441,6 +441,63 @@ function GameCell() {
 
 // A narrow banner over the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
 // its own site. In Plink's colours (its pink and its logo), not the portfolio's, as it's the app's own call.
+// Pixel me (traced from my LinkedIn banner, smiling), 17 × 25 cells: each letter a colour in PIXEL_ME_COLOURS,
+// '.' empty.
+const PIXEL_ME_COLOURS: Record<string, string> = {
+  a: '#1d2b2b',
+  b: '#3a4747',
+  c: '#8a6240',
+  d: '#b08659',
+  e: '#bf625c',
+  f: '#c89a9d',
+  g: '#dca67e',
+  h: '#e0b8b9',
+  i: '#eea294',
+  j: '#f0eee9',
+  k: '#f1c49b',
+}
+const PIXEL_ME = [
+  '...ccccccc.......',
+  '.cccddcccccc.....',
+  'ccddccccccccc....',
+  'cckkkkkkkkkccc...',
+  'ckkkkkkkkkkkccc..',
+  'ckkjakkkkjakkccc.',
+  'kkkaakkkkaakkkcc.',
+  'kiikkkkkkkkiikcc.',
+  'kkkkekkkkekkkk.cc',
+  '.kkkkeeeekkkk...c',
+  '..gkkkkkkkkg....c',
+  '....gkkkkg......c',
+  '..hhhhhhhhhh...cc',
+  '.hhhhhhhhhhhh....',
+  'hhhhhhhhhhhhhh...',
+  'hhfhhhhhhhhfhh...',
+  'hh.hhhhhhhh.hh...',
+  'kk.hhhhhhhh.kk...',
+  'kk.hhhhhhhh.kk...',
+  '...bbbbbbbb......',
+  '...bbbbbbbb......',
+  '...bbb..bbb......',
+  '...bbb..bbb......',
+  '...bbb..bbb......',
+  '..jjjj..jjjj.....',
+]
+
+// Pixel me, smiling, with a little hop now and then like an idling game character (index.css, .pixel-hop);
+// standing still with reduced motion.
+function PixelMe({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 17 25" shapeRendering="crispEdges" className={className}>
+      <g className="pixel-hop">
+        {PIXEL_ME.flatMap((row, y) =>
+          [...row].flatMap((ch, x) => (ch === '.' ? [] : [<rect key={`${x},${y}`} x={x} y={y} width={1} height={1} fill={PIXEL_ME_COLOURS[ch]} />])),
+        )}
+      </g>
+    </svg>
+  )
+}
+
 // The Plink pair (its tile and the Piggy Bank study) framed in the page's darkest colour, as one set.
 const PLINK_FRAME = 'ring-2 ring-page-bg'
 
@@ -481,13 +538,17 @@ function PlinkBeta() {
         rel="noreferrer"
         className={`group/card relative grid overflow-hidden rounded-3xl bg-band ${PLINK_FRAME} min-[690px]:min-h-28 min-[690px]:grid-cols-[1fr_auto]`}
       >
-        <span className="flex flex-col justify-center px-6 py-5 pr-20 sm:px-8 min-[690px]:pr-8">
-          <span className="font-display block text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">
-            I made the case study into a real iOS app!
+        {/* Pixel me (from my LinkedIn banner), smiling at the bottom edge, saying the headline. */}
+        <span className="flex items-end gap-3 px-5">
+          <PixelMe className="mt-3 h-[100px] w-[68px] shrink-0" />
+          <span className="flex min-w-0 flex-col justify-center self-center py-5">
+            <span className="font-display block text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">
+              I made the case study into a real iOS app!
+            </span>
+            <span className="mt-1 block text-base leading-snug text-white/60">Be a beta tester, or have a look.</span>
           </span>
-          <span className="mt-1 block text-base leading-snug text-white/60">Be a beta tester, or have a look.</span>
         </span>
-        <span className="relative flex min-h-28 items-center justify-center gap-5 bg-[#ffcce5] px-6 py-4 min-[690px]:px-10">
+        <span className="relative flex min-h-28 items-center justify-center gap-4 bg-[#ffcce5] px-6 py-4 min-[690px]:px-5">
           <img src="/work/images/plink-logo.svg" alt="Plink" className="h-12 w-auto transition-transform duration-500 group-hover/card:-rotate-3 md:h-14" />
           {/* The pig winks on hover or focus: its eyes-shut drawing over it for a moment (index.css, .plink-wink). */}
           <span className="relative block transition-transform duration-500 group-hover/card:scale-105">

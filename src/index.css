@@ -306,3 +306,14 @@ main:focus {
     transition: none;
   }
 }
+
+/* Pixel me on the Plink tile (BentoGrid.tsx) hops one pixel now and then, like an idling game character. */
+@keyframes pixel-hop {
+  0%, 82%, 100% { transform: translateY(0); }
+  86%, 94% { transform: translateY(-1px); }
+  90% { transform: translateY(-2px); }
+}
+.pixel-hop { animation: pixel-hop 2.8s steps(1, end) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pixel-hop { animation: none; }
+}
