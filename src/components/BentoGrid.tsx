@@ -1,4 +1,4 @@
-import { Fragment, useId, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { workItems, type AppTile, type CaseStudyTile as CaseStudyItem, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
@@ -103,6 +103,7 @@ function ImageTile({
   impact,
   priority = false,
   mockupBackground,
+  frame = '',
 }: {
   title: string
   kind: string
@@ -119,6 +120,8 @@ function ImageTile({
   // Set when `image` is a transparent device mockup: shown whole on this
   // background instead of cropped to fill.
   mockupBackground?: string
+  // Extra classes for the tile's frame (an outline), e.g. the Piggy Bank study's.
+  frame?: string
 }) {
   // Link is named by just its title + kind ("Piggy Bank, Case study")
   // and described by its goal and impact, instead of its entire text
@@ -169,7 +172,7 @@ function ImageTile({
   )
 
   const content = wide ? (
-    <div className="relative overflow-hidden rounded-3xl bg-[#1c1a17] ring-1 ring-white/15 min-[690px]:grid min-[690px]:min-h-[340px] min-[690px]:grid-cols-2">
+    <div className={`relative overflow-hidden rounded-3xl bg-band ${frame} min-[690px]:grid min-[690px]:min-h-[340px] min-[690px]:grid-cols-2`}>
       <div className="relative h-[280px] overflow-hidden bg-textbox min-[690px]:h-auto" style={background}>
         {picture}
       </div>
@@ -178,10 +181,10 @@ function ImageTile({
     </div>
   ) : (
     <>
-      <div className="relative min-h-[340px] overflow-hidden rounded-3xl bg-textbox ring-1 ring-white/15" style={background}>
+      <div className="relative min-h-[340px] overflow-hidden rounded-3xl bg-textbox" style={background}>
         {picture}
         <div
-          className="absolute inset-0 z-10 flex translate-y-6 flex-col justify-end bg-[#1c1a17]/92 p-6 opacity-0 backdrop-blur-sm transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100 sm:p-8 [@media(hover:none)]:hidden"
+          className="absolute inset-0 z-10 flex translate-y-6 flex-col justify-end bg-band/92 p-6 opacity-0 backdrop-blur-sm transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100 sm:p-8 [@media(hover:none)]:hidden"
         >
           {panel}
         </div>
@@ -210,7 +213,17 @@ function ImageTile({
   )
 }
 
-function CaseStudyTile({ item, wide = false, priority = false }: { item: CaseStudyItem; wide?: boolean; priority?: boolean }) {
+function CaseStudyTile({
+  item,
+  wide = false,
+  priority = false,
+  frame,
+}: {
+  item: CaseStudyItem
+  wide?: boolean
+  priority?: boolean
+  frame?: string
+}) {
   return (
     <ImageTile
       title={item.title}
@@ -223,6 +236,7 @@ function CaseStudyTile({ item, wide = false, priority = false }: { item: CaseStu
       impact={impactBySlug[item.slug]}
       mockupBackground={item.mockupBackground}
       priority={priority}
+      frame={frame}
     />
   )
 }
@@ -257,7 +271,7 @@ function VideoSquare({
       onFocus={play}
       className="group flex flex-col rounded-3xl text-left"
     >
-      <div className={`relative h-[340px] w-full overflow-hidden rounded-3xl ring-1 ring-white/15 ${bg}`}>
+      <div className={`relative h-[340px] w-full overflow-hidden rounded-3xl ${bg}`}>
       <div className="absolute inset-0 z-0 flex flex-col justify-start p-6">
         {/* text-ink, not text-white — this tile's `bg` is still a light
             pastel (rotates through TEXT_BG), unlike the image tiles' dark
@@ -322,7 +336,7 @@ function GameCell() {
       aria-labelledby={`${id}-eyebrow ${id}-title ${id}-newtab`}
       onMouseEnter={play}
       onFocus={play}
-      className="group min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark ring-1 ring-white/15 xl:flex-row xl:items-center"
+      className="group min-[690px]:col-span-2 flex flex-col items-center overflow-hidden rounded-3xl bg-game-dark xl:flex-row xl:items-center"
     >
       {/* Centered at every breakpoint now, not just below `xl` — this
           used to switch to left-aligned once the row layout kicked in,
@@ -427,6 +441,9 @@ function GameCell() {
 
 // A narrow banner over the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
 // its own site. In Plink's colours (its pink and its logo), not the portfolio's, as it's the app's own call.
+// The Plink pair (its tile and the Piggy Bank study) framed in the page's darkest colour, as one set.
+const PLINK_FRAME = 'ring-2 ring-page-bg'
+
 function PlinkBeta() {
   // The arrow runs from the Piggy Bank study's headline (under this banner, in the same band) up to the banner:
   // measured, as the headline's place depends on the tile's height. Side by side from 690px; on phones the tile
@@ -445,10 +462,16 @@ function PlinkBeta() {
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(document.body)
-    return () => ro.disconnect()
+    // The tiles fade in moving up (BentoGrid, .reveal): measure again once they've settled.
+    document.addEventListener('transitionend', measure)
+    return () => {
+      ro.disconnect()
+      document.removeEventListener('transitionend', measure)
+    }
   }, [])
   return (
-    <div ref={wrap} className="relative min-[690px]:col-span-2">
+    // z-20: above the Piggy Bank tile below, so the arrow reaching down to its headline shows on top of it.
+    <div ref={wrap} className="relative z-20 min-[690px]:col-span-2">
       {/* Split like the case-study tiles, but short: the words on the tiles' brown on the left, Plink's pink with its
           logo and pig on the right. */}
       <a
@@ -456,15 +479,15 @@ function PlinkBeta() {
         hrefLang="sv"
         target="_blank"
         rel="noreferrer"
-        className="group/card relative grid overflow-hidden rounded-3xl bg-[#1c1a17] ring-1 ring-white/15 min-[690px]:min-h-28 min-[690px]:grid-cols-2"
+        className={`group/card relative grid overflow-hidden rounded-3xl bg-band ${PLINK_FRAME} min-[690px]:min-h-28 min-[690px]:grid-cols-[1fr_auto]`}
       >
-        <span className="flex flex-col justify-center px-6 py-5 pr-20 sm:px-8">
+        <span className="flex flex-col justify-center px-6 py-5 pr-20 sm:px-8 min-[690px]:pr-8">
           <span className="font-display block text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">
             I made the case study into a real iOS app!
           </span>
           <span className="mt-1 block text-base leading-snug text-white/60">Be a beta tester, or have a look.</span>
         </span>
-        <span className="relative flex min-h-28 items-center justify-center gap-5 bg-[#ffcce5] px-6 py-4">
+        <span className="relative flex min-h-28 items-center justify-center gap-5 bg-[#ffcce5] px-6 py-4 min-[690px]:px-10">
           <img src="/work/images/plink-logo.svg" alt="Plink" className="h-12 w-auto transition-transform duration-500 group-hover/card:-rotate-3 md:h-14" />
           {/* The pig winks on hover or focus: its eyes-shut drawing over it for a moment (index.css, .plink-wink). */}
           <span className="relative block transition-transform duration-500 group-hover/card:scale-105">
@@ -473,7 +496,6 @@ function PlinkBeta() {
           </span>
         </span>
         <span className="sr-only">(opens in a new tab, in Swedish)</span>
-        <OpenArrow />
       </a>
       {arrow && (
         <PixelSwirl
@@ -543,6 +565,28 @@ export default function BentoGrid() {
   let textBgIndex = 0
   const nextBg = () => TEXT_BG[textBgIndex++ % TEXT_BG.length]
 
+  // Each card fades in moving up the first time it scrolls into view, the cards in a row one after the other
+  // (index.css, .reveal). Only once this has run, so without JS everything simply shows.
+  const grid = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const cards = [...(grid.current?.querySelectorAll<HTMLElement>('.bento-row > *') ?? [])]
+    cards.forEach((card) => {
+      card.classList.add('reveal')
+      card.style.transitionDelay = `${[...card.parentElement!.children].indexOf(card) * 90}ms`
+    })
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return
+          e.target.classList.add('revealed')
+          io.unobserve(e.target)
+        }),
+      { rootMargin: '0px 0px -8% 0px' },
+    )
+    cards.forEach((card) => io.observe(card))
+    return () => io.disconnect()
+  }, [])
+
   const squareStudies = caseStudies.filter((item) => !FEATURED.includes(item.slug) && item.slug !== 'promptkee')
 
   // One full-width band per row, alternating between the page colour and
@@ -554,7 +598,7 @@ export default function BentoGrid() {
     // Right after Midoma: the Plink banner and the Piggy Bank study it came from, together in one band.
     <Fragment key="plink">
       <PlinkBeta />
-      <CaseStudyTile item={bySlug(FEATURED[1])} wide />
+      <CaseStudyTile item={bySlug(FEATURED[1])} wide frame={PLINK_FRAME} />
     </Fragment>,
     <Fragment key="promptkee-apps">
       <CaseStudyTile item={bySlug('promptkee')} />
@@ -587,13 +631,13 @@ export default function BentoGrid() {
   ]
 
   return (
-    <div>
+    <div ref={grid}>
       {/* Screen-reader-only section heading so the tile titles (h3) sit
           under an h2 instead of jumping straight from the page's h1. */}
       <h2 className="sr-only">Projects</h2>
       {rows.map((row, i) => (
         <div key={i} className={i % 2 ? 'bg-band' : ''}>
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-14 px-6 py-10 min-[690px]:grid-cols-2 md:gap-x-10 md:px-10 md:py-14">
+          <div className="bento-row mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-14 px-6 py-10 min-[690px]:grid-cols-2 md:gap-x-10 md:px-10 md:py-14">
             {row}
           </div>
         </div>

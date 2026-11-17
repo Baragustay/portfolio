@@ -9,10 +9,9 @@ export default function GetInTouch({ className = '' }: { className?: string }) {
   return (
     <Link
       to="/about"
-      className={`group flex items-center justify-center gap-2.5 rounded-full bg-hover-yellow px-6 py-4 text-lg font-bold text-ink shadow-[0_8px_24px_rgba(236,213,143,0.18)] transition-[background-color,transform] hover:bg-hover-yellow/90 active:translate-y-px ${className}`}
+      className={`group flex items-center justify-center gap-2.5 rounded-full bg-white px-6 py-4 text-lg font-bold text-ink shadow-[0_8px_24px_rgba(240,238,233,0.12)] transition-[background-color,transform] hover:bg-white/90 active:translate-y-px ${className}`}
     >
       Get in touch
-      <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
     </Link>
   )
 }

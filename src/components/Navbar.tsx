@@ -160,7 +160,7 @@ export default function Navbar() {
               </li>
             ))}
             {/* The "get to know me" game, outlined rather than filled: the
-                filled yellow button is reserved for "Get in touch", the
+                filled off-white button is reserved for "Get in touch", the
                 one main call to action (GetInTouch.tsx).
                 Gamepad only below `sm`, so the bar still fits at 360px. */}
             <li className="ml-1 sm:ml-2">
