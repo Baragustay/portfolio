@@ -1,4 +1,4 @@
-import { Fragment, useId, useState } from 'react'
+import { Fragment, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { workItems, type AppTile, type CaseStudyTile as CaseStudyItem, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
@@ -425,6 +425,110 @@ function GameCell() {
   )
 }
 
+// A narrow banner over the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
+// its own site. In Plink's colours (its pink and its logo), not the portfolio's, as it's the app's own call.
+function PlinkBeta() {
+  // The arrow runs from the Piggy Bank study's headline (under this banner, in the same band) up to the banner:
+  // measured, as the headline's place depends on the tile's height. Side by side from 690px; on phones the tile
+  // stacks its image above the headline, so there's no arrow.
+  const wrap = useRef<HTMLDivElement>(null)
+  const [arrow, setArrow] = useState<{ left: number; height: number } | null>(null)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const box = wrap.current
+      const head = document.querySelector<HTMLElement>('a[href="/work/piggy-bank"] h3')
+      if (!box || !head || window.innerWidth < 690) return setArrow(null)
+      const b = box.getBoundingClientRect()
+      const h = head.getBoundingClientRect()
+      setArrow({ left: h.left - b.left, height: h.top - b.bottom - 14 })
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.body)
+    return () => ro.disconnect()
+  }, [])
+  return (
+    <div ref={wrap} className="relative min-[690px]:col-span-2">
+      {/* Split like the case-study tiles, but short: the words on the tiles' brown on the left, Plink's pink with its
+          logo and pig on the right. */}
+      <a
+        href="https://plink.barboragustafsson.com/"
+        hrefLang="sv"
+        target="_blank"
+        rel="noreferrer"
+        className="group/card relative grid overflow-hidden rounded-3xl bg-[#1c1a17] ring-1 ring-white/15 min-[690px]:min-h-28 min-[690px]:grid-cols-2"
+      >
+        <span className="flex flex-col justify-center px-6 py-5 pr-20 sm:px-8">
+          <span className="font-display block text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">
+            I made the case study into a real iOS app!
+          </span>
+          <span className="mt-1 block text-base leading-snug text-white/60">Be a beta tester, or have a look.</span>
+        </span>
+        <span className="relative flex min-h-28 items-center justify-center gap-5 bg-[#ffcce5] px-6 py-4">
+          <img src="/work/images/plink-logo.svg" alt="Plink" className="h-12 w-auto transition-transform duration-500 group-hover/card:-rotate-3 md:h-14" />
+          {/* The pig winks on hover or focus: its eyes-shut drawing over it for a moment (index.css, .plink-wink). */}
+          <span className="relative block transition-transform duration-500 group-hover/card:scale-105">
+            <img src="/work/images/plink-pig.svg" alt="" className="h-16 w-auto md:h-20" />
+            <img src="/work/images/plink-pig-wink.svg" alt="" className="plink-wink absolute inset-0 h-full w-full opacity-0" />
+          </span>
+        </span>
+        <span className="sr-only">(opens in a new tab, in Swedish)</span>
+        <OpenArrow />
+      </a>
+      {arrow && (
+        <PixelSwirl
+          className="pointer-events-none absolute top-full z-10 mt-2 text-hover-yellow"
+          style={{ left: arrow.left + 21 - (SWIRL_COLS / 2) * SWIRL_CELL }}
+          height={arrow.height}
+        />
+      )}
+    </div>
+  )
+}
+
+// A swirly pixel arrow pointing up, `height` tall: from the bottom it winds up through a loop to a pixel head at
+// the top, drawn as square cells (4 px) like the site's other pixel doodles.
+const SWIRL_CELL = 4
+const SWIRL_COLS = 25
+function PixelSwirl({ height, className, style }: { height: number; className?: string; style?: React.CSSProperties }) {
+  const rows = Math.max(12, Math.floor(height / SWIRL_CELL))
+  const mid = (SWIRL_COLS - 1) / 2
+  const cells = new Set<string>()
+  // The head: a 7 × 4 triangle at the top.
+  for (let r = 0; r < 4; r++) for (let c = -r; c <= r; c++) cells.add(`${mid + c},${r}`)
+  // The tail: up from the bottom, round a loop (a point on a turning circle whose centre rises), then straight up
+  // into the head. In 0–1 across and down the box.
+  const put = (x: number, y: number) => cells.add(`${Math.round(x * (SWIRL_COLS - 1))},${Math.round(y * (rows - 1))}`)
+  const r = 0.18
+  const rise = 0.5
+  const start = 0.97 - r
+  for (let i = 0; i <= 1600; i++) {
+    const a = (2 * Math.PI * i) / 1600
+    put(0.5 + r * Math.sin(a), start - (rise * i) / 1600 + r * Math.cos(a))
+  }
+  const end = start - rise + r
+  const neck = 4 / (rows - 1)
+  for (let i = 0; i <= 200; i++) put(0.5, end - ((end - neck) * i) / 200)
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox={`0 0 ${SWIRL_COLS} ${rows}`}
+      width={SWIRL_COLS * SWIRL_CELL}
+      height={rows * SWIRL_CELL}
+      fill="currentColor"
+      shapeRendering="crispEdges"
+      className={className}
+      style={style}
+    >
+      {[...cells].map((k) => {
+        const [x, y] = k.split(',').map(Number)
+        return <rect key={k} x={x} y={y} width={1} height={1} />
+      })}
+    </svg>
+  )
+}
+
 // Most important first.
 const FEATURED = ['midoma', 'piggy-bank']
 
@@ -446,7 +550,12 @@ export default function BentoGrid() {
   // ground. The two key studies lead as full-width tiles; everything else
   // follows as squares, two to a row, with the game in between.
   const rows = [
-    ...FEATURED.map((slug, i) => <CaseStudyTile key={slug} item={bySlug(slug)} wide priority={i === 0} />),
+    <CaseStudyTile key="midoma" item={bySlug(FEATURED[0])} wide priority />,
+    // Right after Midoma: the Plink banner and the Piggy Bank study it came from, together in one band.
+    <Fragment key="plink">
+      <PlinkBeta />
+      <CaseStudyTile item={bySlug(FEATURED[1])} wide />
+    </Fragment>,
     <Fragment key="promptkee-apps">
       <CaseStudyTile item={bySlug('promptkee')} />
       {apps.map((item) => (

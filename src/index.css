@@ -267,3 +267,21 @@ main:focus {
     scroll-behavior: auto !important;
   }
 }
+
+/* The Plink tile's pig winks once when the tile is hovered or focused (BentoGrid.tsx): its eyes-shut drawing shows
+   for a moment over the open one. With reduced motion, the eye just stays shut while hovered. */
+@keyframes plink-wink {
+  0%, 100% { opacity: 0; }
+  12%, 60% { opacity: 1; }
+}
+.group\/card:hover .plink-wink,
+.group\/card:focus-visible .plink-wink {
+  animation: plink-wink 0.55s ease-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .group\/card:hover .plink-wink,
+  .group\/card:focus-visible .plink-wink {
+    animation: none;
+    opacity: 1;
+  }
+}
