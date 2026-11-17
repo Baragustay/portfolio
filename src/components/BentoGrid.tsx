@@ -545,7 +545,16 @@ function PlinkBeta() {
             <span className="font-display block text-2xl leading-tight text-white transition-colors duration-300 group-hover/card:text-hover-yellow">
               I made the case study into a real iOS app!
             </span>
-            <span className="mt-1 block text-base leading-snug text-white/60">Be a beta tester, or have a look.</span>
+            <span className="mt-1 block text-base leading-snug text-white/60">
+              Have a look
+              {/* On hover or keyboard focus, an arrow slides in after it. */}
+              <span
+                aria-hidden="true"
+                className="ml-1.5 inline-block -translate-x-1 opacity-0 transition-[opacity,translate] duration-300 group-hover/card:translate-x-0 group-hover/card:opacity-100 group-focus-visible/card:translate-x-0 group-focus-visible/card:opacity-100"
+              >
+                →
+              </span>
+            </span>
           </span>
         </span>
         <span className="relative flex min-h-28 items-center justify-center gap-4 bg-[#ffcce5] px-6 py-4 min-[690px]:px-5">
