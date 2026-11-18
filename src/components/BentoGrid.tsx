@@ -172,7 +172,7 @@ function ImageTile({
   )
 
   const content = wide ? (
-    <div className={`relative overflow-hidden rounded-3xl bg-band ${frame} min-[690px]:grid min-[690px]:min-h-[340px] min-[690px]:grid-cols-2`}>
+    <div className={`relative overflow-hidden rounded-3xl ${frame ? 'bg-page-bg' : 'bg-band'} ${frame} min-[690px]:grid min-[690px]:min-h-[340px] min-[690px]:grid-cols-2`}>
       <div className="relative h-[280px] overflow-hidden bg-textbox min-[690px]:h-auto" style={background}>
         {picture}
       </div>
@@ -441,7 +441,7 @@ function GameCell() {
 
 // A narrow banner over the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
 // its own site. In Plink's colours (its pink and its logo), not the portfolio's, as it's the app's own call.
-// The Plink pair (its tile and the Piggy Bank study) framed in the page's darkest colour, as one set.
+// The Plink pair (its tile and the Piggy Bank study) on the page's darkest colour, and framed in it, as one set.
 const PLINK_FRAME = 'ring-2 ring-page-bg'
 
 function PlinkBeta() {
@@ -479,7 +479,7 @@ function PlinkBeta() {
         hrefLang="sv"
         target="_blank"
         rel="noreferrer"
-        className={`group/card relative grid overflow-hidden rounded-3xl bg-band ${PLINK_FRAME} min-[690px]:min-h-28 min-[690px]:grid-cols-[auto_1fr]`}
+        className={`group/card relative grid overflow-hidden rounded-3xl bg-page-bg ${PLINK_FRAME} min-[690px]:min-h-28 min-[690px]:grid-cols-[auto_1fr]`}
       >
         <span className="relative flex min-h-28 items-center justify-center gap-4 bg-[#ffcce5] px-6 py-4 min-[690px]:px-5">
           <img src="/work/images/plink-logo.svg" alt="Plink" className="h-12 w-auto transition-transform duration-500 group-hover/card:-rotate-3 md:h-14" />
