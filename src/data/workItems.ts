@@ -141,7 +141,7 @@ export const workItems: WorkTile[] = [
       'Brand colors chosen for contrast and older eyes',
       'A complete brand system: logo, favicon, palette and typography',
     ],
-    year: '2024',
+    year: '2023',
     tags: ['Branding', 'UX Research', 'Competitor Analysis', 'Personas'],
     image: '/work/images/solidhomes-thumb.webp',
   },

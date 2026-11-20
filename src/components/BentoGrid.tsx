@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { workItems, type AppTile, type CaseStudyTile as CaseStudyItem, type VideoTile } from '../data/workItems'
 import { PixelArrow, PixelPlay } from './Doodles'
@@ -56,7 +56,7 @@ function OpenArrow() {
 function ImpactDescription({ impact, id }: { impact: Impact; id: string }) {
   return (
     <span id={id} className="sr-only">
-      {impact.label}: {impact.highlight} {impact.summary}
+      {impact.card ? `${impact.card.highlight} ${impact.card.summary}` : `${impact.label}: ${impact.highlight} ${impact.summary}`}
     </span>
   )
 }
@@ -144,8 +144,13 @@ function ImageTile({
         // homepage (the LCP candidate), so it loads eagerly and at high
         // priority; everything else stays lazy.
         loading={priority ? 'eager' : 'lazy'}
-        decoding="async"
+        // The first tile's picture is decoded before the card paints, so a phone never shows its empty
+        // background first; the rest decode off the main thread.
+        decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : undefined}
+        // The file's own size, so the browser knows its shape before it arrives (the box's height is set anyway).
+        width={priority ? 1600 : undefined}
+        height={priority ? 1000 : undefined}
         className={`absolute inset-0 h-full w-full transition-transform duration-[1100ms] ease-in-out group-hover/card:scale-105 ${
           mockupBackground ? 'object-contain p-6 sm:p-8' : `object-cover ${imageOrigin}`
         }`}
@@ -163,8 +168,8 @@ function ImageTile({
       </Headline>
       {impact && (
         <p className="mt-4 text-base leading-snug text-white/80 sm:text-lg">
-          <span className="font-display mb-2 block text-3xl leading-none text-hover-yellow">{impact.highlight}</span>
-          {impact.summary}
+          <span className="font-display mb-2 block text-3xl leading-none text-hover-yellow">{(impact.card ?? impact).highlight}</span>
+          {(impact.card ?? impact).summary}
         </p>
       )}
       <p className="mt-4 text-sm font-medium text-white/60">{meta}</p>
@@ -439,39 +444,14 @@ function GameCell() {
   )
 }
 
-// A narrow banner over the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
+// A narrow banner under the Piggy Bank study: that app is Plink, now in beta, so it asks for testers and links to
 // its own site. In Plink's colours (its pink and its logo), not the portfolio's, as it's the app's own call.
 // The Plink pair (its tile and the Piggy Bank study) on the page's darkest colour, and framed in it, as one set.
 const PLINK_FRAME = 'ring-2 ring-page-bg'
 
 function PlinkBeta() {
-  // The arrow runs from the Piggy Bank study's headline (under this banner, in the same band) up to the banner:
-  // measured, as the headline's place depends on the tile's height. Side by side from 690px; on phones the tile
-  // stacks its image above the headline, so there's no arrow.
-  const wrap = useRef<HTMLDivElement>(null)
-  const [arrow, setArrow] = useState<{ left: number; height: number } | null>(null)
-  useLayoutEffect(() => {
-    const measure = () => {
-      const box = wrap.current
-      const head = document.querySelector<HTMLElement>('a[href="/work/piggy-bank"] h3')
-      if (!box || !head || window.innerWidth < 690) return setArrow(null)
-      const b = box.getBoundingClientRect()
-      const h = head.getBoundingClientRect()
-      setArrow({ left: h.left - b.left, height: h.top - b.bottom - 14 })
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(document.body)
-    // The tiles fade in moving up (BentoGrid, .reveal): measure again once they've settled.
-    document.addEventListener('transitionend', measure)
-    return () => {
-      ro.disconnect()
-      document.removeEventListener('transitionend', measure)
-    }
-  }, [])
   return (
-    // z-20: above the Piggy Bank tile below, so the arrow reaching down to its headline shows on top of it.
-    <div ref={wrap} className="relative z-20 min-[690px]:col-span-2">
+    <div className="min-[690px]:col-span-2">
       {/* Split like the case-study tiles, but short: Plink's pink with its logo and pig on the left, as the
           tiles have their pictures, the words on the tiles' brown on the right. */}
       <a
@@ -508,57 +488,7 @@ function PlinkBeta() {
         </span>
         <span className="sr-only">(opens in a new tab, in Swedish)</span>
       </a>
-      {arrow && (
-        <PixelSwirl
-          className="pointer-events-none absolute top-full z-10 mt-2 text-hover-yellow"
-          style={{ left: arrow.left + 21 - (SWIRL_COLS / 2) * SWIRL_CELL }}
-          height={arrow.height}
-        />
-      )}
     </div>
-  )
-}
-
-// A swirly pixel arrow pointing up, `height` tall: from the bottom it winds up through a loop to a pixel head at
-// the top, drawn as square cells (4 px) like the site's other pixel doodles.
-const SWIRL_CELL = 4
-const SWIRL_COLS = 25
-function PixelSwirl({ height, className, style }: { height: number; className?: string; style?: React.CSSProperties }) {
-  const rows = Math.max(12, Math.floor(height / SWIRL_CELL))
-  const mid = (SWIRL_COLS - 1) / 2
-  const cells = new Set<string>()
-  // The head: a 7 × 4 triangle at the top.
-  for (let r = 0; r < 4; r++) for (let c = -r; c <= r; c++) cells.add(`${mid + c},${r}`)
-  // The tail: up from the bottom, round a loop (a point on a turning circle whose centre rises), then straight up
-  // into the head. In 0–1 across and down the box.
-  const put = (x: number, y: number) => cells.add(`${Math.round(x * (SWIRL_COLS - 1))},${Math.round(y * (rows - 1))}`)
-  const r = 0.18
-  const rise = 0.5
-  const start = 0.97 - r
-  for (let i = 0; i <= 1600; i++) {
-    const a = (2 * Math.PI * i) / 1600
-    put(0.5 + r * Math.sin(a), start - (rise * i) / 1600 + r * Math.cos(a))
-  }
-  const end = start - rise + r
-  const neck = 4 / (rows - 1)
-  for (let i = 0; i <= 200; i++) put(0.5, end - ((end - neck) * i) / 200)
-  return (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      viewBox={`0 0 ${SWIRL_COLS} ${rows}`}
-      width={SWIRL_COLS * SWIRL_CELL}
-      height={rows * SWIRL_CELL}
-      fill="currentColor"
-      shapeRendering="crispEdges"
-      className={className}
-      style={style}
-    >
-      {[...cells].map((k) => {
-        const [x, y] = k.split(',').map(Number)
-        return <rect key={k} x={x} y={y} width={1} height={1} />
-      })}
-    </svg>
   )
 }
 
@@ -606,10 +536,10 @@ export default function BentoGrid() {
   // follows as squares, two to a row, with the game in between.
   const rows = [
     <CaseStudyTile key="midoma" item={bySlug(FEATURED[0])} wide priority />,
-    // Right after Midoma: the Plink banner and the Piggy Bank study it came from, together in one band.
+    // Right after Midoma: the Piggy Bank study and, under it, the Plink banner for the app it became, together in one band.
     <Fragment key="plink">
-      <PlinkBeta />
       <CaseStudyTile item={bySlug(FEATURED[1])} wide frame={PLINK_FRAME} />
+      <PlinkBeta />
     </Fragment>,
     <Fragment key="promptkee-apps">
       <CaseStudyTile item={bySlug('promptkee')} />

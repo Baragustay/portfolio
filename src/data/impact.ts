@@ -19,6 +19,10 @@ export type Impact = {
   points: string[]
   // Honest caveat about how solid the evidence is.
   note?: string
+  // The homepage tile only: a measured fact to lead with instead of the
+  // expected `highlight`, which stays on the case study page. Read by
+  // screen readers without `label`.
+  card?: { highlight: string; summary: string }
 }
 
 export const impactBySlug: Record<string, Impact> = {
@@ -31,12 +35,16 @@ export const impactBySlug: Record<string, Impact> = {
       'More interest in saving: children see each piggy fill up toward their own goals',
       'More responsibility: children decide where their money goes, guided by audio and color instead of text',
     ],
-    note: 'Expected, not measured: this is a design exploration, not a built app. Based on talks with 5 parents and a guided demo where all 3 children wanted the app for real.',
+    note: 'Expected, not measured: when I did this study, it was a design exploration, not a built app. Based on talks with 5 parents and a guided demo where all 3 children wanted the app for real.',
   },
   midoma: {
     label: 'Expected impact',
     highlight: '~30% fewer calls',
     summary: 'expected at first, as tenants find answers themselves, and a company new clients can find on Google and in AI search',
+    card: {
+      highlight: '1,010 test scenarios',
+      summary: 'run before launch, so tenants and owners of all ages can use both sites, from phone to desktop and with a screen reader',
+    },
     points: [
       'Happier tenants: what they need to know is on their phone, any time',
       'Fewer phone calls: an estimated 30% fewer at first about things tenants can look up themselves, like what’s in their contracts',

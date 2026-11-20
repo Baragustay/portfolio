@@ -216,7 +216,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'Children want to handle money, but parents no longer carry coins',
         paragraphs: [
-          'This was a personal design exploration, not an app meant for development. I wanted to practice designing for young children and learn what is specific to that kind of work, so I designed the child’s side of a money-saving app, from research to a tested prototype.',
+          'When I did this study, it was a personal design exploration, not an app meant for development. I wanted to practice designing for young children and learn what is specific to that kind of work, so I designed the child’s side of a money-saving app, from research to a tested prototype.',
           'I defined the questions I wanted the design to answer:',
         ],
         bullets: [
@@ -327,6 +327,14 @@ export const caseStudies: CaseStudy[] = [
         ],
         images: ['/work/images/piggy-bank-4.webp'],
       },
+      {
+        heading: 'What happened next: I built it',
+        paragraphs: [
+          'I designed and built the full app myself in React Native, including the parent side the study left as a concept.',
+          'It’s now an iOS app called Plink, in beta on TestFlight with 4 testers.',
+          'See it at [plink.barboragustafsson.com](https://plink.barboragustafsson.com) (in Swedish).',
+        ],
+      },
     ],
   },
   {
@@ -369,7 +377,7 @@ export const caseStudies: CaseStudy[] = [
         chapter: { title: 'The brief', nav: 'Brief' },
         heading: 'A forced name change was the chance to rebuild an outdated website',
         paragraphs: [
-          'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress in 2024, early in my UX journey, which you can read about in the [SolidHomes case study](/work/solidhomes). That website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
+          'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress in 2023, early in my UX journey, which you can read about in the [SolidHomes case study](/work/solidhomes). That website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
           'I didn’t start from zero: I reused the user research, competitor research and stakeholder interviews I had done for the original website, and applied them with better design thinking, more refined skills and a much faster tech stack.',
           'The website has two kinds of users. Owners of apartment buildings, often families, are choosing a company to trust with their property. Tenants of those buildings want to report a fault, find a phone number or read a notice, quickly. Many of them are older.',
           'I defined the design and business goals I wanted to achieve with the project:',
@@ -390,10 +398,10 @@ export const caseStudies: CaseStudy[] = [
         ],
       },
       {
-        heading: 'The foundations grew into 11 documented components',
+        heading: '23 documented components across two sites (13 on midoma.cz, 10 on the tenant portal), built on one shared foundation',
         paragraphs: [
           'I combined these foundations into components, like buttons, cards and the header, and then into patterns like the bento home page. Every component documents its rules, what a page must provide and what not to do.',
-          { type: 'image', src: '/work/images/midoma-strip.webp', alt: 'How the system builds up: tokens, then 11 components, then patterns such as the bento home page, the menu and the page header, then the two websites' },
+          { type: 'image', src: '/work/images/midoma-strip.webp', alt: 'How the system builds up: tokens, then 23 components, then patterns such as the bento home page, the menu and the page header, then the two websites' },
           { type: 'image', src: '/work/images/midoma-components.webp', alt: 'Live components from both sites: the header with page title, bento tiles, a step list, a notice card, the AskUs box and the orange main button' },
         ],
       },
@@ -470,7 +478,7 @@ export const caseStudies: CaseStudy[] = [
         bullets: [
           'Company: both sites publish a plain-language summary for AI assistants (llms.txt).',
           'Developers: the system is built from the code, so what is documented is what is live.',
-          'Owners and tenants: both sites score 100 for accessibility, SEO and best practices, with performance at 95–100.',
+          'Owners and tenants: both sites score 100 for accessibility, SEO and best practices, with performance at 100 on desktop and 97–99 on phones.',
         ],
       },
       {
@@ -710,7 +718,7 @@ export const caseStudies: CaseStudy[] = [
     tagline: 'Building trust for a family property business with no online presence',
     intro:
       'SolidHomes is a property management company in Prague that had no brand when I started. The stakeholders knew they needed to grow, but not who they wanted to reach. This case study covers the research and the branding: how interviews, a benchmark and three logo concepts turned that uncertainty into a clear brand.',
-    year: '2024',
+    year: '2023',
     role: 'Designer: research and brand identity',
     duration: '14 days',
     tools: ['Figma', 'Illustrator'],
