@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { m, type Variants } from 'framer-motion'
 import { Link, useParams } from 'react-router-dom'
 import ImageRow from '../components/ImageRow'
@@ -150,8 +150,10 @@ function TabletVideo({ src, caption }: { src: string; caption?: string }) {
 // only ever at the end of a whole section.
 // `[text](/path)` inside a paragraph or bullet becomes a site link, e.g. one
 // case study pointing to another. `[text](https://…)` links out, in a new
-// tab, e.g. a source.
-const INLINE_LINK = /\[([^\]]+)\]\(((?:\/|https:\/\/)[^)\s]*)\)/g
+// tab, e.g. a source. A language note right after an outside link, as in
+// `[text](https://…) (in Swedish)`, joins the screen-reader note, so it's
+// read as one "(opens in a new tab, in Swedish)" instead of two brackets.
+const INLINE_LINK = /\[([^\]]+)\]\(((?:\/|https:\/\/)[^)\s]*)\)(?: \((in [A-Z][a-z]+)\))?/g
 
 function withLinks(text: string) {
   const parts: React.ReactNode[] = []
@@ -161,14 +163,20 @@ function withLinks(text: string) {
     const linkClass = 'font-semibold text-ink underline decoration-2 underline-offset-4 hover:decoration-ink/40'
     parts.push(
       match[2].startsWith('/') ? (
-        <Link key={match.index} to={match[2]} className={linkClass}>
-          {match[1]}
-        </Link>
+        <Fragment key={match.index}>
+          <Link to={match[2]} className={linkClass}>
+            {match[1]}
+          </Link>
+          {match[3] && ` (${match[3]})`}
+        </Fragment>
       ) : (
-        <a key={match.index} href={match[2]} target="_blank" rel="noreferrer" className={linkClass}>
-          {match[1]}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
+        <Fragment key={match.index}>
+          <a href={match[2]} target="_blank" rel="noreferrer" className={linkClass}>
+            {match[1]}
+            <span className="sr-only"> (opens in a new tab{match[3] ? `, ${match[3]}` : ''})</span>
+          </a>
+          {match[3] && <span aria-hidden="true"> ({match[3]})</span>}
+        </Fragment>
       ),
     )
     last = match.index + match[0].length
