@@ -136,6 +136,9 @@ export type Section = {
 }
 
 export type CaseStudy = {
+  // Landscape images in the wide area all fill its full width, so they line up
+  // at one width (Midoma). Otherwise they're sized by height, as before.
+  fillWideImages?: boolean
   slug: string
   title: string
   tagline: string
@@ -339,6 +342,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'midoma',
+    fillWideImages: true,
     title: 'Midoma: redesign and design system for a growing company',
     tagline: 'A design system built to grow with the company, across two websites',
     intro:

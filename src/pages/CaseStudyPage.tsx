@@ -380,7 +380,7 @@ function ClickThrough({ block, ui }: { block: Extract<ParagraphBlock, { type: 'c
 // A detailed diagram, too small to read in the text column: clicking it opens
 // it at full size over the page (a native <dialog>: Esc, the close button or a
 // click anywhere, the diagram included, closes it, and focus returns to it).
-function ZoomableDiagram({ src, alt, ui }: { src: string; alt: string; ui: UiText }) {
+function ZoomableDiagram({ src, alt, ui, fill }: { src: string; alt: string; ui: UiText; fill: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null)
   return (
     <div className={WIDE}>
@@ -389,9 +389,15 @@ function ZoomableDiagram({ src, alt, ui }: { src: string; alt: string; ui: UiTex
           type="button"
           onClick={() => dialog.current?.showModal()}
           aria-label={`${ui.zoom}: ${alt}`}
-          className="group relative mx-auto block w-max cursor-zoom-in rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink md:w-full"
+          className={`group relative mx-auto block cursor-zoom-in rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink ${fill ? 'w-max md:w-full' : ''}`}
         >
-          <img src={src} alt="" loading="lazy" decoding="async" className="w-[900px] max-w-none md:w-full" />
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className={`w-[900px] max-w-none ${fill ? 'md:w-full' : 'md:max-h-[85vh] md:w-auto md:max-w-full'}`}
+          />
           <span className="absolute right-3 top-3 rounded-full bg-ink/80 px-3 py-1.5 text-sm font-medium text-white opacity-90 transition-opacity group-hover:opacity-100">
             {ui.zoom}
           </span>
@@ -416,18 +422,18 @@ function ZoomableDiagram({ src, alt, ui }: { src: string; alt: string; ui: UiTex
   )
 }
 
-function ParagraphContent({ block, studyTitle, ui }: { block: ParagraphBlock; studyTitle: string; ui: UiText }) {
+function ParagraphContent({ block, studyTitle, ui, fill = false }: { block: ParagraphBlock; studyTitle: string; ui: UiText; fill?: boolean }) {
   if (typeof block === 'string') {
     return <p className="text-base leading-relaxed text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
     if (block.wideDiagram) {
-      return <ZoomableDiagram src={block.src} alt={block.alt ?? studyTitle} ui={ui} />
+      return <ZoomableDiagram src={block.src} alt={block.alt ?? studyTitle} ui={ui} fill={fill} />
     }
     return block.small ? (
       <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={360} />
     ) : (
-      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} fill />
+      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} fill={fill} />
     )
   }
   if (block.type === 'clickThrough') return <ClickThrough block={block} ui={ui} />
@@ -1032,7 +1038,7 @@ export default function CaseStudyPage() {
               )}
               <div className="mt-4 space-y-6">
                 {section.paragraphs.map((block, i) => (
-                  <ParagraphContent key={i} block={block} studyTitle={study.title} ui={ui} />
+                  <ParagraphContent key={i} block={block} studyTitle={study.title} ui={ui} fill={study.fillWideImages} />
                 ))}
               </div>
               {section.quote && (
@@ -1063,7 +1069,7 @@ export default function CaseStudyPage() {
                   alt={`${study.title} - ${section.heading} screenshot`}
                   maxHeight={section.imagesMaxHeight}
                   className={WIDE}
-                  fill
+                  fill={study.fillWideImages}
                 />
               )}
               {section.carousel && (
