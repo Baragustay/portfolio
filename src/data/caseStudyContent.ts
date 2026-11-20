@@ -345,7 +345,7 @@ export const caseStudies: CaseStudy[] = [
       'Midoma is a growing Prague property company with plans to expand into new branches. It needed a website for property owners (midoma.cz), a portal for tenants, and a design system that keeps every future part of the brand consistent, even when new designers join.',
     year: '2026',
     role: 'Solo: UX, design system and development, with Claude Code',
-    duration: '10 days',
+    duration: '10 days (a rebuild)',
     tools: ['Figma', 'Claude Code', 'Astro', 'React', 'Tailwind'],
     heroImage: '/work/images/midoma-hero.webp',
     hero: {
@@ -379,7 +379,6 @@ export const caseStudies: CaseStudy[] = [
         paragraphs: [
           'Midoma used to be called SolidHomes. I created its brand and built its first website in WordPress in 2023, early in my UX journey, which you can read about in the [SolidHomes case study](/work/solidhomes). That website had become a problem. Over time it stopped looking professional, and it needed constant updates. The tipping point came when the company had to change its name because of competition. Instead of putting a new name on an old site, I decided to rebuild it from the ground up.',
           'I didn’t start from zero: I reused the user research, competitor research and stakeholder interviews I had done for the original website, and applied them with better design thinking, more refined skills and a much faster tech stack.',
-          'The website has two kinds of users. Owners of apartment buildings, often families, are choosing a company to trust with their property. Tenants of those buildings want to report a fault, find a phone number or read a notice, quickly. Many of them are older.',
           'I defined the design and business goals I wanted to achieve with the project:',
         ],
         bullets: [
@@ -389,11 +388,18 @@ export const caseStudies: CaseStudy[] = [
         images: ['/work/images/midoma-before-after.webp'],
       },
       {
+        heading: '2 kinds of users: tenants and owners',
+        paragraphs: [
+          'Owners of apartment buildings, often families, are choosing a company to trust with their property. Tenants of those buildings want to report a fault, find a phone number or read a notice, quickly. Many of them are older.',
+        ],
+      },
+      {
         chapter: { title: 'The design system', nav: 'Design system' },
-        heading: 'I started with foundations: every color named by its job',
+        heading: 'Foundations: colors are named by their jobs',
         paragraphs: [
           'One major design constraint I had to take into account was that the logo and its green had to stay. The structure and content of the old site were also working well, so I kept them and focused on the details.',
-          'I defined the basic building blocks: typography, colors and corners. Every color got one job and a name that says what it is, not how it looks: cta for the main action only, form for every form, emergency for emergencies only and tile-domsys for the DOMSYS tile only. This way a new designer knows where a color may go before using it.',
+          { type: 'image', src: '/work/images/midoma-logo-figure.webp', alt: 'The Midoma Správa logo: a green leaf with a white house, next to the name Midoma and the word Správa', small: true },
+          'I defined the basic building blocks: typography, colors and corners. Every color got one job and a name that says what it is, not how it looks: cta for the main action only, form for every form, emergency for emergencies only and tile-domsys for the DOMSYS tile only (DOMSYS is the app where tenants report faults, send requests and see their rent payments). This way a new designer knows where a color may go before using it.',
           { type: 'image', src: '/work/images/midoma-foundations-v2.webp', alt: 'Foundations sheet: Manrope for headings and Overpass for text with the type scale from 48 px page titles to 15 px small text, color swatches named by their job and grouped as brand (interactive, label, cta, text), one job each (form, domsys, emergency, text-secondary) and grounds and tiles (page, tile, tile-domsys, tile-emergency), and corner radii of 12, 20, 32 px and pill' },
         ],
       },
@@ -406,7 +412,7 @@ export const caseStudies: CaseStudy[] = [
         ],
       },
       {
-        heading: 'The system took many rounds, not one straight pass',
+        heading: 'The system took many rounds',
         paragraphs: [
           'Getting to these foundations wasn’t straightforward. I went back and forth on the colors, and experimented with the corner radius until each size had a clear use: 12 px for fields, 20 px for cards and tiles, 32 px for panels and pills for buttons.',
           'The tenant portal alone took about 50 rounds of changes. It had to stay on brand, with the same logo, type and orange call to action, without becoming a copy of midoma.cz, because tenants come with a different job than owners.',
@@ -427,7 +433,7 @@ export const caseStudies: CaseStudy[] = [
               { src: '/work/videos/midoma-tenants.mp4', caption: 'Tenant portal: the fastest way to find information' },
             ],
           },
-          'Here is how a tenant with a question finds the answer on the portal. If they still need the office, every page except emergencies nudges them to write first, through a form, e-mail or the DOMSYS app, rather than call, to lower the load on property managers. The phone number is still on every page, so the switch from calling is easier and tenants can choose. In an emergency, calling comes first:',
+          'User flow: a tenant finding information on the website instead of calling the managers.',
           {
             type: 'image',
             src: '/work/images/midoma-tenant-flow.webp',
@@ -451,24 +457,11 @@ export const caseStudies: CaseStudy[] = [
       },
       {
         chapter: { title: 'Built and tested with AI', nav: 'AI' },
-        heading: 'AI-assisted UX and development: from prompts to rules to a design system',
+        heading: 'My workflow for AI-assisted UX and development',
         paragraphs: [
           'I started by writing a product requirements document (PRD) with Claude in chat. Then I moved to Claude Code, rebuilt the old site one-to-one and redesigned it one prompt at a time. Every decision became a written rule that the next change had to follow, and over time these rules became the design system.',
           'Before building the tenant portal, I also asked Claude to review the plan from three points of view: a tenant in a hurry, a first-time tenant and a manager. Accessibility audits followed every round of changes.',
-        ],
-      },
-      {
-        heading: '1,010 synthetic test scenarios found issues before publishing',
-        paragraphs: [
-          'With almost no real traffic yet, I asked Claude to test the sites the way real people do. It ran 1,010 scenarios in four suites: screens (550 combinations of page and screen size, from 320 to 1920 px and at 200% zoom), odd addresses, form fuzzing (filling the forms with random and invalid input) and quiz paths. On top of that, it walked five personas through real tasks, among them Jarmila, 72, and Petr, who uses a screen reader.',
           { type: 'image', src: '/work/images/midoma-testing.webp', alt: 'What synthetic testing found: issues across screen sizes, forms, the quiz and five personas' },
-          'The AI found the issues, but I decided what to fix:',
-        ],
-        bullets: [
-          'Fixed: the Back button left the quiz and lost every answer.',
-          'Fixed: screen readers read whole cards as one paragraph.',
-          'Not changed: moving the emergency tile higher. I want to test this with real tenants first.',
-          'After the fixes, all 11 re-tests passed.',
         ],
       },
       {

@@ -23,6 +23,7 @@ export default function ImageRow({
   alt = '',
   maxHeight: maxHeightProp,
   className = '',
+  fill = false,
 }: {
   srcs: string[]
   alt?: string
@@ -30,6 +31,10 @@ export default function ImageRow({
   // for a specific image that should render smaller than the default.
   maxHeight?: number
   className?: string
+  // In the wide area: a landscape row always fills the full width, so every
+  // wide image on a page lines up at the same width. Height limits are
+  // ignored for it; tall rows (phone screens) keep them.
+  fill?: boolean
 }) {
   // Without an explicit ceiling, images may grow with the screen (up to
   // 80% of its height), so a full-width row on a big monitor isn't
@@ -86,7 +91,7 @@ export default function ImageRow({
     const totalGap = GAP * (srcs.length - 1)
     const sumRatios = ratios.reduce((sum, r) => sum + r, 0)
     const fitHeight = (containerWidth - totalGap) / sumRatios
-    height = Math.min(maxHeight, fitHeight, naturalHeight)
+    height = fill && sumRatios >= 1 ? fitHeight : Math.min(maxHeight, fitHeight, naturalHeight)
   }
 
   return (

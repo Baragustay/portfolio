@@ -33,6 +33,8 @@ const UI_TEXT = {
     duration: 'Duration',
     tools: 'Tools',
     swipe: 'Swipe sideways to see the whole flow',
+    zoom: 'Open full size',
+    close: 'Close',
     prev: 'Previous screen',
     next: 'Next screen',
     restart: 'Start over',
@@ -49,6 +51,8 @@ const UI_TEXT = {
     duration: 'Tid',
     tools: 'Verktyg',
     swipe: 'Svep i sidled för att se hela flödet',
+    zoom: 'Öppna i full storlek',
+    close: 'Stäng',
     prev: 'Föregående skärm',
     next: 'Nästa skärm',
     restart: 'Börja om',
@@ -373,25 +377,57 @@ function ClickThrough({ block, ui }: { block: Extract<ParagraphBlock, { type: 'c
   )
 }
 
+// A detailed diagram, too small to read in the text column: clicking it opens
+// it at full size over the page (a native <dialog>: Esc, the close button or a
+// click anywhere, the diagram included, closes it, and focus returns to it).
+function ZoomableDiagram({ src, alt, ui }: { src: string; alt: string; ui: UiText }) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  return (
+    <div className={WIDE}>
+      <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
+        <button
+          type="button"
+          onClick={() => dialog.current?.showModal()}
+          aria-label={`${ui.zoom}: ${alt}`}
+          className="group relative mx-auto block w-max cursor-zoom-in rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink md:w-full"
+        >
+          <img src={src} alt="" loading="lazy" decoding="async" className="w-[900px] max-w-none md:w-full" />
+          <span className="absolute right-3 top-3 rounded-full bg-ink/80 px-3 py-1.5 text-sm font-medium text-white opacity-90 transition-opacity group-hover:opacity-100">
+            {ui.zoom}
+          </span>
+        </button>
+      </div>
+      <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">{ui.swipe}</p>
+      <dialog
+        ref={dialog}
+        onClick={() => dialog.current?.close()}
+        className="m-0 h-dvh max-h-none w-screen max-w-none overflow-auto bg-ink/95 p-4 pt-16 backdrop:bg-ink/60 md:p-10 md:pt-20"
+      >
+        <button
+          type="button"
+          onClick={() => dialog.current?.close()}
+          className="fixed right-4 top-4 z-10 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow md:right-8 md:top-8"
+        >
+          {ui.close} ✕
+        </button>
+        <img src={src} alt={alt} className="mx-auto w-full min-w-[900px] max-w-[1600px] cursor-zoom-out rounded-2xl bg-white" />
+      </dialog>
+    </div>
+  )
+}
+
 function ParagraphContent({ block, studyTitle, ui }: { block: ParagraphBlock; studyTitle: string; ui: UiText }) {
   if (typeof block === 'string') {
     return <p className="text-base leading-relaxed text-neutral-700">{withLinks(block)}</p>
   }
   if (block.type === 'image') {
     if (block.wideDiagram) {
-      return (
-        <div className={WIDE}>
-          <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
-            <img src={block.src} alt={block.alt ?? studyTitle} loading="lazy" decoding="async" className="mx-auto w-[900px] max-w-none md:max-h-[85vh] md:w-auto md:max-w-full" />
-          </div>
-          <p className="mt-2 text-center text-sm text-neutral-500 md:hidden">{ui.swipe}</p>
-        </div>
-      )
+      return <ZoomableDiagram src={block.src} alt={block.alt ?? studyTitle} ui={ui} />
     }
     return block.small ? (
       <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} maxHeight={360} />
     ) : (
-      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} />
+      <ImageRow srcs={[block.src]} alt={block.alt ?? studyTitle} className={WIDE} fill />
     )
   }
   if (block.type === 'clickThrough') return <ClickThrough block={block} ui={ui} />
@@ -1027,6 +1063,7 @@ export default function CaseStudyPage() {
                   alt={`${study.title} - ${section.heading} screenshot`}
                   maxHeight={section.imagesMaxHeight}
                   className={WIDE}
+                  fill
                 />
               )}
               {section.carousel && (
